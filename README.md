@@ -7,12 +7,12 @@ Unified API client with tasty flavors.
 
 ## What Is This?
 
-API Party provides a unified way to manage all your API interactions by setting up a client with default fetch options, such as the API base URL and headers. This ensures that your API calls are consistent across your application.
+`apiverse` provides a unified way to manage all your API interactions by setting up a client with default fetch options, such as the API base URL and headers. This ensures that your API calls are consistent across your application.
 
 Adapters extend the client (including the default options) with a variety of features to match your favorite API management flavor:
 
 ```ini
-Client + Adapter = Party 🎉
+Client + Adapter = Galaxies of API Management 🌌
 ```
 
 You can use one of the pre-built adapters to get started quickly, or create your own custom adapter to meet your specific requirements.
