@@ -1,0 +1,104 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OpenAPI Adapter > generates OpenAPI types 1`] = `
+"declare module '#apiverse' {
+  import { paths as SampleApiPaths } from '#apiverse/sampleApi'
+
+  export interface OpenAPISchemaRepository {
+    sampleApi: { paths: SampleApiPaths }
+  }
+}
+
+declare module '#apiverse/sampleApi' {
+  export interface paths {
+    "/foo/1": {
+      /** Get static foo object with value "1" */
+      get: {
+        responses: {
+          /** @description A foo object with value "1" */
+          200: {
+            content: {
+              "application/json": {
+                /** @example 1 */
+                foo?: string;
+              };
+            };
+          };
+        };
+      };
+    };
+    "/foo": {
+      /** Get static foo object with value "bar" */
+      get: {
+        responses: {
+          /** @description A foo object with value "bar" */
+          200: {
+            content: {
+              "application/json": {
+                /** @example bar */
+                foo?: string;
+              };
+            };
+          };
+        };
+      };
+    };
+    "/bar": {
+      /** Post request details */
+      post: {
+        requestBody: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        responses: {
+          /** @description An object containing the request details */
+          200: {
+            content: {
+              "application/json": {
+                /** @example /bar */
+                url?: string;
+                /** @example request body */
+                body?: string;
+                headers?: {
+                  [key: string]: string;
+                };
+                /** @example POST */
+                method?: string;
+              };
+            };
+          };
+        };
+      };
+    };
+    "/params": {
+      /** Get query parameters */
+      get: {
+        responses: {
+          /** @description An object containing the query parameters */
+          200: {
+            content: {
+              "application/json": {
+                [key: string]: string;
+              };
+            };
+          };
+        };
+      };
+    };
+  }
+  
+  export type webhooks = Record<string, never>;
+  
+  export type components = Record<string, never>;
+  
+  export type $defs = Record<string, never>;
+  
+  export type external = Record<string, never>;
+  
+  export type operations = Record<string, never>;
+}
+"
+`;

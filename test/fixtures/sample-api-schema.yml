@@ -1,0 +1,80 @@
+openapi: 3.0.0
+info:
+  title: Sample API
+  version: 1.0.0
+paths:
+  /foo/1:
+    get:
+      summary: Get static foo object with value "1"
+      responses:
+        '200':
+          description: A foo object with value "1"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  foo:
+                    type: string
+                    example: '1'
+
+  /foo:
+    get:
+      summary: Get static foo object with value "bar"
+      responses:
+        '200':
+          description: A foo object with value "bar"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  foo:
+                    type: string
+                    example: bar
+
+  /bar:
+    post:
+      summary: Post request details
+      responses:
+        '200':
+          description: An object containing the request details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    example: /bar
+                  body:
+                    type: string
+                    example: request body
+                  headers:
+                    type: object
+                    additionalProperties:
+                      type: string
+                  method:
+                    type: string
+                    example: POST
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Request body content
+              additionalProperties: true
+
+  /params:
+    get:
+      summary: Get query parameters
+      responses:
+        '200':
+          description: An object containing the query parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
