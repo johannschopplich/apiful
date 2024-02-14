@@ -1,9 +1,7 @@
 # apiverse
 
 [![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![bundle][bundle-src]][bundle-href]
-[![Codecov][codecov-src]][codecov-href]
 
 Unified API client with tasty flavors.
 
@@ -370,9 +368,5 @@ Published under [MIT License](./LICENSE).
 
 [npm-version-src]: https://img.shields.io/npm/v/apiverse?style=flat&colorA=18181B&colorB=F0DB4F
 [npm-version-href]: https://npmjs.com/package/apiverse
-[npm-downloads-src]: https://img.shields.io/npm/dm/apiverse?style=flat&colorA=18181B&colorB=F0DB4F
-[npm-downloads-href]: https://npmjs.com/package/apiverse
-[codecov-src]: https://img.shields.io/codecov/c/gh/johannschopplich/apiverse/main?style=flat&colorA=18181B&colorB=F0DB4F
-[codecov-href]: https://codecov.io/gh/johannschopplich/apiverse
 [bundle-src]: https://img.shields.io/bundlephobia/minzip/apiverse?style=flat&colorA=18181B&colorB=F0DB4F
 [bundle-href]: https://bundlephobia.com/result?p=apiverse
