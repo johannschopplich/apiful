@@ -1,9 +1,13 @@
 name: CI
 
 on:
-  pull_request:
   push:
-    branches: [main]
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
 
 jobs:
   ci:
@@ -16,7 +20,7 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install
+      - run: pnpm build
       - run: pnpm lint
       - run: pnpm test:types
-      - run: pnpm build
       - run: pnpm test
