@@ -1,4 +1,3 @@
-import process from 'node:process'
 import { pascalCase } from 'scule'
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
 import type { OpenAPIEndpoint } from './endpoints'
@@ -42,6 +41,7 @@ async function generateSchemas(
   let runningCount = 0
 
   // openapi-typescript uses `process.exit()` to handle errors
+  // eslint-disable-next-line node/prefer-global/process
   process.on('exit', () => {
     if (runningCount > 0)
       throw new Error('Failed to generate OpenAPI types')
