@@ -39,6 +39,7 @@
   "scripts": {
     "build": "unbuild",
     "dev": "vitest dev",
+    "play": "tsx playground/clients.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",

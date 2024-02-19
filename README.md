@@ -12,7 +12,7 @@ Unified API client with tasty flavors.
 Adapters extend the client (including the default options) with a variety of features to match your favorite API management flavor:
 
 ```ini
-Client + Adapter = Galaxies of API Management 🌌
+Client + Adapter = API Management Universe 🌌
 ```
 
 You can use one of the pre-built adapters to get started quickly, or create your own custom adapter to meet your specific requirements.
@@ -366,7 +366,7 @@ Published under [MIT License](./LICENSE).
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/apiverse?style=flat&colorA=18181B&colorB=F0DB4F
+[npm-version-src]: https://img.shields.io/npm/v/apiverse?style=flat
 [npm-version-href]: https://npmjs.com/package/apiverse
-[bundle-src]: https://img.shields.io/bundlephobia/minzip/apiverse?style=flat&colorA=18181B&colorB=F0DB4F
+[bundle-src]: https://img.shields.io/bundlephobia/minzip/apiverse?style=flat
 [bundle-href]: https://bundlephobia.com/result?p=apiverse

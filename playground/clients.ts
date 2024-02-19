@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+import { consola } from 'consola'
 import { OpenAPI, createClient, ofetch, routeBuilder } from '../src'
 
 interface JSONPlaceholderTodoResponse {
@@ -11,13 +11,13 @@ interface JSONPlaceholderTodoResponse {
 const client = createClient({
   baseURL: 'https://jsonplaceholder.typicode.com',
 }).with(ofetch())
-console.log(await client<JSONPlaceholderTodoResponse>('todos/1'))
+consola.success(await client<JSONPlaceholderTodoResponse>('todos/1'))
 
 const rest = createClient({
   baseURL: 'https://jsonplaceholder.typicode.com',
 }).with(routeBuilder())
 const response = await rest.todos(1).get<JSONPlaceholderTodoResponse>()
-console.log(response)
+consola.success(response)
 
 const petStore = createClient({
   baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -26,4 +26,4 @@ const userResponse = await petStore('user/{username}', {
   method: 'GET',
   pathParams: { username: 'user1' },
 })
-console.log(userResponse)
+consola.success(userResponse)
