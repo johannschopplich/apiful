@@ -11,7 +11,7 @@ import type {
   SchemaPath,
 } from './types'
 
-type OpenAPISchemaRepository = import('#apiverse').OpenAPISchemaRepository
+type OpenAPISchemaRepository = import('apiverse').OpenAPISchemaRepository
 
 type OpenAPIPaths<K> = K extends keyof OpenAPISchemaRepository
   ? OpenAPISchemaRepository[K]['paths']

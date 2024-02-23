@@ -1,15 +1,15 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`OpenAPI Adapter > generates OpenAPI types 1`] = `
-"declare module '#apiverse' {
-  import { paths as SampleApiPaths } from '#apiverse/sampleApi'
+"declare module 'apiverse' {
+  import { paths as SampleApiPaths } from 'apiverse/sampleApi'
 
   export interface OpenAPISchemaRepository {
     sampleApi: { paths: SampleApiPaths }
   }
 }
 
-declare module '#apiverse/sampleApi' {
+declare module 'apiverse/sampleApi' {
   export interface paths {
     "/foo/1": {
       /** Get static foo object with value "1" */

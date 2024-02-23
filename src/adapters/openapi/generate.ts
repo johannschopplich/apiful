@@ -9,10 +9,10 @@ export async function generateOpenAPITypes(
   const schemas = await generateSchemas(endpoints, openAPITSOptions)
 
   return `
-declare module '#apiverse' {
-  ${Object.keys(schemas)
+declare module 'apiverse' {
+${Object.keys(schemas)
     .map(
-      i => `import { paths as ${pascalCase(i)}Paths } from '#apiverse/${i}'`,
+      i => `  import { paths as ${pascalCase(i)}Paths } from 'apiverse/${i}'`,
     )
     .join('\n')}
 
@@ -26,7 +26,7 @@ ${Object.keys(schemas)
 ${Object.entries(schemas)
   .map(([id, types]) =>
     `
-declare module '#apiverse/${id}' {
+declare module 'apiverse/${id}' {
 ${types.replace(/^/gm, '  ').trimEnd()}
 }`.trimStart(),
   )

@@ -26,4 +26,9 @@ const userResponse = await petStore('user/{username}', {
   method: 'GET',
   pathParams: { username: 'user1' },
 })
+const petResponse = await petStore('pet/{petId}', {
+  method: 'GET',
+  pathParams: { petId: 1 },
+})
 consola.success(userResponse)
+consola.success(petResponse)
