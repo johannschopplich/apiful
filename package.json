@@ -40,6 +40,9 @@
     "build": "unbuild",
     "dev": "vitest dev",
     "play": "tsx playground/clients.ts",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
@@ -69,6 +72,7 @@
     "tsx": "^4.7.1",
     "typescript": "^5.3.3",
     "unbuild": "^3.0.0-rc.1",
+    "vitepress": "^1.0.0-rc.44",
     "vitest": "^1.3.1"
   }
 }
