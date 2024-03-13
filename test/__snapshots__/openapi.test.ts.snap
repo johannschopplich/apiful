@@ -4,8 +4,8 @@ exports[`OpenAPI Adapter > generates OpenAPI types 1`] = `
 "declare module 'apiverse' {
   import { paths as SampleApiPaths } from 'apiverse/sampleApi'
 
-  export interface OpenAPISchemaRepository {
-    sampleApi: { paths: SampleApiPaths }
+  interface OpenAPISchemaRepository {
+    sampleApi: { [K in keyof SampleApiPaths]: SampleApiPaths[K] }
   }
 }
 
