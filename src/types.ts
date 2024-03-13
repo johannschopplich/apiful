@@ -1,3 +1,5 @@
+export interface OpenAPISchemaRepository {}
+
 // TODO: Import from ofetch after next release
 export interface ResponseMap {
   blob: Blob

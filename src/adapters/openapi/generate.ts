@@ -16,9 +16,9 @@ ${Object.keys(schemas)
     )
     .join('\n')}
 
-  export interface OpenAPISchemaRepository {
+  interface OpenAPISchemaRepository {
 ${Object.keys(schemas)
-  .map(i => `${i}: { paths: ${pascalCase(i)}Paths }`.replace(/^/gm, '    '))
+  .map(i => `${i}: { [K in keyof ${pascalCase(i)}Paths]: ${pascalCase(i)}Paths[K] }`.replace(/^/gm, '    '))
   .join('\n')}
   }
 }

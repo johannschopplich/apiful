@@ -1,4 +1,5 @@
 import { ofetch } from 'ofetch'
+import type { OpenAPISchemaRepository } from 'apiverse'
 import type { ApiClient } from '../../client'
 import type {
   AllPaths,
@@ -11,10 +12,8 @@ import type {
   SchemaPath,
 } from './types'
 
-type OpenAPISchemaRepository = import('apiverse').OpenAPISchemaRepository
-
 type OpenAPIPaths<K> = K extends keyof OpenAPISchemaRepository
-  ? OpenAPISchemaRepository[K]['paths']
+  ? OpenAPISchemaRepository[K]
   : Record<string, never>
 
 export interface OpenAPIAdapter<Paths extends Record<string, SchemaPath>> {
