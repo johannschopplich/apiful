@@ -38,14 +38,13 @@
   ],
   "scripts": {
     "build": "unbuild",
-    "dev": "vitest dev",
-    "play": "tsx playground/clients.ts",
+    "dev": "tsx playground/clients.ts",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "vitest run",
+    "test": "vitest",
     "test:types": "tsc --noEmit",
     "release": "bumpp --commit --push --tag",
     "prepack": "pnpm run build",
@@ -58,7 +57,7 @@
     "ufo": "^1.5.3"
   },
   "optionalDependencies": {
-    "openapi-typescript": "^6.7.5"
+    "openapi-typescript": "^7.0.0-next.8"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.14.0",

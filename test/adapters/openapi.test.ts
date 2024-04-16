@@ -13,16 +13,17 @@ describe('OpenAPI adapter', () => {
     listener = await createListener()
     client = createClient({
       baseURL: listener.url,
-      headers: {
-        'X-Foo': 'bar',
-      },
     })
   })
 
   it('extends client with "OpenAPI" adapter', async () => {
     const rest = client.with(OpenAPI<'sampleApi'>())
     const response = await rest('/foo')
-    expect(response).toEqual({ foo: 'bar' })
+    expect(response).toMatchInlineSnapshot(`
+      {
+        "foo": "bar",
+      }
+    `)
     assertType<{ foo?: string }>(response)
   })
 
@@ -30,7 +31,14 @@ describe('OpenAPI adapter', () => {
     const rest = client.with(OpenAPI<'sampleApi'>())
     const response = await rest('/bar', {
       method: 'POST',
+      body: {
+        foo: 'bar',
+      },
     })
-    expect(response.method).toBe('POST')
+    expect(response.body).toMatchInlineSnapshot(`
+      {
+        "foo": "bar",
+      }
+    `)
   })
 })

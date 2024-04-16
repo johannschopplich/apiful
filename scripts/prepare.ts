@@ -23,7 +23,7 @@ export const endpoints = defineOpenAPIEndpoints({
 
 const types = await generateOpenAPITypes(endpoints)
 await writeFile(resolve(rootDir, 'apiverse.d.ts'), types)
-consola.success('Generated types')
+consola.success('Generated `apiverse` types')
 
 async function checkIfFileExists(path: string) {
   try {

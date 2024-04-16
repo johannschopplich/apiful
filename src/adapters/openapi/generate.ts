@@ -45,44 +45,11 @@ async function generateSchemas(
   endpoints: Record<string, OpenAPIEndpoint>,
   openAPITSOptions?: OpenAPITSOptions,
 ) {
-  let runningCount = 0
-
-  // openapi-typescript uses `process.exit()` to handle errors
-  // eslint-disable-next-line node/prefer-global/process
-  process.on('exit', () => {
-    if (runningCount > 0)
-      throw new Error('Failed to generate OpenAPI types')
-  })
-
-  const openAPITS = await interopDefault(import('openapi-typescript'))
   const schemas = await Promise.all(
     Object.entries(endpoints)
       .filter(([, endpoint]) => Boolean(endpoint.schema))
       .map(async ([id, endpoint]) => {
-        let types = ''
-
-        const schema = await resolveSchema(endpoint)
-        runningCount++
-
-        try {
-          types = await openAPITS(schema, {
-            commentHeader: '',
-            ...openAPITSOptions,
-          })
-        }
-        catch {
-          types = `
-export type paths = Record<string, never>
-export type webhooks = Record<string, never>
-export type components = Record<string, never>
-export type external = Record<string, never>
-export type operations = Record<string, never>
-        `.trimStart()
-        }
-        finally {
-          runningCount--
-        }
-
+        const types = await generateTypes({ id, endpoint, openAPITSOptions })
         return [id, types] as const
       }),
   )
@@ -90,18 +57,56 @@ export type operations = Record<string, never>
   return Object.fromEntries(schemas)
 }
 
+async function generateTypes(options: {
+  id: string
+  endpoint: OpenAPIEndpoint
+  openAPITSOptions?: OpenAPITSOptions
+
+},
+) {
+  const { default: openAPITS, astToString } = await import('openapi-typescript')
+  const schema = await resolveSchema(options.endpoint)
+
+  try {
+    const ast = await openAPITS(schema, options.openAPITSOptions)
+    return astToString(ast)
+  }
+  catch (error) {
+    console.error(`Failed to generate types for ${options.id}`)
+    console.error(error)
+    return `
+export type paths = Record<string, never>
+export type webhooks = Record<string, never>
+export interface components {
+  schemas: never
+  responses: never
+  parameters: never
+  requestBodies: never
+  headers: never
+  pathItems: never
+}
+export type $defs = Record<string, never>
+export type operations = Record<string, never>
+`.trimStart()
+  }
+}
+
 async function resolveSchema({
   schema,
 }: OpenAPIEndpoint): Promise<string | URL | OpenAPI3> {
   if (typeof schema === 'function')
     return await schema()
+  else if (typeof schema === 'string')
+    return isValidUrl(schema) ? schema : new URL(schema, import.meta.url)
 
   return schema!
 }
 
-async function interopDefault<T>(
-  m: T | Promise<T>,
-): Promise<T extends { default: infer U } ? U : T> {
-  const resolved = await m
-  return (resolved as any).default || resolved
+function isValidUrl(url: string) {
+  try {
+    return Boolean(new URL(url))
+  }
+  catch (e) {
+    return false
+  }
 }

@@ -1,103 +1,199 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`OpenAPI Adapter > generates OpenAPI types 1`] = `
-"declare module 'apiverse' {
+"/* eslint-disable */
+/* prettier-ignore */
+// @ts-nocheck
+
+declare module 'apiverse' {
   import { paths as SampleApiPaths } from 'apiverse/sampleApi'
 
-  interface OpenAPISchemaRepository {
+  export interface OpenAPISchemaRepository {
     sampleApi: { [K in keyof SampleApiPaths]: SampleApiPaths[K] }
   }
 }
 
 declare module 'apiverse/sampleApi' {
   export interface paths {
-    "/foo/1": {
-      /** Get static foo object with value "1" */
-      get: {
-        responses: {
-          /** @description A foo object with value "1" */
-          200: {
-            content: {
-              "application/json": {
-                /** @example 1 */
-                foo?: string;
+      "/foo/1": {
+          parameters: {
+              query?: never;
+              header?: never;
+              path?: never;
+              cookie?: never;
+          };
+          /** Get static foo object with value "1" */
+          get: {
+              parameters: {
+                  query?: never;
+                  header?: never;
+                  path?: never;
+                  cookie?: never;
               };
-            };
-          };
-        };
-      };
-    };
-    "/foo": {
-      /** Get static foo object with value "bar" */
-      get: {
-        responses: {
-          /** @description A foo object with value "bar" */
-          200: {
-            content: {
-              "application/json": {
-                /** @example bar */
-                foo?: string;
+              requestBody?: never;
+              responses: {
+                  /** @description A foo object with value "1" */
+                  200: {
+                      headers: {
+                          [name: string]: unknown;
+                      };
+                      content: {
+                          "application/json": {
+                              /** @example 1 */
+                              foo?: string;
+                          };
+                      };
+                  };
               };
-            };
           };
-        };
+          put?: never;
+          post?: never;
+          delete?: never;
+          options?: never;
+          head?: never;
+          patch?: never;
+          trace?: never;
       };
-    };
-    "/bar": {
-      /** Post request details */
-      post: {
-        requestBody: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
+      "/foo": {
+          parameters: {
+              query?: never;
+              header?: never;
+              path?: never;
+              cookie?: never;
           };
-        };
-        responses: {
-          /** @description An object containing the request details */
-          200: {
-            content: {
-              "application/json": {
-                /** @example /bar */
-                url?: string;
-                /** @example request body */
-                body?: string;
-                headers?: {
-                  [key: string]: string;
-                };
-                /** @example POST */
-                method?: string;
+          /** Get static foo object with value "bar" */
+          get: {
+              parameters: {
+                  query?: never;
+                  header?: never;
+                  path?: never;
+                  cookie?: never;
               };
-            };
-          };
-        };
-      };
-    };
-    "/params": {
-      /** Get query parameters */
-      get: {
-        responses: {
-          /** @description An object containing the query parameters */
-          200: {
-            content: {
-              "application/json": {
-                [key: string]: string;
+              requestBody?: never;
+              responses: {
+                  /** @description A foo object with value "bar" */
+                  200: {
+                      headers: {
+                          [name: string]: unknown;
+                      };
+                      content: {
+                          "application/json": {
+                              /** @example bar */
+                              foo?: string;
+                          };
+                      };
+                  };
               };
-            };
           };
-        };
+          put?: never;
+          post?: never;
+          delete?: never;
+          options?: never;
+          head?: never;
+          patch?: never;
+          trace?: never;
       };
-    };
+      "/bar": {
+          parameters: {
+              query?: never;
+              header?: never;
+              path?: never;
+              cookie?: never;
+          };
+          get?: never;
+          put?: never;
+          /** Post request details */
+          post: {
+              parameters: {
+                  query?: never;
+                  header?: never;
+                  path?: never;
+                  cookie?: never;
+              };
+              requestBody: {
+                  content: {
+                      "application/json": {
+                          [key: string]: unknown;
+                      };
+                  };
+              };
+              responses: {
+                  /** @description An object containing the request details */
+                  200: {
+                      headers: {
+                          [name: string]: unknown;
+                      };
+                      content: {
+                          "application/json": {
+                              /** @example /bar */
+                              url?: string;
+                              /** @example request body */
+                              body?: string;
+                              headers?: {
+                                  [key: string]: string | undefined;
+                              };
+                              /** @example POST */
+                              method?: string;
+                          };
+                      };
+                  };
+              };
+          };
+          delete?: never;
+          options?: never;
+          head?: never;
+          patch?: never;
+          trace?: never;
+      };
+      "/params": {
+          parameters: {
+              query?: never;
+              header?: never;
+              path?: never;
+              cookie?: never;
+          };
+          /** Get query parameters */
+          get: {
+              parameters: {
+                  query?: never;
+                  header?: never;
+                  path?: never;
+                  cookie?: never;
+              };
+              requestBody?: never;
+              responses: {
+                  /** @description An object containing the query parameters */
+                  200: {
+                      headers: {
+                          [name: string]: unknown;
+                      };
+                      content: {
+                          "application/json": {
+                              [key: string]: string | undefined;
+                          };
+                      };
+                  };
+              };
+          };
+          put?: never;
+          post?: never;
+          delete?: never;
+          options?: never;
+          head?: never;
+          patch?: never;
+          trace?: never;
+      };
   }
-  
   export type webhooks = Record<string, never>;
-  
-  export type components = Record<string, never>;
-  
+  export interface components {
+      schemas: never;
+      responses: never;
+      parameters: never;
+      requestBodies: never;
+      headers: never;
+      pathItems: never;
+  }
   export type $defs = Record<string, never>;
-  
-  export type external = Record<string, never>;
-  
   export type operations = Record<string, never>;
 }
 "
