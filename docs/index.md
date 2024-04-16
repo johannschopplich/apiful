@@ -4,7 +4,7 @@ layout: home
 hero:
   name: apiverse
   text: Pluggable API client management
-  tagline: OpenAPI types generation and more
+  tagline: For ofetch, Axios-like route building and OpenAPI type-safe API calls
   actions:
     - theme: brand
       text: Get Started

@@ -9,19 +9,6 @@ In order to use this adapter, `apiverse` needs to generate TypeScript definition
 
 ## Schema Generation
 
-First, install the [`openapi-typescript`](https://www.npmjs.com/package/openapi-typescript) library:
-
-```bash
-# npm
-npm install -D openapi-typescript
-
-# pnpm
-pnpm add -D openapi-typescript
-
-# yarn
-yarn add -D openapi-typescript
-```
-
 `apiverse` provides a `generateOpenAPITypes` function that generates a TypeScript definitions file, which you have to save to the proper destination in your project.
 
 Take this `prepare.ts` file as an example:
@@ -40,6 +27,9 @@ export const endpoints = defineOpenAPIEndpoints({
 const types = await generateOpenAPITypes(endpoints)
 await writeFile('apiverse.d.ts', types)
 ```
+
+> [!NOTE]
+> The [`openapi-typescript`](https://www.npmjs.com/package/openapi-typescript) library is used to generate the TypeScript definitions. It is a direct dependency and will become a peer dependency again when v7 public is released.
 
 ## Using the `OpenAPI` Adapter
 

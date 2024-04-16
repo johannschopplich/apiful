@@ -106,7 +106,7 @@ const response: {
 
 Please follow the [OpenAPI adapter documentation](https://apiverse.byjohann.dev/adapters/openapi) to learn more about how to generate TypeScript definitions from your OpenAPI schema files.
 
-</td></tr></table
+</td></tr></table>
 
 ## Outlook & Roadmap
 
