@@ -2,6 +2,12 @@ import { pascalCase } from 'scule'
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
 import type { OpenAPIEndpoint } from './endpoints'
 
+const HEAD_DECLARATION = `
+/* eslint-disable */
+/* prettier-ignore */
+// @ts-nocheck
+`.trimStart()
+
 export async function generateOpenAPITypes(
   endpoints: Record<string, OpenAPIEndpoint>,
   openAPITSOptions?: OpenAPITSOptions,
@@ -9,6 +15,7 @@ export async function generateOpenAPITypes(
   const schemas = await generateSchemas(endpoints, openAPITSOptions)
 
   return `
+${HEAD_DECLARATION}
 declare module 'apiverse' {
 ${Object.keys(schemas)
     .map(
@@ -16,7 +23,7 @@ ${Object.keys(schemas)
     )
     .join('\n')}
 
-  interface OpenAPISchemaRepository {
+  export interface OpenAPISchemaRepository {
 ${Object.keys(schemas)
   .map(i => `${i}: { [K in keyof ${pascalCase(i)}Paths]: ${pascalCase(i)}Paths[K] }`.replace(/^/gm, '    '))
   .join('\n')}
