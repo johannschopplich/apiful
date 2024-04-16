@@ -21,14 +21,16 @@ describe('OpenAPI adapter', () => {
 
   it('extends client with "OpenAPI" adapter', async () => {
     const rest = client.with(OpenAPI<'sampleApi'>())
-    const response = await rest('foo')
+    const response = await rest('/foo')
     expect(response).toEqual({ foo: 'bar' })
     assertType<{ foo?: string }>(response)
   })
 
   it('supports typed HTTP method and fetch options', async () => {
     const rest = client.with(OpenAPI<'sampleApi'>())
-    const response = await rest('bar', { method: 'POST' })
+    const response = await rest('/bar', {
+      method: 'POST',
+    })
     expect(response.method).toBe('POST')
   })
 })

@@ -37,15 +37,15 @@ const api = createClient({ baseURL }).with(adapter)
 await api('users/1', { method: 'GET' })
 ```
 
-### `routeBuilder` Adapter
+### `apiRouteBuilder` Adapter
 
-The `routeBuilder` adapter provides a jQuery-like and Axios-esque API for building and making API calls. It allows you to construct your API calls in a declarative way:
+The `apiRouteBuilder` adapter provides a jQuery-like and Axios-esque API for building and making API calls. It allows you to construct your API calls in a declarative way:
 
 ```ts
-import { createClient, routeBuilder } from 'apiverse'
+import { apiRouteBuilder, createClient } from 'apiverse'
 
 const baseURL = '<your-api-base-url>'
-const adapter = routeBuilder()
+const adapter = apiRouteBuilder()
 const api = createClient({ baseURL }).with(adapter)
 
 // GET request to <baseURL>/users/1

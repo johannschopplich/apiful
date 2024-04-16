@@ -1,5 +1,5 @@
 import { consola } from 'consola'
-import { OpenAPI, createClient, ofetch, routeBuilder } from '../src'
+import { OpenAPI, apiRouteBuilder, createClient, ofetch } from '../src'
 
 interface JSONPlaceholderTodoResponse {
   userId: number
@@ -15,7 +15,7 @@ consola.success(await client<JSONPlaceholderTodoResponse>('todos/1'))
 
 const rest = createClient({
   baseURL: 'https://jsonplaceholder.typicode.com',
-}).with(routeBuilder())
+}).with(apiRouteBuilder())
 const response = await rest.todos(1).get<JSONPlaceholderTodoResponse>()
 consola.success(response)
 

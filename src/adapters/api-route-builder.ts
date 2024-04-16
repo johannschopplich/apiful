@@ -3,9 +3,9 @@ import { joinURL } from 'ufo'
 import type { FetchOptions, MappedResponseType, ResponseType } from 'ofetch'
 import type { ApiClient } from '../client'
 
-const payloadMethods = ['POST', 'PUT', 'DELETE', 'PATCH']
+const payloadMethods: ReadonlyArray<string> = ['POST', 'PUT', 'DELETE', 'PATCH']
 
-type RequestHandler<Data = unknown> = <
+type ApiMethodHandler<Data = unknown> = <
   T = any,
   R extends ResponseType = 'json',
 >(
@@ -13,25 +13,25 @@ type RequestHandler<Data = unknown> = <
   opts?: Omit<FetchOptions<R>, 'baseURL' | 'method'>,
 ) => Promise<MappedResponseType<R, T>>
 
-type RouteBuilder = {
-  (...args: (string | number)[]): RouteBuilder
-  [key: string]: RouteBuilder
+export type ApiRouteBuilder = {
+  (...args: (string | number)[]): ApiRouteBuilder
+  [key: string]: ApiRouteBuilder
 } & {
-  get: RequestHandler<FetchOptions['query']>
-  post: RequestHandler<FetchOptions['body']>
-  put: RequestHandler<FetchOptions['body']>
-  delete: RequestHandler<FetchOptions['body']>
-  patch: RequestHandler<FetchOptions['body']>
+  get: ApiMethodHandler<FetchOptions['query']>
+  post: ApiMethodHandler<FetchOptions['body']>
+  put: ApiMethodHandler<FetchOptions['body']>
+  delete: ApiMethodHandler<FetchOptions['body']>
+  patch: ApiMethodHandler<FetchOptions['body']>
 }
 
-export type BuilderAdapter = RouteBuilder
+export type ApiRouteBuilderAdapter = ApiRouteBuilder
 
-export function routeBuilder() {
-  return function (client: ApiClient): BuilderAdapter {
+export function apiRouteBuilder() {
+  return function (client: ApiClient): ApiRouteBuilderAdapter {
     // Callable internal target required to use `apply` on it
-    const internalTarget = (() => {}) as RouteBuilder
+    const internalTarget = (() => {}) as ApiRouteBuilder
 
-    function p(url: string): RouteBuilder {
+    function p(url: string): ApiRouteBuilder {
       return new Proxy(internalTarget, {
         get(_target, key: string) {
           const method = key.toUpperCase()
@@ -39,7 +39,7 @@ export function routeBuilder() {
           if (!['GET', ...payloadMethods].includes(method))
             return p(joinURL(url, key))
 
-          const handler: RequestHandler = <
+          const handler: ApiMethodHandler = <
             T = any,
             R extends ResponseType = 'json',
           >(

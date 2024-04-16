@@ -48,13 +48,13 @@ The `ofetch` adapter wraps [ofetch](https://github.com/unjs/ofetch) to handle AP
 
 </td></tr><tr><td width="500px" valign="top">
 
-### `routeBuilder` Adapter
+### `apiRouteBuilder` Adapter
 
 ```ts
-import { createClient, routeBuilder } from 'apiverse'
+import { apiRouteBuilder, createClient } from 'apiverse'
 
 const baseURL = '<your-api-base-url>'
-const adapter = routeBuilder()
+const adapter = apiRouteBuilder()
 const api = createClient({ baseURL }).with(adapter)
 
 // GET request to <baseURL>/users/1
@@ -67,7 +67,7 @@ await api.users.post({ name: 'foo' })
 
 **What it does:**
 
-The `routeBuilder` adapter provides a jQuery-like and Axios-esque API for building and making API calls. It allows you to construct your API calls in a declarative way.
+The `apiRouteBuilder` adapter provides a jQuery-like and Axios-esque API for building and making API calls. It allows you to construct your API calls in a declarative way.
 
 </td></tr><tr><td width="500px" valign="top">
 
