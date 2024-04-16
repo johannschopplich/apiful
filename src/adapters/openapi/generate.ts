@@ -94,7 +94,8 @@ export type operations = Record<string, never>
 async function resolveSchema({ schema }: OpenAPIEndpoint): Promise<string | URL | OpenAPI3> {
   if (typeof schema === 'function')
     return await schema()
-  else if (typeof schema === 'string')
+
+  if (typeof schema === 'string')
     return isValidUrl(schema) ? schema : new URL(schema, import.meta.url)
 
   return schema!
