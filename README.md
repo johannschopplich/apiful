@@ -82,9 +82,9 @@ const adapter = OpenAPI<'petStore'>()
 const api = createClient({ baseURL }).with(adapter)
 
 // Typed parameters and response
-const response = await api('user/{username}', {
+const response = await api('/user/{username}', {
   method: 'GET',
-  pathParams: { username: 'user1' },
+  path: { username: 'user1' },
 })
 ```
 

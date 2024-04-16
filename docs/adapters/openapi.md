@@ -38,7 +38,7 @@ export const endpoints = defineOpenAPIEndpoints({
 })
 
 const types = await generateOpenAPITypes(endpoints)
-await writeFile('openapi.d.ts', types)
+await writeFile('apiverse.d.ts', types)
 ```
 
 ## Using the `OpenAPI` Adapter
@@ -53,9 +53,9 @@ const adapter = OpenAPI<'petStore'>()
 const petStore = createClient({ baseURL }).with(adapter)
 
 // The response is typed based on the OpenAPI spec
-const userResponse = await petStore('user/{username}', {
+const userResponse = await petStore('/user/{username}', {
   method: 'GET',
-  pathParams: { username: 'user1' },
+  path: { username: 'user1' },
 })
 console.log(userResponse)
 ```
@@ -79,11 +79,11 @@ declare const userResponse: {
 
 OpenAPI can define path parameters on given endpoints. They are typically declared as `/foo/{id}`. Unfortunately, the endpoint type is not defined as `/foo/10`. Thus, using the latter as the path will break type inference.
 
-Instead, use the property `pathParams` to pass an object of the parameters. You can then use the declared path for type inference, and the type checker will ensure you provide all required path parameters. The parameters will be interpolated into the path before the request is made.
+Instead, use the property `path` to pass an object of the parameters. You can then use the declared path for type inference, and the type checker will ensure you provide all required path parameters. The parameters will be interpolated into the path before the request is made.
 
 ```ts
-const response = await petStore('foo/{id}', {
-  pathParams: {
+const response = await petStore('/foo/{id}', {
+  path: {
     id: 10,
   },
 })

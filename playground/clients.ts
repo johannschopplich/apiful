@@ -22,13 +22,13 @@ consola.success(response)
 const petStore = createClient({
   baseURL: 'https://petstore3.swagger.io/api/v3',
 }).with(OpenAPI<'petStore'>())
-const userResponse = await petStore('user/{username}', {
+const userResponse = await petStore('/user/{username}', {
   method: 'GET',
-  pathParams: { username: 'user1' },
+  path: { username: 'user1' },
 })
-const petResponse = await petStore('pet/{petId}', {
+const petResponse = await petStore('/pet/{petId}', {
   method: 'GET',
-  pathParams: { petId: 1 },
+  path: { petId: 1 },
 })
 consola.success(userResponse)
 consola.success(petResponse)

@@ -8,6 +8,9 @@ dependencies:
   ofetch:
     specifier: ^1.3.4
     version: 1.3.4
+  openapi-typescript-helpers:
+    specifier: ^0.0.7
+    version: 0.0.7
   scule:
     specifier: ^1.3.0
     version: 1.3.0
@@ -4255,6 +4258,10 @@ packages:
     dependencies:
       mimic-fn: 4.0.0
     dev: true
+
+  /openapi-typescript-helpers@0.0.7:
+    resolution: {integrity: sha512-7nwlAtdA1fULipibFRBWE/rnF114q6ejRYzNvhdA/x+qTWAZhXGLc/368dlwMlyJDvCQMCnADjpzb5BS5ZmNSA==}
+    dev: false
 
   /openapi-typescript@6.7.5:
     resolution: {integrity: sha512-ZD6dgSZi0u1QCP55g8/2yS5hNJfIpgqsSGHLxxdOjvY7eIrXzj271FJEQw33VwsZ6RCtO/NOuhxa7GBWmEudyA==}
