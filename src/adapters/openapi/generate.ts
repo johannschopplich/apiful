@@ -91,9 +91,7 @@ export type operations = Record<string, never>
   }
 }
 
-async function resolveSchema({
-  schema,
-}: OpenAPIEndpoint): Promise<string | URL | OpenAPI3> {
+async function resolveSchema({ schema }: OpenAPIEndpoint): Promise<string | URL | OpenAPI3> {
   if (typeof schema === 'function')
     return await schema()
   else if (typeof schema === 'string')
