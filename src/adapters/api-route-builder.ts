@@ -24,10 +24,8 @@ export type ApiRouteBuilder = {
   patch: ApiMethodHandler<FetchOptions['body']>
 }
 
-export type ApiRouteBuilderAdapter = ApiRouteBuilder
-
 export function apiRouteBuilder() {
-  return function (client: ApiClient): ApiRouteBuilderAdapter {
+  return function (client: ApiClient): ApiRouteBuilder {
     // Callable internal target required to use `apply` on it
     const internalTarget = (() => {}) as ApiRouteBuilder
 

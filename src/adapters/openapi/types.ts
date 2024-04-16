@@ -25,7 +25,7 @@ export type FilterMethods<T> = {
   [K in keyof Omit<T, 'parameters'> as T[K] extends never | undefined ? never : K]: T[K]
 }
 
-export type OpenAPIAdapterOptions<
+export type OpenAPIFetchOptions<
   Method,
   LowercasedMethod,
   Params,
@@ -36,7 +36,7 @@ export type OpenAPIAdapterOptions<
   & RequestBodyOption<Operation>
   & Omit<FetchOptions, 'query' | 'body' | 'method'>
 
-export type OpenAPIAdapter<Paths> = <
+export type OpenAPIClient<Paths> = <
   ReqT extends Extract<keyof Paths, string>,
   Methods extends FilterMethods<Paths[ReqT]>,
   Method extends Extract<keyof Methods, string> | Uppercase<Extract<keyof Methods, string>>,
@@ -45,5 +45,5 @@ export type OpenAPIAdapter<Paths> = <
   ResT = FetchResponseData<Paths[ReqT][DefaultMethod]>,
 >(
   url: ReqT,
-  options?: OpenAPIAdapterOptions<Method, LowercasedMethod, Methods>
+  options?: OpenAPIFetchOptions<Method, LowercasedMethod, Methods>
 ) => Promise<ResT>
