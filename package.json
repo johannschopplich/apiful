@@ -28,6 +28,10 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
     },
+    "./adapters": {
+      "types": "./dist/adapters.d.mts",
+      "import": "./dist/adapters.mjs"
+    },
     "./openapi": {
       "types": "./dist/openapi.d.mts",
       "import": "./dist/openapi.mjs"

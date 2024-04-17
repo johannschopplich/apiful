@@ -14,8 +14,12 @@ In order to use this adapter, `apiverse` needs to generate TypeScript definition
 Take this `prepare.ts` file as an example:
 
 ```ts
+import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { writeFile } from 'node:fs/promises'
 import { defineOpenAPIEndpoints, generateOpenAPITypes } from 'apiverse'
+
+const currentDir = fileURLToPath(new URL('.', import.meta.url))
 
 export const endpoints = defineOpenAPIEndpoints({
   petStore: {
