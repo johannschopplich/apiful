@@ -9,7 +9,7 @@ In order to use this adapter, `apiverse` needs to generate TypeScript definition
 
 ## Schema Generation
 
-`apiverse` provides a `generateOpenAPITypes` function that generates a TypeScript definitions file, which you have to save to the proper destination in your project.
+`apiverse` provides a `generateDTS` function that generates a TypeScript definitions file, which you have to save to the proper destination in your project.
 
 Take this `prepare.ts` file as an example:
 
@@ -17,18 +17,18 @@ Take this `prepare.ts` file as an example:
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { writeFile } from 'node:fs/promises'
-import { defineOpenAPIEndpoints, generateOpenAPITypes } from 'apiverse'
+import { defineEndpoints, generateDTS } from 'apiverse/openapi'
 
 const currentDir = fileURLToPath(new URL('.', import.meta.url))
 
-export const endpoints = defineOpenAPIEndpoints({
+export const endpoints = defineEndpoints({
   petStore: {
     // See: https://petstore3.swagger.io/api/v3/openapi.json
     schema: resolve(currentDir, 'schemas/pet-store.json'),
   },
 })
 
-const types = await generateOpenAPITypes(endpoints)
+const types = await generateDTS(endpoints)
 await writeFile('apiverse.d.ts', types)
 ```
 

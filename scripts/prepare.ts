@@ -2,11 +2,11 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { writeFile } from 'node:fs/promises'
 import { consola } from 'consola'
-import { defineOpenAPIEndpoints, generateOpenAPITypes } from '../src'
+import { defineEndpoints, generateDTS } from '../src/openapi'
 
 const rootDir = fileURLToPath(new URL('..', import.meta.url))
 
-export const endpoints = defineOpenAPIEndpoints({
+export const endpoints = defineEndpoints({
   sampleApi: {
     schema: resolve(rootDir, 'test/fixtures/sample-api-schema.yml'),
   },
@@ -15,6 +15,6 @@ export const endpoints = defineOpenAPIEndpoints({
   },
 })
 
-const types = await generateOpenAPITypes(endpoints)
+const types = await generateDTS(endpoints)
 await writeFile(resolve(rootDir, 'apiverse.d.ts'), types)
 consola.success('Generated `apiverse` types')

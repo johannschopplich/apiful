@@ -2,35 +2,41 @@ import { pascalCase } from 'scule'
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
 import type { OpenAPIEndpoint } from './endpoints'
 
-const HEAD_DECLARATION = `
-/* eslint-disable */
+const HEAD_DECLARATION = `/* eslint-disable */
 /* prettier-ignore */
 // @ts-nocheck
-`.trimStart()
+` as const
 
-export async function generateOpenAPITypes(
+export async function generateDTS(
   endpoints: Record<string, OpenAPIEndpoint>,
   openAPITSOptions?: OpenAPITSOptions,
 ) {
-  const schemas = await generateSchemas(endpoints, openAPITSOptions)
+  const resolvedSchemaEntries = await Promise.all(
+    Object.entries(endpoints)
+      .filter(([, endpoint]) => Boolean(endpoint.schema))
+      .map(async ([id, endpoint]) => {
+        const types = await generateSchemaTypes({ id, endpoint, openAPITSOptions })
+        return [id, types] as const
+      }),
+  )
+
+  const resolvedSchemas = Object.fromEntries(resolvedSchemaEntries)
 
   return `
 ${HEAD_DECLARATION}
 declare module 'apiverse' {
-${Object.keys(schemas)
-    .map(
-      i => `  import { paths as ${pascalCase(i)}Paths } from 'apiverse/${i}'`,
-    )
-    .join('\n')}
+${Object.keys(resolvedSchemas)
+  .map(i => `  import { paths as ${pascalCase(i)}Paths } from 'apiverse/${i}'`)
+  .join('\n')}
 
   export interface OpenAPISchemaRepository {
-${Object.keys(schemas)
-  .map(i => `${i}: { [K in keyof ${pascalCase(i)}Paths]: ${pascalCase(i)}Paths[K] }`.replace(/^/gm, '    '))
+${Object.keys(resolvedSchemas)
+  .map(i => `${i}: ${pascalCase(i)}Paths`.replace(/^/gm, '    '))
   .join('\n')}
   }
 }
 
-${Object.entries(schemas)
+${Object.entries(resolvedSchemas)
   .map(([id, types]) =>
     `
 declare module 'apiverse/${id}' {
@@ -41,27 +47,10 @@ ${types.replace(/^/gm, '  ').trimEnd()}
 `.trimStart()
 }
 
-async function generateSchemas(
-  endpoints: Record<string, OpenAPIEndpoint>,
-  openAPITSOptions?: OpenAPITSOptions,
-) {
-  const schemas = await Promise.all(
-    Object.entries(endpoints)
-      .filter(([, endpoint]) => Boolean(endpoint.schema))
-      .map(async ([id, endpoint]) => {
-        const types = await generateTypes({ id, endpoint, openAPITSOptions })
-        return [id, types] as const
-      }),
-  )
-
-  return Object.fromEntries(schemas)
-}
-
-async function generateTypes(options: {
+async function generateSchemaTypes(options: {
   id: string
   endpoint: OpenAPIEndpoint
   openAPITSOptions?: OpenAPITSOptions
-
 },
 ) {
   const { default: openAPITS, astToString } = await import('openapi-typescript')

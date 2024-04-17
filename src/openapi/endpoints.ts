@@ -5,7 +5,7 @@ export interface OpenAPIEndpoint {
   openAPITS?: OpenAPITSOptions
 }
 
-export function defineOpenAPIEndpoints<
+export function defineEndpoints<
   T extends Record<string, OpenAPIEndpoint>,
 >(endpoints: T) {
   return endpoints
