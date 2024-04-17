@@ -9,7 +9,7 @@ declare module 'apiverse' {
   import { paths as SampleApiPaths } from 'apiverse/sampleApi'
 
   export interface OpenAPISchemaRepository {
-    sampleApi: { [K in keyof SampleApiPaths]: SampleApiPaths[K] }
+    sampleApi: SampleApiPaths
   }
 }
 
