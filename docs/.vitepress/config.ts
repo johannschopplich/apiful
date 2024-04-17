@@ -11,9 +11,9 @@ export default defineConfig({
         text: 'Adapters',
         activeMatch: '^/adapters/',
         items: [
+          { text: 'ofetch', link: '/adapters/ofetch' },
           { text: 'OpenAPI', link: '/adapters/openapi' },
           { text: 'Route Builder', link: '/adapters/route-builder' },
-          { text: 'ofetch', link: '/adapters/ofetch' },
         ],
       },
       {
@@ -38,9 +38,9 @@ export default defineConfig({
       {
         text: 'Adapters',
         items: [
+          { text: 'ofetch', link: '/adapters/ofetch' },
           { text: 'OpenAPI', link: '/adapters/openapi' },
           { text: 'Route Builder', link: '/adapters/route-builder' },
-          { text: 'ofetch', link: '/adapters/ofetch' },
         ],
       },
     ],
