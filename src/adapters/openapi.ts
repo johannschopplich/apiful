@@ -1,8 +1,8 @@
 import { ofetch } from 'ofetch'
 import type { OpenAPISchemaRepository } from 'apiverse'
-import { resolvePathParams } from '../../openapi'
-import type { ApiClient } from '../../client'
-import type { OpenAPIClient } from '../../openapi/types'
+import { resolvePathParams } from '../openapi'
+import type { ApiClient } from '../client'
+import type { OpenAPIClient } from '../openapi/types'
 
 type ExtractPaths<K> = K extends keyof OpenAPISchemaRepository
   ? OpenAPISchemaRepository[K]
@@ -22,3 +22,7 @@ export function OpenAPI<
       )
   }
 }
+
+export * from '../openapi/endpoints'
+export * from '../openapi/generate'
+export * from '../openapi/types'
