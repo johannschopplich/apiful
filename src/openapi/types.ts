@@ -1,7 +1,6 @@
 import type { FetchError, FetchOptions } from 'ofetch'
 import type {
   ErrorResponse,
-  FilterKeys,
   MediaType,
   OperationRequestBodyContent,
   ResponseObjectMap,
