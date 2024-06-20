@@ -15,8 +15,8 @@ importers:
         specifier: ^7.0.0
         version: 7.0.0(typescript@5.4.5)
       openapi-typescript-helpers:
-        specifier: 0.0.8
-        version: 0.0.8
+        specifier: ^0.0.9
+        version: 0.0.9
       scule:
         specifier: ^1.3.0
         version: 1.3.0
@@ -2337,8 +2337,8 @@ packages:
     resolution: {integrity: sha512-1FlR+gjXK7X+AsAHso35MnyN5KqGwJRi/31ft6x0M194ht7S+rWAvd7PHss9xSKMzE0asv1pyIHaJYq+BbacAQ==}
     engines: {node: '>=12'}
 
-  openapi-typescript-helpers@0.0.8:
-    resolution: {integrity: sha512-1eNjQtbfNi5Z/kFhagDIaIRj6qqDzhjNJKz8cmMW0CVdGwT6e1GLbAfgI0d28VTJa1A8jz82jm/4dG8qNoNS8g==}
+  openapi-typescript-helpers@0.0.9:
+    resolution: {integrity: sha512-BO2TvIDAO/FPVKz1Nj2gy+pUOHfaoENdK5UP3H0Jbh0VXBf3dwYMs58ZwOjiezrbHA2LamdquoyQgahTPvIxGA==}
 
   openapi-typescript@7.0.0:
     resolution: {integrity: sha512-5NobO3pavTUVmErRVjnfiIIqCNjCrZeva4ElOA3nNKcSo4Jm5G7zv4WLcw6S+jDVnGGRkchxnJ2yIJBp9ULUAg==}
@@ -5580,7 +5580,7 @@ snapshots:
     dependencies:
       mimic-fn: 4.0.0
 
-  openapi-typescript-helpers@0.0.8: {}
+  openapi-typescript-helpers@0.0.9: {}
 
   openapi-typescript@7.0.0(typescript@5.4.5):
     dependencies:

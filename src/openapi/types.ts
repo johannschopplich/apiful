@@ -8,16 +8,8 @@ import type {
   SuccessResponse,
 } from 'openapi-typescript-helpers'
 
-export type FetchResponseData<T> = FilterKeys<
-  SuccessResponse<ResponseObjectMap<T>>,
-  MediaType
->
-export type FetchResponseError<T> = FetchError<
-  FilterKeys<
-    ErrorResponse<ResponseObjectMap<T>>,
-    MediaType
-  >
->
+export type FetchResponseData<T> = SuccessResponse<ResponseObjectMap<T>, MediaType>
+export type FetchResponseError<T> = FetchError<ErrorResponse<ResponseObjectMap<T>, MediaType>>
 
 export type MethodOption<M, P> = 'get' extends keyof P ? { method?: M } : { method: M }
 
