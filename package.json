@@ -72,7 +72,7 @@
     "listhen": "^1.7.2",
     "tsx": "^4.15.6",
     "typescript": "^5.4.5",
-    "unbuild": "^3.0.0-rc.2",
+    "unbuild": "~3.0.0-rc.1",
     "vitepress": "^1.2.3",
     "vitest": "^1.6.0"
   }
