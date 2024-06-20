@@ -21,7 +21,7 @@ export type FetchResponseError<T> = FetchError<
 
 export type MethodOption<M, P> = 'get' extends keyof P ? { method?: M } : { method: M }
 
-export type ParamsOption<T> = T extends { parameters?: any, query?: any } ? T['parameters'] : Record<string, never>
+export type ParamsOption<T> = T extends { parameters?: any, query?: any } ? T['parameters'] : unknown
 
 export type RequestBodyOption<T> =
   OperationRequestBodyContent<T> extends never
