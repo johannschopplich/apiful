@@ -29,7 +29,7 @@ ${Object.keys(resolvedSchemas)
   .map(i => `  import { paths as ${pascalCase(i)}Paths } from 'apiverse/${i}'`)
   .join('\n')}
 
-  export interface OpenAPISchemaRepository {
+  interface OpenAPISchemaRepository {
 ${Object.keys(resolvedSchemas)
   .map(i => `${i}: ${pascalCase(i)}Paths`.replace(/^/gm, '    '))
   .join('\n')}

@@ -1,13 +1,14 @@
 import { ofetch } from 'ofetch'
+import type { OpenAPISchemaRepository } from 'apiverse'
 import { resolvePathParams } from '../openapi'
 import type { ApiClient } from '../client'
 import type { OpenAPIClient } from '../openapi/types'
 
-export interface OpenAPISchemaRepository {}
-
 type ExtractPaths<K> = K extends keyof OpenAPISchemaRepository
   ? OpenAPISchemaRepository[K]
   : Record<string, never>
+
+export type * from '../openapi/types'
 
 export function OpenAPI<
   const Schema extends string,
@@ -23,5 +24,3 @@ export function OpenAPI<
       )
   }
 }
-
-export * from '../openapi/types'
