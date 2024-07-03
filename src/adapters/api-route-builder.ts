@@ -41,9 +41,9 @@ export function apiRouteBuilder() {
             T = any,
             R extends ResponseType = 'json',
           >(
-              data?: any,
-              opts: FetchOptions<R> = {},
-            ) => {
+            data?: any,
+            opts: FetchOptions<R> = {},
+          ) => {
             if (method === 'GET' && data)
               opts.query = data
             else if (payloadMethods.includes(method) && data)
