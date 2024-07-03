@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import {
   createApp,
-  eventHandler,
+  defineEventHandler,
   getQuery,
   getRequestHeaders,
   readBody,
@@ -16,15 +16,15 @@ export async function createListener() {
   const app = createApp()
     .use(
       '/foo/1',
-      eventHandler(() => ({ foo: '1' })),
+      defineEventHandler(() => ({ foo: '1' })),
     )
     .use(
       '/foo',
-      eventHandler(() => ({ foo: 'bar' })),
+      defineEventHandler(() => ({ foo: 'bar' })),
     )
     .use(
       '/bar',
-      eventHandler(async event => ({
+      defineEventHandler(async event => ({
         url: event.path,
         body: await readBody(event),
         headers: getRequestHeaders(event),
@@ -33,7 +33,7 @@ export async function createListener() {
     )
     .use(
       '/params',
-      eventHandler(event => getQuery(event)),
+      defineEventHandler(event => getQuery(event)),
     )
 
   return await listen(toNodeListener(app), {
