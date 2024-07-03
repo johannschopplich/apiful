@@ -5,15 +5,15 @@ exports[`OpenAPI Adapter > generates OpenAPI types 1`] = `
 /* prettier-ignore */
 // @ts-nocheck
 
-declare module 'apiverse' {
-  import { paths as SampleApiPaths } from 'apiverse/sampleApi'
+declare module 'apiverse/schema' {
+  import { paths as SampleApiPaths } from 'apiverse/__sampleApi__'
 
-  export interface OpenAPISchemaRepository {
+  interface OpenAPISchemaRepository {
     sampleApi: SampleApiPaths
   }
 }
 
-declare module 'apiverse/sampleApi' {
+declare module 'apiverse/__sampleApi__' {
   export interface paths {
       "/foo/1": {
           parameters: {
