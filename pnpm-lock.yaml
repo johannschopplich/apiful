@@ -30,9 +30,6 @@ importers:
       '@types/node':
         specifier: ^20.14.9
         version: 20.14.9
-      apiverse:
-        specifier: link:.
-        version: 'link:'
       bumpp:
         specifier: ^9.4.1
         version: 9.4.1
