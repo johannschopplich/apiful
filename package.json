@@ -56,23 +56,23 @@
   },
   "dependencies": {
     "ofetch": "^1.3.4",
-    "openapi-typescript": "^7.0.0",
+    "openapi-typescript": "^7.0.1",
     "openapi-typescript-helpers": "^0.0.9",
     "scule": "^1.3.0",
     "ufo": "^1.5.3"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.21.1",
-    "@types/node": "^20.14.6",
+    "@antfu/eslint-config": "^2.21.2",
+    "@types/node": "^20.14.9",
     "bumpp": "^9.4.1",
     "consola": "^3.2.3",
-    "eslint": "^9.5.0",
+    "eslint": "^9.6.0",
     "get-port-please": "^3.1.2",
     "h3": "^1.12.0",
     "listhen": "^1.7.2",
-    "tsx": "^4.15.6",
-    "typescript": "^5.4.5",
-    "unbuild": "~3.0.0-rc.1",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.3",
+    "unbuild": "~3.0.0-rc.5",
     "vitepress": "^1.2.3",
     "vitest": "^1.6.0"
   }
