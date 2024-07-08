@@ -41,6 +41,7 @@
       "import": "./schema.mjs"
     }
   },
+  "types": "./dist/index.d.mts",
   "files": [
     "dist",
     "schema.*"
