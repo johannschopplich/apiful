@@ -16,5 +16,5 @@ export const endpoints = defineEndpoints({
 })
 
 const types = await generateDTS(endpoints)
-await writeFile(resolve(rootDir, 'apiverse.d.ts'), types)
-consola.success('Generated `apiverse` types')
+await writeFile(resolve(rootDir, 'apiful.d.ts'), types)
+consola.success('Generated `apiful` types')

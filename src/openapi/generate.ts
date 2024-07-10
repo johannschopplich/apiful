@@ -24,9 +24,9 @@ export async function generateDTS(
 
   return `
 ${HEAD_DECLARATION}
-declare module 'apiverse/schema' {
+declare module 'apiful/schema' {
 ${Object.keys(resolvedSchemas)
-  .map(i => `  import { paths as ${pascalCase(i)}Paths } from 'apiverse/__${i}__'`)
+  .map(i => `  import { paths as ${pascalCase(i)}Paths } from 'apiful/__${i}__'`)
   .join('\n')}
 
   interface OpenAPISchemaRepository {
@@ -39,7 +39,7 @@ ${Object.keys(resolvedSchemas)
 ${Object.entries(resolvedSchemas)
   .map(([id, types]) =>
     `
-declare module 'apiverse/__${id}__' {
+declare module 'apiful/__${id}__' {
 ${types.replace(/^/gm, '  ').trimEnd()}
 }`.trimStart(),
   )

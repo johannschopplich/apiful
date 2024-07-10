@@ -5,7 +5,7 @@
 The `createClient` function allows you to set up an API client with default options that are used in every API call. This simplifies the process of managing common settings like the API base URL and headers.
 
 ```ts
-import { createClient } from 'apiverse'
+import { createClient } from 'apiful'
 
 const client = createClient({
   // Defaults to `/` if not set

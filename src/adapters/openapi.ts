@@ -1,5 +1,5 @@
 import { ofetch } from 'ofetch'
-import type { OpenAPISchemaRepository } from 'apiverse/schema'
+import type { OpenAPISchemaRepository } from 'apiful/schema'
 import { resolvePathParams } from '../openapi'
 import type { ApiClient } from '../client'
 import type { OpenAPIClient } from '../openapi/types'

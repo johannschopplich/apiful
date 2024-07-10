@@ -21,7 +21,7 @@ export default defineConfig({
         items: [
           {
             text: 'Release Notes ',
-            link: 'https://github.com/johannschopplich/apiverse/releases',
+            link: 'https://github.com/johannschopplich/apiful/releases',
           },
         ],
       },
@@ -46,7 +46,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/johannschopplich/apiverse' },
+      { icon: 'github', link: 'https://github.com/johannschopplich/apiful' },
     ],
 
     footer: {

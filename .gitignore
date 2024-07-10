@@ -6,4 +6,4 @@ docs/.vitepress/cache
 .eslintcache
 *.log*
 *.env*
-apiverse.d.ts
+apiful.d.ts

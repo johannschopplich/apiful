@@ -10,7 +10,7 @@ const users = await api.users.get<UserResponse>()
 Get started by using the `apiRouteBuilder` adapter:
 
 ```ts
-import { apiRouteBuilder, createClient } from 'apiverse'
+import { apiRouteBuilder, createClient } from 'apiful'
 
 // Set the base URL for your API calls
 const baseURL = 'https://jsonplaceholder.typicode.com'

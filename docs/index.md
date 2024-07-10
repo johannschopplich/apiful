@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: apiverse
+  name: apiful
   text: Pluggable API client management
   tagline: For ofetch, Axios-like route building and typed OpenAPI clients
   actions:
@@ -14,5 +14,5 @@ hero:
       link: /adapters/
     - theme: alt
       text: View on GitHub
-      link: https://github.com/johannschopplich/apiverse
+      link: https://github.com/johannschopplich/apiful
 ---
