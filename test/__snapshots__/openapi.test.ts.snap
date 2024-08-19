@@ -130,7 +130,7 @@ declare module 'apiful/__sampleApi__' {
                               /** @example request body */
                               body?: string;
                               headers?: {
-                                  [key: string]: string | undefined;
+                                  [key: string]: string;
                               };
                               /** @example POST */
                               method?: string;
@@ -169,7 +169,7 @@ declare module 'apiful/__sampleApi__' {
                       };
                       content: {
                           "application/json": {
-                              [key: string]: string | undefined;
+                              [key: string]: string;
                           };
                       };
                   };
