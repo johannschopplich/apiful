@@ -26,24 +26,24 @@ export async function generateDTS(
 ${HEAD_DECLARATION}
 declare module 'apiful/schema' {
 ${Object.keys(resolvedSchemas)
-  .map(i => `  import { paths as ${pascalCase(i)}Paths } from 'apiful/__${i}__'`)
-  .join('\n')}
+    .map(i => `  import { paths as ${pascalCase(i)}Paths } from 'apiful/__${i}__'`)
+    .join('\n')}
 
   interface OpenAPISchemaRepository {
 ${Object.keys(resolvedSchemas)
-  .map(i => `${i}: ${pascalCase(i)}Paths`.replace(/^/gm, '    '))
-  .join('\n')}
+    .map(i => `${i}: ${pascalCase(i)}Paths`.replace(/^/gm, '    '))
+    .join('\n')}
   }
 }
 
 ${Object.entries(resolvedSchemas)
-  .map(([id, types]) =>
-    `
+    .map(([id, types]) =>
+      `
 declare module 'apiful/__${id}__' {
 ${types.replace(/^/gm, '  ').trimEnd()}
 }`.trimStart(),
-  )
-  .join('\n\n')}
+    )
+    .join('\n\n')}
 `.trimStart()
 }
 
