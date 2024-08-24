@@ -1,6 +1,7 @@
 import type { FetchError, FetchOptions } from 'ofetch'
 import type {
   ErrorResponse,
+  IsOperationRequestBodyOptional,
   MediaType,
   OperationRequestBodyContent,
   ResponseObjectMap,
@@ -12,14 +13,15 @@ export type FetchResponseError<T> = FetchError<ErrorResponse<ResponseObjectMap<T
 
 export type MethodOption<M, P> = 'get' extends keyof P ? { method?: M } : { method: M }
 
-export type ParamsOption<T> = T extends { parameters?: any, query?: any } ? T['parameters'] : unknown
+export type ParamsOption<T> = T extends { parameters?: any, query?: any }
+  ? T['parameters']
+  : Record<string, unknown>
 
-export type RequestBodyOption<T> =
-  OperationRequestBodyContent<T> extends never
-    ? { body?: never }
-    : undefined extends OperationRequestBodyContent<T>
-      ? { body?: OperationRequestBodyContent<T> }
-      : { body: OperationRequestBodyContent<T> }
+export type RequestBodyOption<T> = OperationRequestBodyContent<T> extends never
+  ? { body?: never }
+  : IsOperationRequestBodyOptional<T> extends true
+    ? { body?: OperationRequestBodyContent<T> }
+    : { body: OperationRequestBodyContent<T> }
 
 export type FilterMethods<T> = {
   [K in keyof Omit<T, 'parameters'> as T[K] extends never | undefined
