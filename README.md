@@ -71,7 +71,7 @@ The `apiRouteBuilder` adapter provides a jQuery-like and Axios-esque API for bui
 ### `OpenAPI` Adapter
 
 ```ts
-import { OpenAPI, createClient } from 'apiful'
+import { createClient, OpenAPI } from 'apiful'
 
 const baseURL = 'https://petstore3.swagger.io/api/v3'
 // Pass pre-generated schema type ID to adapter

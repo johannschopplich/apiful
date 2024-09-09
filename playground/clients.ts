@@ -1,5 +1,5 @@
 import { consola } from 'consola'
-import { OpenAPI, apiRouteBuilder, createClient, ofetch } from '../src'
+import { apiRouteBuilder, createClient, ofetch, OpenAPI } from '../src'
 
 interface JSONPlaceholderTodoResponse {
   userId: number

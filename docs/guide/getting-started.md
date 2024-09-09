@@ -59,7 +59,7 @@ await api.users.post({ name: 'foo' })
 If your API has an [OpenAPI](https://swagger.io/resources/open-api/) schema, `apiful` can use it to generate types for you, which the `OpenAPI` adapter then consumes to provide type-safe API calls:
 
 ```ts
-import { OpenAPI, createClient } from 'apiful'
+import { createClient, OpenAPI } from 'apiful'
 
 const baseURL = 'https://petstore3.swagger.io/api/v3'
 // Pass pre-generated schema type ID to adapter

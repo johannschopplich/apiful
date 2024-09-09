@@ -2,8 +2,8 @@
 import { afterAll, assertType, beforeAll, describe, expect, it } from 'vitest'
 import type { Listener } from 'listhen'
 import { apiRouteBuilder, createClient } from '../../src'
-import type { ApiClient } from '../../src'
 import { createListener } from '../utils'
+import type { ApiClient } from '../../src'
 
 interface FooResponse {
   foo: string

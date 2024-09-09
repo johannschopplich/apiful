@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url'
+import { getRandomPort } from 'get-port-please'
 import {
   createApp,
   defineEventHandler,
@@ -8,7 +9,6 @@ import {
   toNodeListener,
 } from 'h3'
 import { listen } from 'listhen'
-import { getRandomPort } from 'get-port-please'
 
 export const currentDir = fileURLToPath(new URL('.', import.meta.url))
 

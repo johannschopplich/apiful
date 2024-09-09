@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import type { Listener } from 'listhen'
 import { createClient } from '../src'
-import type { ApiClient } from '../src'
 import { createListener } from './utils'
+import type { ApiClient } from '../src'
 
 describe('createClient', () => {
   let listener: Listener

@@ -14,9 +14,9 @@ In order to use this adapter, `apiful` needs to generate TypeScript definitions 
 Take this `prepare.ts` file as an example:
 
 ```ts
+import { writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { writeFile } from 'node:fs/promises'
 import { defineEndpoints, generateDTS } from 'apiful/openapi'
 
 const currentDir = fileURLToPath(new URL('.', import.meta.url))
@@ -40,7 +40,7 @@ await writeFile('apiful.d.ts', types)
 After you have generated the TypeScript definitions file, you can use the `OpenAPI` adapter to add type-safety to your API calls:
 
 ```ts
-import { OpenAPI, createClient } from 'apiful'
+import { createClient, OpenAPI } from 'apiful'
 
 const baseURL = 'https://petstore3.swagger.io/api/v3'
 const adapter = OpenAPI<'petStore'>()
