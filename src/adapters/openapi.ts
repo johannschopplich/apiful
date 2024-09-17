@@ -1,8 +1,8 @@
-import { ofetch } from 'ofetch'
 import type { OpenAPISchemaRepository } from 'apiful/schema'
-import { resolvePathParams } from '../openapi'
 import type { ApiClient } from '../client'
 import type { OpenAPIClient } from '../openapi/types'
+import { ofetch } from 'ofetch'
+import { resolvePathParams } from '../openapi'
 
 type ExtractPaths<K> = K extends keyof OpenAPISchemaRepository
   ? OpenAPISchemaRepository[K]

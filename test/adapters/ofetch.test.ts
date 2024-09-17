@@ -1,8 +1,8 @@
-import { afterAll, assertType, beforeAll, describe, expect, it } from 'vitest'
 import type { Listener } from 'listhen'
+import type { ApiClient } from '../../src'
+import { afterAll, assertType, beforeAll, describe, expect, it } from 'vitest'
 import { createClient, ofetch } from '../../src'
 import { createListener } from '../utils'
-import type { ApiClient } from '../../src'
 
 interface FooResponse {
   foo: string

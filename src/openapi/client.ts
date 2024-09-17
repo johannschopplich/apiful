@@ -1,6 +1,6 @@
-import { ofetch } from 'ofetch'
 import type { FetchContext, FetchOptions } from 'ofetch'
 import type { OpenAPIClient } from './types'
+import { ofetch } from 'ofetch'
 
 export function fetchRequestInterceptor(ctx: FetchContext) {
   ctx.request = resolvePathParams(ctx.request as string, (ctx.options as { path: Record<string, string> }).path)

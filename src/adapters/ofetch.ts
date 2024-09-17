@@ -1,6 +1,6 @@
-import { ofetch as _ofetch } from 'ofetch'
 import type { $Fetch } from 'ofetch'
 import type { ApiClient } from '../client'
+import { ofetch as _ofetch } from 'ofetch'
 
 export interface OFetchClient extends $Fetch {}
 

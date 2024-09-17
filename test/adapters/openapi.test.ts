@@ -1,9 +1,9 @@
+import type { Listener } from 'listhen'
+import type { ApiClient } from '../../src'
 /* eslint-disable test/prefer-lowercase-title */
 import { assertType, beforeAll, describe, expect, it } from 'vitest'
-import type { Listener } from 'listhen'
 import { createClient, OpenAPI } from '../../src'
 import { createListener } from '../utils'
-import type { ApiClient } from '../../src'
 
 describe('OpenAPI adapter', () => {
   let listener: Listener
