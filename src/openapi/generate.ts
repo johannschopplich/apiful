@@ -1,6 +1,6 @@
-import { pascalCase } from 'scule'
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
 import type { OpenAPIEndpoint } from './endpoints'
+import { pascalCase } from 'scule'
 
 const HEAD_DECLARATION = `/* eslint-disable */
 /* prettier-ignore */
@@ -26,7 +26,7 @@ export async function generateDTS(
 ${HEAD_DECLARATION}
 declare module 'apiful/schema' {
 ${Object.keys(resolvedSchemas)
-    .map(i => `  import { paths as ${pascalCase(i)}Paths } from 'apiful/__${i}__'`)
+    .map(i => `  import { paths as ${pascalCase(i)}Paths, operations as ${pascalCase(i)}Operations } from 'apiful/__${i}__'`)
     .join('\n')}
 
   interface OpenAPISchemaRepository {
@@ -34,13 +34,27 @@ ${Object.keys(resolvedSchemas)
     .map(i => `${i}: ${pascalCase(i)}Paths`.replace(/^/gm, '    '))
     .join('\n')}
   }
+
+${Object.keys(resolvedSchemas)
+    .map(i => `  export type ${pascalCase(i)}Response<
+    T extends keyof ${pascalCase(i)}Operations,
+    R extends keyof ${pascalCase(i)}Operations[T]['responses'] = 200 extends keyof ${pascalCase(i)}Operations[T]['responses'] ? 200 : never
+  > = ${pascalCase(i)}Operations[T]['responses'][R] extends { content: { 'application/json': infer U } } ? U : never
+  export type ${pascalCase(i)}RequestBody<
+    T extends keyof ${pascalCase(i)}Operations
+  > = ${pascalCase(i)}Operations[T]['requestBody'] extends { content: { 'application/json': infer U } } ? U : never
+  export type ${pascalCase(i)}RequestQuery<
+    T extends keyof ${pascalCase(i)}Operations
+  > = ${pascalCase(i)}Operations[T]['parameters'] extends { query?: infer U } ? U : never
+`)
+    .join('\n')}
 }
 
 ${Object.entries(resolvedSchemas)
     .map(([id, types]) =>
       `
 declare module 'apiful/__${id}__' {
-${types.replace(/^/gm, '  ').trimEnd()}
+${types.replace(/^/gm, '    ').trimEnd()}
 }`.trimStart(),
     )
     .join('\n\n')}
