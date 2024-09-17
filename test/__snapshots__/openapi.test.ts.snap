@@ -22,7 +22,6 @@ declare module 'apiful/schema' {
   export type SampleApiRequestQuery<
     T extends keyof SampleApiOperations
   > = SampleApiOperations[T]['parameters'] extends { query?: infer U } ? U : never
-
 }
 
 declare module 'apiful/__sampleApi__' {
