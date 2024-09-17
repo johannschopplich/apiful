@@ -15,8 +15,8 @@ importers:
         specifier: ^7.4.0
         version: 7.4.0(typescript@5.5.4)
       openapi-typescript-helpers:
-        specifier: 0.0.12
-        version: 0.0.12
+        specifier: 0.0.13
+        version: 0.0.13
       scule:
         specifier: ^1.3.0
         version: 1.3.0
@@ -2467,8 +2467,8 @@ packages:
   oniguruma-to-js@0.4.3:
     resolution: {integrity: sha512-X0jWUcAlxORhOqqBREgPMgnshB7ZGYszBNspP+tS9hPD3l13CdaXcHbgImoHUHlrvGx/7AvFEkTRhAGYh+jzjQ==}
 
-  openapi-typescript-helpers@0.0.12:
-    resolution: {integrity: sha512-FO+5kTWO6KDutigamr2MRwciYkAUYhqdctlyVRrQOe2uxif2/O2+GcS07jNnP36AUK6ubSsGu3GeBiYIc6eQzA==}
+  openapi-typescript-helpers@0.0.13:
+    resolution: {integrity: sha512-z44WK2e7ygW3aUtAtiurfEACohf/Qt9g6BsejmIYgEoY4REHeRzgFJmO3ium0libsuzPc145I+8lE9aiiZrQvQ==}
 
   openapi-typescript@7.4.0:
     resolution: {integrity: sha512-u4iVuTGkzKG4rHFUMA/IFXTks9tYVQzkowZsScMOdzJSvIF10qSNySWHTwnN2fD+MEeWFAM8i1f3IUBlgS92eQ==}
@@ -6011,7 +6011,7 @@ snapshots:
     dependencies:
       regex: 4.3.2
 
-  openapi-typescript-helpers@0.0.12: {}
+  openapi-typescript-helpers@0.0.13: {}
 
   openapi-typescript@7.4.0(typescript@5.5.4):
     dependencies:
