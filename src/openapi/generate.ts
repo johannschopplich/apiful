@@ -47,7 +47,8 @@ ${Object.keys(resolvedSchemas)
     T extends keyof ${pascalCase(i)}Operations
   > = ${pascalCase(i)}Operations[T]['parameters'] extends { query?: infer U } ? U : never
 `)
-    .join('\n')}
+    .join('')
+    .trimEnd()}
 }
 
 ${Object.entries(resolvedSchemas)
