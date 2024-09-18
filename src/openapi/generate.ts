@@ -47,7 +47,7 @@ ${Object.keys(resolvedSchemas)
     T extends keyof ${pascalCase(i)}Operations
   > = ${pascalCase(i)}Operations[T]['parameters'] extends { query?: infer U } ? U : never
 `)
-    .join('')
+    .join('\n')
     .trimEnd()}
 }
 
@@ -55,7 +55,7 @@ ${Object.entries(resolvedSchemas)
     .map(([id, types]) =>
       `
 declare module 'apiful/__${id}__' {
-${types.replace(/^/gm, '    ').trimEnd()}
+${normalizeIndentation(types).trimEnd()}
 }`.trimStart(),
     )
     .join('\n\n')}
@@ -112,4 +112,14 @@ function isValidUrl(url: string) {
   catch {
     return false
   }
+}
+
+function normalizeIndentation(code: string): string {
+  // Replace each cluster of four spaces with two spaces
+  const replacedCode = code.replace(/^( {4})+/gm, match => '  '.repeat(match.length / 4))
+
+  // Ensure each line starts with exactly two spaces
+  const normalizedCode = replacedCode.replace(/^/gm, '  ')
+
+  return normalizedCode
 }
