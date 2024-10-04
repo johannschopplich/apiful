@@ -1,9 +1,19 @@
-import type { FetchContext, FetchOptions } from 'ofetch'
+import type { FetchContext, FetchOptions, ResponseType } from 'ofetch'
 import type { OpenAPIClient } from './types'
 import { ofetch } from 'ofetch'
 
+export interface ResolvedFetchOptions<
+  R extends ResponseType = ResponseType,
+  T = any,
+> extends FetchOptions<R, T> {
+  headers: Headers
+}
+
 export function fetchRequestInterceptor(ctx: FetchContext) {
-  ctx.request = resolvePathParams(ctx.request as string, (ctx.options as { path: Record<string, string> }).path)
+  ctx.request = resolvePathParams(
+    ctx.request as string,
+    (ctx.options as any).path,
+  )
 }
 
 export function createOpenAPIClient<Paths>(
@@ -11,9 +21,10 @@ export function createOpenAPIClient<Paths>(
 ): OpenAPIClient<Paths> {
   return (url: string, options: any) => ofetch(
     resolvePathParams(url, options?.path),
-    typeof defaultOptions === 'function'
-      ? defaultOptions(options)
-      : mergeFetchOptions(options, defaultOptions) as any,
+    resolveFetchOptions(
+      options,
+      typeof defaultOptions === 'function' ? defaultOptions(options) : defaultOptions,
+    ) as any,
   )
 }
 
@@ -26,34 +37,50 @@ export function resolvePathParams(path: string, params?: Record<string, unknown>
   return path
 }
 
-function mergeFetchOptions(
-  input?: FetchOptions,
-  defaults?: FetchOptions,
-): FetchOptions {
-  const merged: FetchOptions = {
+function resolveFetchOptions<
+  R extends ResponseType = ResponseType,
+  T = any,
+>(
+  input: FetchOptions<R, T> | undefined,
+  defaults: FetchOptions<R, T> | undefined,
+): ResolvedFetchOptions<R, T> {
+  const headers = mergeHeaders(input?.headers, defaults?.headers)
+
+  let query: Record<string, any> | undefined
+  if (defaults?.query || defaults?.params || input?.params || input?.query) {
+    query = {
+      ...defaults?.params,
+      ...defaults?.query,
+      ...input?.params,
+      ...input?.query,
+    }
+  }
+
+  return {
     ...defaults,
     ...input,
+    query,
+    params: query,
+    headers,
+  }
+}
+
+function mergeHeaders(
+  input?: HeadersInit,
+  defaults?: HeadersInit,
+): Headers {
+  if (!defaults) {
+    return new Headers(input)
   }
 
-  if (defaults?.params && input?.params) {
-    merged.params = {
-      ...defaults.params,
-      ...input.params,
+  const headers = new Headers(defaults)
+  if (input) {
+    for (const [key, value] of Symbol.iterator in input || Array.isArray(input)
+      ? input
+      : new Headers(input)) {
+      headers.set(key, value)
     }
   }
 
-  if (defaults?.query && input?.query) {
-    merged.query = {
-      ...defaults.query,
-      ...input.query,
-    }
-  }
-
-  if (defaults?.headers && input?.headers) {
-    merged.headers = new Headers(defaults.headers)
-    for (const [key, value] of new Headers(input.headers))
-      merged.headers.set(key, value)
-  }
-
-  return merged
+  return headers
 }

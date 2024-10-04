@@ -1,3 +1,4 @@
+/* eslint-disable antfu/no-top-level-await */
 import { consola } from 'consola'
 import { apiRouteBuilder, createClient, ofetch, OpenAPI } from '../src'
 
