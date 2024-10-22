@@ -1,13 +1,13 @@
-/* eslint-disable test/prefer-lowercase-title */
-import { resolve } from 'node:path'
+import * as path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { defineEndpoints, generateDTS } from '../src/openapi'
 import { currentDir } from './utils'
 
+// eslint-disable-next-line test/prefer-lowercase-title
 describe('OpenAPI Adapter', () => {
   const endpoints = defineEndpoints({
     sampleApi: {
-      schema: resolve(currentDir, 'fixtures/sample-api-schema.yml'),
+      schema: path.join(currentDir, 'fixtures/sample-api-schema.yml'),
     },
   })
 

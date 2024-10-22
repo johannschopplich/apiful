@@ -1,6 +1,6 @@
 import type { Listener } from 'listhen'
 import type { ApiClient } from '../src'
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createClient } from '../src'
 import { createListener } from './utils'
 
@@ -22,29 +22,25 @@ describe('createClient', () => {
     await listener.close()
   })
 
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  const extension = (client: ApiClient) => {
+  const extension = (_client: ApiClient) => {
     const target = () => new Response()
     target.foo = 'bar'
     return target
   }
 
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  const extensionWithRequestMethod = (client: ApiClient) => {
+  const extensionWithRequestMethod = (_client: ApiClient) => {
     return {
       request: () => new Response(),
     }
   }
 
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  const extensionWithResponseMethod = (client: ApiClient) => {
+  const extensionWithResponseMethod = (_client: ApiClient) => {
     return {
       response: () => ({ foo: 'bar' }),
     }
   }
 
   it('can call the client without any adapter', () => {
-    // @ts-expect-error: Without an adapter client has no call signature
     const response = client()
     expect(response).toBe(undefined)
   })
@@ -72,6 +68,16 @@ describe('createClient', () => {
     expect(extendedClient.foo).toBe('bar')
   })
 
+  it('allows chaining of extension methods', () => {
+    const client = createClient()
+    const extendedClient = client.with(() => ({
+      methodA: () => ({
+        methodB: () => 'chained result',
+      }),
+    }))
+    expect(extendedClient.methodA().methodB()).toBe('chained result')
+  })
+
   it('allows more than one extension', () => {
     const client = createClient()
     const mockedExtension = vi.fn(extension)
@@ -94,6 +100,22 @@ describe('createClient', () => {
     expect(extendedClient()).toBeInstanceOf(Response)
     expect(extendedClient.request()).toBeInstanceOf(Response)
     expect(extendedClient.response()).toEqual({ foo: 'bar' })
+  })
+
+  it('prioritizes later extensions when method names conflict', () => {
+    const client = createClient()
+    const extendedClient = client
+      .with(() => ({ method: () => 'first' }))
+      .with(() => ({ method: () => 'second' }))
+    expect(extendedClient.method()).toBe('second')
+  })
+
+  it('maintains type safety with extensions', () => {
+    const client = createClient()
+    const extendedClient = client.with(() => ({
+      typedMethod: (arg: number) => arg.toString(),
+    }))
+    expectTypeOf(extendedClient.typedMethod).toEqualTypeOf<(arg: number) => string>()
   })
 
   it('keeps the default options after extending', () => {
