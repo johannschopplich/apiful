@@ -1,17 +1,18 @@
 import type { FetchOptions } from 'ofetch'
 
-export interface ApiClient<BaseURL extends string = string> {
-  _extensions: MethodApiExtension
+type ExtensionHandler = (...args: any[]) => any
+type ExtensionMethodMap = Record<string, (...args: any[]) => any>
+
+export type ApiExtension = ExtensionHandler | ExtensionMethodMap
+
+// eslint-disable-next-line ts/no-unsafe-function-type
+export interface ApiClient<BaseURL extends string = string> extends Function {
+  _extensions: ExtensionMethodMap
   defaultOptions: FetchOptions
   with: <Extension extends ApiExtension>(
     createExtension: (client: ApiClient<BaseURL>) => Extension,
   ) => this & Extension
 }
-
-type CallableApiExtension = (...args: any[]) => any
-type MethodApiExtension = Record<string, (...args: any[]) => any>
-
-export type ApiExtension = CallableApiExtension | MethodApiExtension
 
 export function createClient<const BaseURL extends string = '/'>(
   defaultOptions: Omit<FetchOptions, 'baseURL'> & { baseURL?: BaseURL } = {},
@@ -34,17 +35,18 @@ export function createClient<const BaseURL extends string = '/'>(
     return new Proxy(this, {
       get(target, prop, receiver) {
         if (prop in target._extensions)
-          return Reflect.get(target._extensions, prop, receiver)
+          return target._extensions[prop as keyof ExtensionMethodMap]
 
         if (prop in target)
           return Reflect.get(target, prop, receiver)
 
-        // Pass all property lookups to the extension
         return Reflect.get(extension, prop, receiver)
       },
       set(target, prop, value, receiver) {
-        if (prop in target._extensions)
-          return Reflect.set(target._extensions, prop, value, receiver)
+        if (prop in target._extensions) {
+          target._extensions[prop as keyof ExtensionMethodMap] = value
+          return true
+        }
 
         return Reflect.set(extension, prop, value, receiver)
       },
@@ -52,7 +54,6 @@ export function createClient<const BaseURL extends string = '/'>(
         if (typeof extension === 'function')
           return extension(...args)
 
-        // @ts-expect-error: Adapter will provide call signature
         return Reflect.apply(target, thisArg, args)
       },
     }) as ApiClient<BaseURL> & Extension
