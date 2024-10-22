@@ -26,17 +26,17 @@ export async function generateDTS(
 ${HEAD_DECLARATION}
 declare module 'apiful/schema' {
 ${Object.keys(resolvedSchemas)
-    .map(i => `  import { paths as ${pascalCase(i)}Paths, operations as ${pascalCase(i)}Operations } from 'apiful/__${i}__'`)
-    .join('\n')}
+  .map(i => `  import { paths as ${pascalCase(i)}Paths, operations as ${pascalCase(i)}Operations } from 'apiful/__${i}__'`)
+  .join('\n')}
 
   interface OpenAPISchemaRepository {
 ${Object.keys(resolvedSchemas)
-    .map(i => `${i}: ${pascalCase(i)}Paths`.replace(/^/gm, '    '))
-    .join('\n')}
+  .map(i => `${i}: ${pascalCase(i)}Paths`.replace(/^/gm, '    '))
+  .join('\n')}
   }
 
 ${Object.keys(resolvedSchemas)
-    .map(i => `  export type ${pascalCase(i)}Response<
+  .map(i => `  export type ${pascalCase(i)}Response<
     T extends keyof ${pascalCase(i)}Operations,
     R extends keyof ${pascalCase(i)}Operations[T]['responses'] = 200 extends keyof ${pascalCase(i)}Operations[T]['responses'] ? 200 : never
   > = ${pascalCase(i)}Operations[T]['responses'][R] extends { content: { 'application/json': infer U } } ? U : never
@@ -47,18 +47,15 @@ ${Object.keys(resolvedSchemas)
     T extends keyof ${pascalCase(i)}Operations
   > = ${pascalCase(i)}Operations[T]['parameters'] extends { query?: infer U } ? U : never
 `)
-    .join('\n')
-    .trimEnd()}
+  .join('\n')
+  .trimEnd()}
 }
 
 ${Object.entries(resolvedSchemas)
-    .map(([id, types]) =>
-      `
-declare module 'apiful/__${id}__' {
+  .map(([id, types]) => `declare module 'apiful/__${id}__' {
 ${normalizeIndentation(types).trimEnd()}
-}`.trimStart(),
-    )
-    .join('\n\n')}
+}`)
+  .join('\n\n')}
 `.trimStart()
 }
 

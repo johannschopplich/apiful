@@ -2,8 +2,8 @@
   "name": "apiful",
   "type": "module",
   "version": "0.7.2",
-  "packageManager": "pnpm@9.12.0",
-  "description": "Unified, pluggable API client management",
+  "packageManager": "pnpm@9.12.2",
+  "description": "Unified, pluggable API tooling",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
   "license": "MIT",
   "homepage": "https://github.com/johannschopplich/apiful#readme",
@@ -17,6 +17,7 @@
   "keywords": [
     "api",
     "client",
+    "http-status-codes",
     "nitro",
     "ofetch",
     "routes",
@@ -39,6 +40,14 @@
     "./schema": {
       "types": "./schema.d.mts",
       "import": "./schema.mjs"
+    },
+    "./http-status-codes": {
+      "types": "./http-status-codes.d.mts",
+      "import": "./http-status-codes.mjs"
+    },
+    "./http-status-phrases": {
+      "types": "./http-status-phrases.d.mts",
+      "import": "./http-status-phrases.mjs"
     }
   },
   "types": "./dist/index.d.ts",
@@ -61,25 +70,38 @@
     "prepare": "tsx scripts/prepare.ts"
   },
   "dependencies": {
-    "ofetch": "^1.4.0",
+    "ofetch": "^1.4.1",
     "openapi-typescript": "^7.4.1",
     "openapi-typescript-helpers": "0.0.13",
     "scule": "^1.3.0",
     "ufo": "^1.5.4"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.7.3",
-    "@types/node": "^20.16.10",
-    "bumpp": "^9.6.1",
+    "@antfu/eslint-config": "^3.8.0",
+    "@iconify-json/carbon": "^1.2.3",
+    "@types/node": "^20.16.14",
+    "bumpp": "^9.7.1",
     "consola": "^3.2.3",
-    "eslint": "^9.11.1",
+    "eslint": "^9.13.0",
     "get-port-please": "^3.1.2",
     "h3": "^1.13.0",
     "listhen": "^1.9.0",
+    "tinyexec": "^0.3.1",
+    "ts-morph": "^24.0.0",
     "tsx": "^4.19.1",
-    "typescript": "^5.5.4",
-    "unbuild": "^3.0.0-rc.8",
-    "vitepress": "^1.3.4",
-    "vitest": "^2.1.2"
+    "typescript": "^5.6.3",
+    "unbuild": "^3.0.0-rc.11",
+    "unocss": "^0.63.6",
+    "vitepress": "^1.4.1",
+    "vitest": "^2.1.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "function-bind": "npm:@socketregistry/function-bind@^1",
+      "hasown": "npm:@socketregistry/hasown@^1",
+      "indent-string": "npm:@socketregistry/indent-string@^1",
+      "is-core-module": "npm:@socketregistry/is-core-module@^1",
+      "path-parse": "npm:@socketregistry/path-parse@^1"
+    }
   }
 }

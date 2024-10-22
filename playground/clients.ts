@@ -17,7 +17,7 @@ consola.success(await client<JSONPlaceholderTodoResponse>('todos/1'))
 const rest = createClient({
   baseURL: 'https://jsonplaceholder.typicode.com',
 }).with(apiRouteBuilder())
-const response = await rest.todos(1).get<JSONPlaceholderTodoResponse>()
+const response = await rest.todos!(1).get<JSONPlaceholderTodoResponse>()
 consola.success(response)
 
 const petStore = createClient({
