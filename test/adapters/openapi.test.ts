@@ -1,6 +1,6 @@
+/* eslint-disable test/prefer-lowercase-title */
 import type { Listener } from 'listhen'
 import type { ApiClient } from '../../src'
-/* eslint-disable test/prefer-lowercase-title */
 import { assertType, beforeAll, describe, expect, it } from 'vitest'
 import { createClient, OpenAPIBuilder } from '../../src'
 import { createListener } from '../utils'

@@ -1,3 +1,3 @@
-export * from './api-route-builder'
+export * from './api-router'
 export * from './ofetch'
 export * from './openapi'

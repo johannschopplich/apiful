@@ -13,9 +13,9 @@ type ApiMethodHandler<Data = unknown> = <
   opts?: Omit<FetchOptions<R>, 'baseURL' | 'method'>,
 ) => Promise<MappedResponseType<R, T>>
 
-export type ApiRouteBuilder = {
-  (...args: (string | number)[]): ApiRouteBuilder
-  [key: string]: ApiRouteBuilder
+export type ApiRouter = {
+  (...args: (string | number)[]): ApiRouter
+  [key: string]: ApiRouter
 } & {
   get: ApiMethodHandler<FetchOptions['query']>
   post: ApiMethodHandler<FetchOptions['body']>
@@ -24,12 +24,12 @@ export type ApiRouteBuilder = {
   patch: ApiMethodHandler<FetchOptions['body']>
 }
 
-export function apiRouteBuilder() {
-  return function (client: ApiClient): ApiRouteBuilder {
+export function apiRouterBuilder() {
+  return function (client: ApiClient): ApiRouter {
     // Callable internal target required to use `apply` on it
-    const internalTarget = (() => {}) as ApiRouteBuilder
+    const internalTarget = (() => {}) as ApiRouter
 
-    function p(url: string): ApiRouteBuilder {
+    function p(url: string): ApiRouter {
       return new Proxy(internalTarget, {
         get(_target, key: string) {
           const method = key.toUpperCase()

@@ -1,8 +1,14 @@
 # Getting Started
 
+## What Is This?
+
+APIful provides a unified interface to manage all your API interactions by setting up a client with default fetch options, such as the base API URL and headers. Extensions add a variety of features to the client to match your favorite flavor of API management.
+
+You can use one of the [built-in extensions](/guide/using-extensions#built-in-extensions) to get started right away, or create your own [custom extension](/guide/custom-extensions) to meet your specific needs.
+
 ## Installation
 
-Get started by installing `apiful` in your project:
+Get started by installing `apiful` in your project. Choose your package manager:
 
 ::: code-group
   ```bash [pnpm]
@@ -16,72 +22,82 @@ Get started by installing `apiful` in your project:
   ```
 :::
 
-## What Is This?
+## Your First API Client
 
-`apiful` provides a unified way to manage all your API interactions by setting up a client with default fetch options, such as the API base URL and headers. Adapters extend the client with a variety of features to match your favorite API management flavor.
-
-You can use one of the pre-built adapters to get started quickly, or create your own custom adapter to meet your specific requirements.
-
-### `ofetch` Adapter
-
-The `ofetch` adapter wraps [ofetch](https://github.com/unjs/ofetch) to handle API calls:
+Create your first API client by initialising it with a base URL and a sample bearer token for authorization:
 
 ```ts
-import { createClient, ofetch } from 'apiful'
+import { createClient } from 'apiful'
 
 const baseURL = '<your-api-base-url>'
-const adapter = ofetch()
-const api = createClient({ baseURL }).with(adapter)
-
-// GET request to <baseURL>/users/1
-await api('users/1', { method: 'GET' })
-```
-
-### `apiRouteBuilder` Adapter
-
-The `apiRouteBuilder` adapter provides a jQuery-like and Axios-esque API for building and making API calls. It allows you to construct your API calls in a declarative way:
-
-```ts
-import { apiRouteBuilder, createClient } from 'apiful'
-
-const baseURL = '<your-api-base-url>'
-const adapter = apiRouteBuilder()
-const api = createClient({ baseURL }).with(adapter)
-
-// GET request to <baseURL>/users/1
-await api.users.get(1)
-// POST request to <baseURL>/users with payload
-await api.users.post({ name: 'foo' })
-```
-
-### `OpenAPI` Adapter
-
-If your API has an [OpenAPI](https://swagger.io/resources/open-api/) schema, `apiful` can use it to generate types for you, which the `OpenAPI` adapter then consumes to provide type-safe API calls:
-
-```ts
-import { createClient, OpenAPI } from 'apiful'
-
-const baseURL = 'https://petstore3.swagger.io/api/v3'
-// Pass pre-generated schema type ID to adapter
-const adapter = OpenAPI<'petStore'>()
-const api = createClient({ baseURL }).with(adapter)
-
-// Typed parameters and response
-const response = await api('/user/{username}', {
-  method: 'GET',
-  path: { username: 'user1' },
+const client = createClient({
+  baseURL,
+  headers: {
+    Authorization: `Bearer ${process.env.API_KEY}`,
+  },
 })
 ```
 
-For example, the response returned by the API call above is typed as follows:
+> [!NOTE]
+> The `createClient` function returns an [`ApiClient`](/reference/api-client) instance that does not yet have a call signature. You will need to add a base extension to the client in order to make API requests. Read on to learn how to do this.
+
+## Choose a Built-in Extension
+
+For most use cases, one of the included base extensions should be sufficient. The following adapters are available:
+
+- [ofetch](/extensions/ofetch)
+- [OpenAPI](/extensions/openapi)
+- [API Router](/extensions/api-router)
+
+For example, The `ofetchBuilder` wraps [ofetch](https://github.com/unjs/ofetch) to handle API requests. It is the easiest way to get started with APIful.
+
+Continuing from the previous example, add the `ofetchBuilder` to your client by chaining the `with` method. This will extend the client with the ofetch extension:
 
 ```ts
-const response: {
-  id?: number
-  username?: string
-  // …
-}
+import { createClient, ofetchBuilder } from 'apiful'
+
+const baseURL = '<your-base-url>'
+
+// Initialise the ofetch adapter
+const adapter = ofetchBuilder()
+const client = createClient({
+  baseURL,
+  headers: {
+    Authorization: `Bearer ${process.env.API_KEY}`,
+  },
+})
+  .with(adapter)
+```
+
+Now that you have a client with ofetch as the base extension, you can make API requests:
+
+```ts
+// GET request to <baseURL>/users/1
+await client('users/1', { method: 'GET' })
 ```
 
 > [!TIP]
-> Please follow the [OpenAPI adapter documentation](/adapters/openapi) to learn more about how to generate TypeScript definitions from your OpenAPI schema files.
+> If your API provides an OpenAPI schema, follow the [OpenAPI extension documentation](/extensions/openapi) to learn more about how to generate TypeScript definitions from your OpenAPI schema files and create fully typed API clients.
+
+## Writing Extensions
+
+Each client can have more than one extension. This means that you can chain `with` methods to add multiple extensions to your client.
+
+For example, you can add a custom extension to log the default fetch options:
+
+```ts
+import type { MethodsExtensionBuilder } from 'apiful'
+
+const logExtension = (client => ({
+  logDefaults() {
+    console.log('Default fetch options:', client.defaultOptions)
+  }
+})) satisfies MethodsExtensionBuilder
+
+const extendedClient = client
+  .with(logExtension)
+
+extendedClient.logDefaults() // { baseURL: '<your-base-url>', headers: { Authorization: 'Bearer <your-bearer-token>' } }
+```
+
+If you have specific requirements that are not covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](/guide/custom-extensions) guide to learn more.

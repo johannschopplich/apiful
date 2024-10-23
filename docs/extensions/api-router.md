@@ -1,4 +1,7 @@
-# `apiRouteBuilder`
+# `apiRouterBuilder`
+
+> [!NOTE]
+> This is a [handler extension](/guide/custom-extensions#handler-extension).
 
 The route builder adapter gives you an jQuery-like and Axios-esque API to construct your API calls. It is easy to use and allows you to build your API calls in a declarative way by chaining path segments and HTTP request methods:
 
@@ -7,15 +10,15 @@ The route builder adapter gives you an jQuery-like and Axios-esque API to constr
 const users = await api.users.get<UserResponse>()
 ```
 
-Get started by using the `apiRouteBuilder` adapter:
+Get started by using the `apiRouterBuilder` adapter:
 
 ```ts
-import { apiRouteBuilder, createClient } from 'apiful'
+import { apiRouterBuilder, createClient } from 'apiful'
 
 // Set the base URL for your API calls
 const baseURL = 'https://jsonplaceholder.typicode.com'
 
-const api = createClient({ baseURL }).with(apiRouteBuilder())
+const api = createClient({ baseURL }).with(apiRouterBuilder())
 ```
 
 ## Path Segment Chaining

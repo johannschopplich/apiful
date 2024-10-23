@@ -9,9 +9,8 @@ export type ApiExtension = HandlerExtension | MethodsExtension
 export type HandlerExtensionBuilder = (client: ApiClient) => HandlerExtension
 export type MethodsExtensionBuilder = (client: ApiClient) => MethodsExtension
 
-// eslint-disable-next-line ts/no-unsafe-function-type
 export interface ApiClient<BaseURL extends string = string> extends Function {
-  _extensions: Record<string, Fn>
+  _extensions: Record<PropertyKey, Fn>
   defaultOptions: FetchOptions
   with: <Extension extends ApiExtension>(
     createExtension: (client: ApiClient<BaseURL>) => Extension,
@@ -39,7 +38,7 @@ export function createClient<const BaseURL extends string = '/'>(
     return new Proxy(this, {
       get(target, prop, receiver) {
         if (prop in target._extensions)
-          return target._extensions[prop as string]
+          return target._extensions[prop]
 
         if (prop in target)
           return Reflect.get(target, prop, receiver)
@@ -48,7 +47,7 @@ export function createClient<const BaseURL extends string = '/'>(
       },
       set(target, prop, value, receiver) {
         if (prop in target._extensions) {
-          target._extensions[prop as string] = value
+          target._extensions[prop] = value
           return true
         }
 

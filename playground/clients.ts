@@ -1,6 +1,6 @@
 /* eslint-disable antfu/no-top-level-await */
 import { consola } from 'consola'
-import { apiRouteBuilder, createClient, ofetchBuilder, OpenAPIBuilder } from '../src'
+import { apiRouterBuilder, createClient, ofetchBuilder, OpenAPIBuilder } from '../src'
 
 interface JSONPlaceholderTodoResponse {
   userId: number
@@ -16,7 +16,7 @@ consola.success(await client<JSONPlaceholderTodoResponse>('todos/1'))
 
 const rest = createClient({
   baseURL: 'https://jsonplaceholder.typicode.com',
-}).with(apiRouteBuilder())
+}).with(apiRouterBuilder())
 const response = await rest.todos!(1).get<JSONPlaceholderTodoResponse>()
 consola.success(response)
 

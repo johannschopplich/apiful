@@ -1,0 +1,32 @@
+# `HandlerExtensionBuilder`
+
+Extensions that add a callable signature to the client.
+
+> [!IMPORTANT]
+> Always use the `satifies` operator to validate your extension, which preserves the resulting extension type.
+
+## Type Definition
+
+```ts
+// Internal use only
+type Fn<T = any> = (...args: any[]) => T
+type HandlerExtension = Fn
+
+// Use this type to create extensions
+type HandlerExtensionBuilder = (client: ApiClient) => HandlerExtension
+```
+
+## Example
+
+```ts
+import type { HandlerExtensionBuilder } from 'apiful'
+import { createClient } from 'apiful'
+import { ofetch } from 'ofetch'
+
+const callableExtension = (
+  client => ofetch.create(client.defaultOptions)
+) satisfies HandlerExtensionBuilder
+
+const client = createClient()
+  .with(callableExtension)
+```
