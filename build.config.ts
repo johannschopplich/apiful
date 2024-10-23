@@ -5,10 +5,14 @@ export default defineBuildConfig({
     'src/index',
     'src/extensions',
     'src/openapi',
-    'src/http-status-codes',
-    'src/http-status-phrases',
+    {
+      builder: 'mkdist',
+      input: 'src/generated',
+      outDir: 'dist',
+    },
   ],
   externals: ['apiful/schema'],
   clean: true,
   declaration: true,
+  failOnWarn: false,
 })

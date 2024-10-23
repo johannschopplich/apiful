@@ -152,7 +152,7 @@ const extendedClient = client
 extendedClient.logDefaults() // { baseURL: '<your-base-url>', headers: { Authorization: 'Bearer <your-bearer-token>' } }
 ```
 
-If you have specific requirements that are not covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](/guide/custom-extensions) guide to learn more.
+If you have specific requirements that are not covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](https://apiful.byjohann.dev/guide/custom-extensions) guide to learn more.
 
 ## Development
 

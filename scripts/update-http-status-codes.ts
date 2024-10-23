@@ -25,8 +25,8 @@ const rootDir = fileURLToPath(new URL('..', import.meta.url))
 const project = new Project({ tsConfigFilePath: path.join(rootDir, 'tsconfig.json') })
 const httpStatusCodes = await fetchHttpStatusCodes()
 
-const statusCodeFile = createSourceFile(project, 'src/http-status-codes.ts', 'HTTP status codes')
-const phrasesFile = createSourceFile(project, 'src/http-status-phrases.ts', 'HTTP status phrases')
+const statusCodeFile = createSourceFile(project, 'src/generated/http-status-codes.ts', 'HTTP status codes')
+const phrasesFile = createSourceFile(project, 'src/generated/http-status-phrases.ts', 'HTTP status phrases')
 
 for (const code of httpStatusCodes) {
   addCodeToFile(statusCodeFile, code, 'code')
@@ -36,7 +36,7 @@ for (const code of httpStatusCodes) {
 await project.save()
 await exec('npx', ['eslint', '--fix', 'http-status-codes.ts', 'http-status-phrases.ts'], {
   nodeOptions: {
-    cwd: path.join(rootDir, 'src'),
+    cwd: path.join(rootDir, 'src', 'generated'),
   },
 })
 consola.success('Generated `http-status-codes.ts` and `http-status-phrases.ts`')
