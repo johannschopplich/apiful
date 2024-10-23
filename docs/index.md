@@ -1,6 +1,6 @@
 ---
 layout: home
-
+titleTemplate: Extensible, Typed API Tooling
 hero:
   image:
     light: /logo-light.svg
