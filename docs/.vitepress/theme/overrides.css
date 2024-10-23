@@ -1,0 +1,5 @@
+@media (min-width: 640px) {
+  .VPHero .text {
+    max-width: 520px;
+  }
+}
