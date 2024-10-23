@@ -2,7 +2,7 @@ import type { Listener } from 'listhen'
 import type { ApiClient } from '../../src'
 /* eslint-disable test/prefer-lowercase-title */
 import { assertType, beforeAll, describe, expect, it } from 'vitest'
-import { createClient, OpenAPI } from '../../src'
+import { createClient, OpenAPIBuilder } from '../../src'
 import { createListener } from '../utils'
 
 describe('OpenAPI adapter', () => {
@@ -17,7 +17,7 @@ describe('OpenAPI adapter', () => {
   })
 
   it('extends client with "OpenAPI" adapter', async () => {
-    const rest = client.with(OpenAPI<'sampleApi'>())
+    const rest = client.with(OpenAPIBuilder<'sampleApi'>())
     const response = await rest('/foo')
     expect(response).toMatchInlineSnapshot(`
       {
@@ -28,7 +28,7 @@ describe('OpenAPI adapter', () => {
   })
 
   it('supports typed HTTP method and fetch options', async () => {
-    const rest = client.with(OpenAPI<'sampleApi'>())
+    const rest = client.with(OpenAPIBuilder<'sampleApi'>())
     const response = await rest('/bar', {
       method: 'POST',
       body: {

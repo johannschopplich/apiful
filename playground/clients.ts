@@ -1,6 +1,6 @@
 /* eslint-disable antfu/no-top-level-await */
 import { consola } from 'consola'
-import { apiRouteBuilder, createClient, ofetch, OpenAPI } from '../src'
+import { apiRouteBuilder, createClient, ofetchBuilder, OpenAPIBuilder } from '../src'
 
 interface JSONPlaceholderTodoResponse {
   userId: number
@@ -11,7 +11,7 @@ interface JSONPlaceholderTodoResponse {
 
 const client = createClient({
   baseURL: 'https://jsonplaceholder.typicode.com',
-}).with(ofetch())
+}).with(ofetchBuilder())
 consola.success(await client<JSONPlaceholderTodoResponse>('todos/1'))
 
 const rest = createClient({
@@ -22,7 +22,7 @@ consola.success(response)
 
 const petStore = createClient({
   baseURL: 'https://petstore3.swagger.io/api/v3',
-}).with(OpenAPI<'petStore'>())
+}).with(OpenAPIBuilder<'petStore'>())
 const userResponse = await petStore('/user/{username}', {
   method: 'GET',
   path: { username: 'user1' },
