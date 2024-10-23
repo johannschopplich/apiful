@@ -1,13 +1,17 @@
 import type { FetchOptions } from 'ofetch'
 
-type ExtensionHandler = (...args: any[]) => any
-type ExtensionMethodMap = Record<string, (...args: any[]) => any>
+type Fn<T = any> = (...args: any[]) => T
 
-export type ApiExtension = ExtensionHandler | ExtensionMethodMap
+export type HandlerExtension = Fn
+export type MethodsExtension = Record<string, Fn>
+export type ApiExtension = HandlerExtension | MethodsExtension
+
+export type HandlerExtensionBuilder = (client: ApiClient) => HandlerExtension
+export type MethodsExtensionBuilder = (client: ApiClient) => MethodsExtension
 
 // eslint-disable-next-line ts/no-unsafe-function-type
 export interface ApiClient<BaseURL extends string = string> extends Function {
-  _extensions: ExtensionMethodMap
+  _extensions: Record<string, Fn>
   defaultOptions: FetchOptions
   with: <Extension extends ApiExtension>(
     createExtension: (client: ApiClient<BaseURL>) => Extension,
@@ -35,7 +39,7 @@ export function createClient<const BaseURL extends string = '/'>(
     return new Proxy(this, {
       get(target, prop, receiver) {
         if (prop in target._extensions)
-          return target._extensions[prop as keyof ExtensionMethodMap]
+          return target._extensions[prop as string]
 
         if (prop in target)
           return Reflect.get(target, prop, receiver)
@@ -44,7 +48,7 @@ export function createClient<const BaseURL extends string = '/'>(
       },
       set(target, prop, value, receiver) {
         if (prop in target._extensions) {
-          target._extensions[prop as keyof ExtensionMethodMap] = value
+          target._extensions[prop as string] = value
           return true
         }
 
