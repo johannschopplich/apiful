@@ -1,13 +1,13 @@
 import type { DefaultTheme } from 'vitepress'
 import { defineConfig } from 'vitepress'
 import { description, version } from '../../package.json'
-import { name, ogImage, ogUrl } from './meta'
+import { github, name, ogImage, ogUrl, releases, twitterImage } from './meta'
 
 export default defineConfig({
   title: name,
   description,
   head: [
-    ['link', { rel: 'icon', href: '/logo.svg', type: 'image/svg+xml' }],
+    ['link', { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }],
     ['meta', { name: 'author', content: 'Johann Schopplich' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:url', content: ogUrl }],
@@ -16,8 +16,9 @@ export default defineConfig({
     ['meta', { property: 'og:image', content: ogImage }],
     ['meta', { name: 'twitter:title', content: name }],
     ['meta', { name: 'twitter:description', content: description }],
-    ['meta', { name: 'twitter:image', content: ogImage }],
+    ['meta', { name: 'twitter:image', content: twitterImage }],
     ['meta', { name: 'twitter:site', content: '@jschopplich' }],
+    ['meta', { name: 'twitter:creator', content: '@jschopplich' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
   ],
 
@@ -74,7 +75,7 @@ export default defineConfig({
         items: [
           {
             text: 'Release Notes ',
-            link: 'https://github.com/johannschopplich/apiful/releases',
+            link: releases,
           },
         ],
       },
@@ -88,7 +89,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/johannschopplich/apiful' },
+      { icon: 'github', link: github },
     ],
 
     footer: {
