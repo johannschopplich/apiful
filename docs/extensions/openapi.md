@@ -1,7 +1,7 @@
 # `OpenAPIBuilder`
 
 > [!NOTE]
-> This is a [handler extension](/guide/custom-extensions#handler-extension).
+> This is a [handler extension](/guide/custom-extensions#handler-extension) and wraps [ofetch](https://github.com/unjs/ofetch) under the hood.
 
 The OpenAPI built-in extension adds type-safety for API calls based on an OpenAPI schema. This includes path names, supported HTTP methods, request body, response body, query parameters, and headers.
 

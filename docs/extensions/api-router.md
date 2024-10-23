@@ -1,7 +1,7 @@
 # `apiRouterBuilder`
 
 > [!NOTE]
-> This is a [handler extension](/guide/custom-extensions#handler-extension).
+> This is a [handler extension](/guide/custom-extensions#handler-extension) and wraps [ofetch](https://github.com/unjs/ofetch) under the hood.
 
 The route builder adapter gives you an jQuery-like and Axios-esque API to construct your API calls. It is easy to use and allows you to build your API calls in a declarative way by chaining path segments and HTTP request methods:
 
