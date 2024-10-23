@@ -1,5 +1,5 @@
 import type { Listener } from 'listhen'
-import type { ApiClient } from '../src'
+import type { ApiClient, HandlerExtensionBuilder, MethodsExtensionBuilder } from '../src'
 import { afterAll, beforeAll, describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createClient } from '../src'
 import { createListener } from './utils'
@@ -22,23 +22,23 @@ describe('createClient', () => {
     await listener.close()
   })
 
-  const extension = (_client: ApiClient) => {
+  const extension = ((_client) => {
     const target = () => new Response()
     target.foo = 'bar'
     return target
-  }
+  }) satisfies HandlerExtensionBuilder
 
-  const extensionWithRequestMethod = (_client: ApiClient) => {
+  const extensionWithRequestMethod = ((_client) => {
     return {
       request: () => new Response(),
     }
-  }
+  }) satisfies MethodsExtensionBuilder
 
-  const extensionWithResponseMethod = (_client: ApiClient) => {
+  const extensionWithResponseMethod = ((_client) => {
     return {
       response: () => ({ foo: 'bar' }),
     }
-  }
+  }) satisfies MethodsExtensionBuilder
 
   it('can call the client without any adapter', () => {
     const response = client()

@@ -4,7 +4,7 @@ import { ofetch as _ofetch } from 'ofetch'
 
 export interface OFetchClient extends $Fetch {}
 
-export function ofetch() {
+export function ofetchBuilder() {
   return function (client: ApiClient): OFetchClient {
     return _ofetch.create(client.defaultOptions)
   }

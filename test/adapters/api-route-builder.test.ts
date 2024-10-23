@@ -29,46 +29,46 @@ describe('apiRouteBuilder adapter', () => {
 
   it('GET request', async () => {
     const rest = client.with(apiRouteBuilder())
-    const response = await rest.foo.get<FooResponse>()
+    const response = await rest.foo!.get<FooResponse>()
     expect(response).toEqual({ foo: 'bar' })
   })
 
   it('POST request', async () => {
     const rest = client.with(apiRouteBuilder())
-    const response = await rest.bar.post({ foo: 'bar' })
+    const response = await rest.bar!.post({ foo: 'bar' })
     expect(response.body).toEqual({ foo: 'bar' })
     expect(response.method).toEqual('POST')
   })
 
   it('PUT request', async () => {
     const rest = client.with(apiRouteBuilder())
-    const response = await rest.bar.put({ foo: 'bar' })
+    const response = await rest.bar!.put({ foo: 'bar' })
     expect(response.body).toEqual({ foo: 'bar' })
     expect(response.method).toEqual('PUT')
   })
 
   it('DELETE request', async () => {
     const rest = client.with(apiRouteBuilder())
-    const response = await rest.bar.delete()
+    const response = await rest.bar!.delete()
     expect(response.method).toEqual('DELETE')
   })
 
   it('PATCH request', async () => {
     const rest = client.with(apiRouteBuilder())
-    const response = await rest.bar.patch({ foo: 'bar' })
+    const response = await rest.bar!.patch({ foo: 'bar' })
     expect(response.body).toEqual({ foo: 'bar' })
     expect(response.method).toEqual('PATCH')
   })
 
   it('query parameter', async () => {
     const rest = client.with(apiRouteBuilder())
-    const response = await rest.params.get({ test: 'true' })
+    const response = await rest.params!.get({ test: 'true' })
     expect(response).toEqual({ test: 'true' })
   })
 
   it('default options', async () => {
     const rest = client.with(apiRouteBuilder())
-    const { headers } = await rest.bar.post(undefined, {
+    const { headers } = await rest.bar!.post(undefined, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -81,7 +81,7 @@ describe('apiRouteBuilder adapter', () => {
 
   it('override default options', async () => {
     const rest = client.with(apiRouteBuilder())
-    const { headers } = await rest.bar.post(undefined, {
+    const { headers } = await rest.bar!.post(undefined, {
       headers: { 'X-Foo': 'baz' },
     })
     expect(headers).to.include({ 'x-foo': 'baz' })
@@ -89,14 +89,14 @@ describe('apiRouteBuilder adapter', () => {
 
   it('bracket syntax for path segment', async () => {
     const rest = client.with(apiRouteBuilder())
-    const response = await rest.foo['1'].get<FooResponse>()
+    const response = await rest.foo!['1']!.get<FooResponse>()
     expect(response).toEqual({ foo: '1' })
     assertType<{ foo: string }>(response)
   })
 
   it('chain syntax for path segment', async () => {
     const rest = client.with(apiRouteBuilder())
-    const response = await rest.foo(1).get<FooResponse>()
+    const response = await rest.foo!(1).get<FooResponse>()
     expect(response).toEqual({ foo: '1' })
     assertType<{ foo: string }>(response)
   })
@@ -111,7 +111,7 @@ describe('apiRouteBuilder adapter', () => {
   it('invalid api endpoint', () => {
     const rest = client.with(apiRouteBuilder())
     expect(async () => {
-      await rest.baz.get<FooResponse>()
+      await rest.baz!.get<FooResponse>()
     }).rejects.toThrow(/404/)
   })
 })

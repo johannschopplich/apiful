@@ -3,7 +3,7 @@ import { defineBuildConfig } from 'unbuild'
 export default defineBuildConfig({
   entries: [
     'src/index',
-    'src/adapters',
+    'src/extensions',
     'src/openapi',
     'src/http-status-codes',
     'src/http-status-phrases',
