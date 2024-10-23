@@ -2,7 +2,7 @@
 export const name = 'APIful'
 export const ogUrl = 'https://apiful.byjohann.dev/'
 export const ogImage = `${ogUrl}og.png`
-export const twitterImage = `${ogUrl}og-twitter.png`
+export const twitterImage = `${ogUrl}twitter.png`
 
 /* GitHub and social links */
 export const github = 'https://github.com/johannschopplich/apiful'
