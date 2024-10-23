@@ -43,7 +43,7 @@ features:
     details: Generate TypeScript definitions for any OpenAPI schema.
     link: /extensions/openapi#schema-generation
     linkText: Generate Schemas
-  - icon: <span class="i-carbon:api"></span>
+  - icon: <span class="i-devicon-plain:openapi"></span>
     title: OpenAPI Client Generator
     details: Create fully typed API clients from OpenAPI specifications.
     link: /extensions/openapi

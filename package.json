@@ -79,6 +79,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^3.8.0",
     "@iconify-json/carbon": "^1.2.3",
+    "@iconify-json/devicon-plain": "^1.2.4",
     "@types/node": "^20.16.14",
     "bumpp": "^9.7.1",
     "consola": "^3.2.3",
