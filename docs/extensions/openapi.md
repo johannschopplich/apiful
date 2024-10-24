@@ -3,44 +3,42 @@
 > [!NOTE]
 > This is a [handler extension](/guide/custom-extensions#handler-extension) and wraps [ofetch](https://github.com/unjs/ofetch) under the hood.
 
-The OpenAPI built-in extension adds type-safety for API calls based on an OpenAPI schema. This includes path names, supported HTTP methods, request body, response body, query parameters, and headers.
+This built-in APIful extension adds type-safety for API calls based on an OpenAPI schema. This includes path names, supported HTTP methods, request body, response body, query parameters, and headers.
 
 In order to use this extension, APIful needs to generate TypeScript definitions from your OpenAPI schema files beforehand.
 
-> [!NOTE]
-> APIful will generate the TypeScript definitions for any OpenAPI schemas that you want to work with. Make sure to save it as a `.d.ts` file in your project and reference it in your `tsconfig.json` file, if it is not included by default.
+## TypeScript Definitions Generation
 
-## Schema Generation
+Before initiating the type-safe API client, you need to generate TypeScript definitions from your OpenAPI schema files. You can do this by defining API services with OpenAPI schemas in the `apiful.config.ts` file and running the [`generate`](/guide/cli) command of the APIful CLI.
 
-APIful provides a `generateDTS` function that generates a TypeScript definition file that you must place in an appropriate location in your project.
-
-Let us take this `prepare.ts' file as an example:
+Create an `apiful.config.ts` file and define your API services. For example, let's define a `petStore` service using the OpenAPI schema from the [Swagger Petstore](https://petstore.swagger.io) API:
 
 ```ts
-import * as fsp from 'node:fs/promises'
-import * as path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { defineEndpoints, generateDTS } from 'apiful/openapi'
+import { defineApifulConfig } from 'apiful/config'
 
-const currentDir = fileURLToPath(new URL('.', import.meta.url))
-
-export const endpoints = defineEndpoints({
-  petStore: {
-    // See: https://petstore3.swagger.io/api/v3/openapi.json
-    schema: path.join(currentDir, 'schemas/pet-store.json'),
+export default defineApifulConfig({
+  services: {
+    petStore: {
+      schema: 'https://petstore3.swagger.io/api/v3/openapi.json',
+    },
   },
 })
-
-const types = await generateDTS(endpoints)
-await fsp.writeFile('apiful.d.ts', types)
 ```
 
+Then, run the [`generate`](/guide/cli) command in your terminal to generate the TypeScript definitions, saved as `apiful.d.ts`:
+
+```sh
+npx apiful generate
+```
+
+Done! You can now use the `OpenAPIBuilder` extension to create a type-safe API client. Make sure you pass the **service name** to it as a generic parameter, such as `OpenAPIBuilder<'petStore'>()`. Follow the next chapter for more details.
+
 > [!NOTE]
-> The [`openapi-typescript`](https://www.npmjs.com/package/openapi-typescript) library is used to generate the TypeScript definitions.
+> Make sure the generated `apiful.d.ts` is not excluded by your `tsconfig.json` configuration.
 
 ## Using the `OpenAPIBuilder` Extension
 
-After you have generated the TypeScript definitions file, you can use the `OpenAPIBuilder` extension to add type-safety to your API calls:
+After you have generated the TypeScript definitions file, you can use the `OpenAPIBuilder` extension to create a type-safe API client:
 
 ```ts
 import { createClient, OpenAPIBuilder } from 'apiful'
@@ -48,13 +46,15 @@ import { createClient, OpenAPIBuilder } from 'apiful'
 const baseURL = 'https://petstore3.swagger.io/api/v3'
 const adapter = OpenAPIBuilder<'petStore'>()
 const petStore = createClient({ baseURL }).with(adapter)
+```
 
-// The response is typed based on the OpenAPI specification
+Now, the responses are typed based on the OpenAPI specification. For example, the following code snippet fetches a user by username:
+
+```ts
 const userResponse = await petStore('/user/{username}', {
   method: 'GET',
   path: { username: 'user1' },
 })
-console.log(userResponse)
 ```
 
 The response returned by the API call on the left is typed as follows:

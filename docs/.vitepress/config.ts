@@ -31,6 +31,7 @@ export default defineConfig({
           { text: 'Getting Started', link: '/guide/getting-started' },
           { text: 'Using Extensions', link: '/guide/using-extensions' },
           { text: 'Creating Extensions', link: '/guide/custom-extensions' },
+          { text: 'Command Line Interface', link: '/guide/cli' },
         ],
       },
       {
@@ -50,6 +51,7 @@ export default defineConfig({
             text: 'Methods',
             items: [
               { text: 'createClient', link: '/reference/create-client' },
+              { text: 'defineApifulConfig', link: '/reference/define-apiful-config' },
             ],
           },
           {
@@ -111,6 +113,7 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
         { text: 'Getting Started', link: '/guide/getting-started' },
         { text: 'Using Extensions', link: '/guide/using-extensions' },
         { text: 'Creating Extensions', link: '/guide/custom-extensions' },
+        { text: 'Command Line Interface', link: '/guide/cli' },
       ],
     },
     {
@@ -131,6 +134,7 @@ function referenceGuide(): DefaultTheme.SidebarItem[] {
       text: 'Methods',
       items: [
         { text: 'createClient', link: '/reference/create-client' },
+        { text: 'defineApifulConfig', link: '/reference/define-apiful-config' },
       ],
     },
     {

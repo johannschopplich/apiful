@@ -38,19 +38,19 @@ features:
     details: Add methods to your API client with full type safety.
     link: /guide/custom-extensions
     linkText: Create Extensions
-  - icon: <span class="i-carbon:ibm-watson-knowledge-studio"></span>
-    title: Schema Generation
-    details: Generate TypeScript definitions for any OpenAPI schema.
-    link: /extensions/openapi#schema-generation
-    linkText: Generate Schemas
+  - icon: <span class="i-carbon:terminal"></span>
+    title: CLI Tooling
+    details: Keep TypeScript definitions up-to-date with the CLI.
+    link: /guide/cli
+    linkText: CLI Reference
   - icon: <span class="i-devicon-plain:openapi"></span>
-    title: OpenAPI Client Generator
+    title: Generate TS Definitions From OpenAPI Schemas
     details: Create fully typed API clients from OpenAPI specifications.
     link: /extensions/openapi
     linkText: OpenAPI Integration
   - icon: <span class="i-carbon:chart-network"></span>
     title: UnJS Integration
-    details: Designed to work seamlessly with UnJS tooling.
+    details: Designed on top of ofetch by UnJS.
     link: /extensions/ofetch
     linkText: ofetch Adapter
   - icon: <span class="i-carbon:application"></span>

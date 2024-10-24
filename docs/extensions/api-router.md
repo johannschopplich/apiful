@@ -3,14 +3,14 @@
 > [!NOTE]
 > This is a [handler extension](/guide/custom-extensions#handler-extension) and wraps [ofetch](https://github.com/unjs/ofetch) under the hood.
 
-The route builder adapter gives you an jQuery-like and Axios-esque API to construct your API calls. It is easy to use and allows you to build your API calls in a declarative way by chaining path segments and HTTP request methods:
+The route builder extension gives you an jQuery-like and Axios-esque API to construct your API calls. It is easy to use and allows you to build your API calls in a declarative way by chaining path segments and HTTP request methods:
 
 ```ts
 // GET request to <baseURL>/users
 const users = await api.users.get<UserResponse>()
 ```
 
-Get started by using the `apiRouterBuilder` adapter:
+Get started by using the `apiRouterBuilder` extension:
 
 ```ts
 import { apiRouterBuilder, createClient } from 'apiful'

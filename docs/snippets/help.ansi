@@ -1,0 +1,7 @@
+[0;1;4mUSAGE[0m [0;36mapiful generate[0m[0m
+[0m
+[0;1;4mCOMMANDS[0m[0m
+[0m
+  [0;36mgenerate[0m    Generates TypeScript definitions from OpenAPI schemas[0m
+[0m
+Use [0;36mapiful <command> --help[0m for more information about a command.[0m
