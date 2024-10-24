@@ -29,28 +29,35 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
     },
+    "./config": {
+      "types": "./dist/config.d.mts",
+      "import": "./dist/config.mjs"
+    },
     "./extensions": {
-      "types": "./dist/extensions.d.mts",
-      "import": "./dist/extensions.mjs"
+      "types": "./dist/extensions/index.d.mts",
+      "import": "./dist/extensions/index.mjs"
     },
     "./openapi": {
-      "types": "./dist/openapi.d.mts",
-      "import": "./dist/openapi.mjs"
+      "types": "./dist/openapi/index.d.mts",
+      "import": "./dist/openapi/index.mjs"
     },
     "./schema": {
       "types": "./schema.d.mts",
       "import": "./schema.mjs"
     },
     "./http-status-codes": {
-      "types": "./http-status-codes.d.mts",
-      "import": "./http-status-codes.mjs"
+      "types": "./dist/generated/http-status-codes.d.mts",
+      "import": "./dist/generated/http-status-codes.mjs"
     },
     "./http-status-phrases": {
-      "types": "./http-status-phrases.d.mts",
-      "import": "./http-status-phrases.mjs"
+      "types": "./dist/generated/http-status-phrases.d.mts",
+      "import": "./dist/generated/http-status-phrases.mjs"
     }
   },
   "types": "./dist/index.d.ts",
+  "bin": {
+    "apiful": "./bin/apiful.mjs"
+  },
   "files": [
     "dist",
     "schema.*"
@@ -67,9 +74,12 @@
     "test:types": "tsc --noEmit",
     "release": "bumpp",
     "prepack": "pnpm run build",
-    "prepare": "tsx scripts/prepare.ts"
+    "prepare": "tsx src/cli generate"
   },
   "dependencies": {
+    "citty": "^0.1.6",
+    "consola": "^3.2.3",
+    "jiti": "^2.3.3",
     "ofetch": "^1.4.1",
     "openapi-typescript": "^7.4.1",
     "openapi-typescript-helpers": "0.0.13",
@@ -82,7 +92,6 @@
     "@iconify-json/devicon-plain": "^1.2.4",
     "@types/node": "^20.16.14",
     "bumpp": "^9.7.1",
-    "consola": "^3.2.3",
     "eslint": "^9.13.0",
     "get-port-please": "^3.1.2",
     "h3": "^1.13.0",
