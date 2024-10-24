@@ -1,5 +1,5 @@
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
-import type { OpenAPIEndpoint } from './endpoints'
+import type { ServiceOptions } from '../config'
 import { pascalCase } from 'scule'
 
 const HEAD_DECLARATION = `/* eslint-disable */
@@ -8,14 +8,14 @@ const HEAD_DECLARATION = `/* eslint-disable */
 ` as const
 
 export async function generateDTS(
-  endpoints: Record<string, OpenAPIEndpoint>,
+  services: Record<string, ServiceOptions>,
   openAPITSOptions?: OpenAPITSOptions,
 ) {
   const resolvedSchemaEntries = await Promise.all(
-    Object.entries(endpoints)
-      .filter(([, endpoint]) => Boolean(endpoint.schema))
-      .map(async ([id, endpoint]) => {
-        const types = await generateSchemaTypes({ id, endpoint, openAPITSOptions })
+    Object.entries(services)
+      .filter(([, service]) => Boolean(service.schema))
+      .map(async ([id, service]) => {
+        const types = await generateSchemaTypes({ id, service, openAPITSOptions })
         return [id, types] as const
       }),
   )
@@ -61,12 +61,12 @@ ${normalizeIndentation(types).trimEnd()}
 
 async function generateSchemaTypes(options: {
   id: string
-  endpoint: OpenAPIEndpoint
+  service: ServiceOptions
   openAPITSOptions?: OpenAPITSOptions
 },
 ) {
   const { default: openAPITS, astToString } = await import('openapi-typescript')
-  const schema = await resolveSchema(options.endpoint)
+  const schema = await resolveSchema(options.service)
 
   try {
     const ast = await openAPITS(schema, options.openAPITSOptions)
@@ -92,7 +92,7 @@ export type operations = Record<string, never>
   }
 }
 
-async function resolveSchema({ schema }: OpenAPIEndpoint): Promise<string | URL | OpenAPI3> {
+async function resolveSchema({ schema }: ServiceOptions): Promise<string | URL | OpenAPI3> {
   if (typeof schema === 'function')
     return await schema()
 
@@ -111,7 +111,7 @@ function isValidUrl(url: string) {
   }
 }
 
-function normalizeIndentation(code: string): string {
+function normalizeIndentation(code: string) {
   // Replace each cluster of four spaces with two spaces
   const replacedCode = code.replace(/^( {4})+/gm, match => '  '.repeat(match.length / 4))
 

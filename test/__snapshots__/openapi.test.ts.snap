@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`OpenAPI Adapter > generates OpenAPI types 1`] = `
+exports[`OpenAPI TypeScript definitions generation > generates OpenAPI types 1`] = `
 "/* eslint-disable */
 /* prettier-ignore */
 // @ts-nocheck
