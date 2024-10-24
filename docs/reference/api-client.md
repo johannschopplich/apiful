@@ -1,5 +1,7 @@
 # `ApiClient`
 
+Instances of `ApiClient` created using the [`createClient`](/reference/create-client) function.
+
 ## Type Definition
 
 ```ts
