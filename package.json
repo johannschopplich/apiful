@@ -59,6 +59,7 @@
     "apiful": "./bin/apiful.mjs"
   },
   "files": [
+    "bin",
     "dist",
     "schema.*"
   ],
