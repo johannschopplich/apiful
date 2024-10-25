@@ -1,7 +1,8 @@
+[0;90mGenerates TypeScript definitions from OpenAPI schemas[0m
+[0m
 [0;1;4mUSAGE[0m [0;36mapiful generate [OPTIONS] [0m[0m
 [0m
 [0;1;4mOPTIONS[0m[0m
 [0m
-  [0;36m--config="apiful.config.ts"[0m    Path to the configuration file[0m
-   [0;36m--definition="apiful.d.ts"[0m    Path to the output file       [0m
-                        [0;36m--cwd[0m    Current working directory     [0m
+  [0;36m--outfile="apiful.d.ts"[0m    Path to the output file [0m
+                   [0;36m--root[0m    Path to the project root[0m

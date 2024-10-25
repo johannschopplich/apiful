@@ -16,41 +16,41 @@ describe('OpenAPI adapter', () => {
     })
   })
 
-  describe('GET endpoints', () => {
-    it('should get foo with value "bar"', async () => {
-      const client = _client.with(OpenAPIBuilder<'testEcho'>())
-      const response = await client('/echo/static/constant')
-      expect(response).toEqual({ value: 'foo' })
-      assertType<{ value: string }>(response)
-    })
-
-    it('should get query parameters', async () => {
-      const client = _client.with(OpenAPIBuilder<'testEcho'>())
-      const response = await client('/echo/query', {
-        query: {
-          value: 'bar',
-        },
-      })
-      expect(response).toEqual({ value: 'bar' })
-      assertType<Record<string, string>>(response)
-    })
-  })
-
-  describe('POST endpoints', () => {
-    it('should post to /bar with body', async () => {
-      const client = _client.with(OpenAPIBuilder<'testEcho'>())
-      const response = await client('/echo/request', {
-        method: 'POST',
-        body: { foo: 'bar' },
-      })
-      expect(response.method).toBe('POST')
-      expect(response.body).toEqual({ foo: 'bar' })
-    })
-  })
-
-  it('should handle error responses', async () => {
+  it('handles GET static response', async () => {
     const client = _client.with(OpenAPIBuilder<'testEcho'>())
-    // @ts-expect-error: Path not defined in OpenAPI schema
-    expect(() => client('/not-found')).rejects.toThrow()
+    const response = await client('/echo/static/constant')
+    expect(response).toEqual({ value: 'foo' })
+    assertType<{ value: string }>(response)
+  })
+
+  it('handles GET query parameters', async () => {
+    const client = _client.with(OpenAPIBuilder<'testEcho'>())
+    const response = await client('/echo/query', {
+      query: {
+        value: 'bar',
+      },
+    })
+    expect(response).toEqual({ value: 'bar' })
+    assertType<Record<string, string>>(response)
+  })
+
+  it('handles POST request', async () => {
+    const client = _client.with(OpenAPIBuilder<'testEcho'>())
+    const response = await client('/echo/request', {
+      method: 'POST',
+      body: { foo: 'bar' },
+    })
+    expect(response.method).toBe('POST')
+    expect(response.body).toEqual({ foo: 'bar' })
+  })
+
+  it('handles error responses', async () => {
+    const client = _client.with(OpenAPIBuilder<'testEcho'>())
+    expect(() => {
+      return client(
+        // @ts-expect-error: Path not defined in OpenAPI schema
+        '/not-found',
+      )
+    }).rejects.toThrow()
   })
 })

@@ -75,12 +75,12 @@
     "test:types": "tsc --noEmit",
     "release": "bumpp",
     "prepack": "pnpm run build",
-    "prepare": "tsx src/cli generate"
+    "prepare": "tsx src/cli generate --root=\"playground\""
   },
   "dependencies": {
+    "c12": "^2.0.1",
     "citty": "^0.1.6",
     "consola": "^3.2.3",
-    "jiti": "^2.3.3",
     "ofetch": "^1.4.1",
     "openapi-typescript": "^7.4.1",
     "openapi-typescript-helpers": "0.0.13",

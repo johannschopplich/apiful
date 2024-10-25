@@ -1,11 +1,10 @@
-import type { ApifulConfig } from '../../config'
 import * as fsp from 'node:fs/promises'
 import * as path from 'node:path'
 import process from 'node:process'
 import { defineCommand } from 'citty'
 import { consola } from 'consola'
-import { createJiti } from 'jiti'
 import { generateDTS } from '../../openapi/generate'
+import { loadConfig } from '../utils'
 
 export default defineCommand({
   meta: {
@@ -13,41 +12,29 @@ export default defineCommand({
     description: 'Generates TypeScript definitions from OpenAPI schemas',
   },
   args: {
-    config: {
-      type: 'string',
-      description: 'Path to the configuration file',
-      default: 'apiful.config.ts',
-      required: false,
-    },
-    definition: {
+    outfile: {
       type: 'string',
       description: 'Path to the output file',
       default: 'apiful.d.ts',
       required: false,
     },
-    cwd: {
+    root: {
       type: 'string',
-      description: 'Current working directory',
+      description: 'Path to the project root',
       required: false,
     },
   },
   async run({ args }) {
-    const cwd = args.cwd || process.cwd()
-    const configPath = path.resolve(cwd, args.config)
+    const rootDir = args.root || process.cwd()
+    const { config } = await loadConfig(rootDir)
 
-    const jiti = createJiti(cwd)
-    const config = (await jiti.import(
-      configPath,
-      { default: true, try: true },
-    )) as ApifulConfig
-
-    if (!config) {
-      consola.error(`Configuration file \`${args.config}\` not found`)
+    if (Object.keys(config).length === 0) {
+      consola.error('Configuration file `apiful.config.{js,ts,mjs,cjs,json}` is empty or does not exist')
       process.exit(1)
     }
 
     const resolvedOpenAPIServices = Object.fromEntries(
-      Object.entries(config.services)
+      Object.entries(config?.services ?? {})
         .filter(([, service]) => Boolean(service.schema)),
     )
 
@@ -58,12 +45,15 @@ export default defineCommand({
 
     for (const service of Object.values(resolvedOpenAPIServices)) {
       if (typeof service.schema === 'string' && !service.schema.startsWith('http')) {
-        service.schema = path.resolve(cwd, service.schema)
+        service.schema = path.resolve(rootDir, service.schema)
       }
     }
 
     const types = await generateDTS(resolvedOpenAPIServices)
-    await fsp.writeFile(path.resolve(cwd, args.definition), types)
-    consola.success(`Generated \`${args.definition}\` types`)
+    const outfilePath = path.resolve(rootDir, args.outfile)
+    await fsp.writeFile(outfilePath, types)
+
+    const relativePath = path.relative(rootDir, outfilePath)
+    consola.success(`Generated \`${relativePath}\` types`)
   },
 })

@@ -8,7 +8,7 @@ Before writing your first extension, you need to understand the different types 
 
 APIful provides two types of extensions:
 
-- **Handler Extension**: This type of extension adds the callable signature to a client instance. This should be the first extension you extend your client with. It's recommended not to use more than one handler extension.
+- **Handler Extension**: This type of extension adds the callable signature to a client instance. This should be the first extension you extend your client with. It is recommended not to use more than one handler extension.
 - **Methods Extension**: This type of extension adds methods to the client instance. You can chain multiple method extensions to add as much functionality as you need.
 
 Both extension types are created using a builder function that receives the client instance and returns the extension function (handler) or object (methods).

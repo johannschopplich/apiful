@@ -21,7 +21,9 @@ Generates TypeScript definitions from OpenAPI schemas.
 > [!TIP]
 > Read the [OpenAPI](/extensions/openapi) extension documentation to learn how to build the type-safe API client.
 
-By default, this command loads the APIful configuration from the `apiful.config.ts` file in the current working directory. The generated TypeScript types are saved to the `apiful.d.ts` file in the same directory.
+By default, this command loads the APIful configuration from the `apiful.config.{js,ts,mjs,cjs,json}` file in the current working directory. If it cannot find a configuration file based on the supported extensions, it will throw an error.
+
+The generated TypeScript types are saved to the `apiful.d.ts` file in the same directory.
 
 <<< @/snippets/generate.ansi
 
@@ -34,3 +36,6 @@ npx apiful generate --help
 It will display the following output:
 
 <<< @/snippets/generate-help.ansi
+
+> [!NOTE]
+> Although it is recommended to create a `apiful.config.ts` file with a [`defineApifulConfig`](/reference/define-apiful-config) default export, you can also write plain JavaScript (`.js`, `.mjs`, `.cjs`) or JSON (`.json`, `.json5`) configuration files.
