@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.9.2",
   "packageManager": "pnpm@9.12.2",
-  "description": "Unified, pluggable API tooling",
+  "description": "Extensible, typed API tooling",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
   "license": "MIT",
   "homepage": "https://github.com/johannschopplich/apiful#readme",
