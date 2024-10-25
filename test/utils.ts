@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 import { getRandomPort } from 'get-port-please'
 import {
   createApp,
+  createError,
   defineEventHandler,
   getQuery,
   getRequestHeaders,
@@ -24,12 +25,23 @@ export async function createListener() {
     )
     .use(
       '/bar',
-      defineEventHandler(async event => ({
-        url: event.path,
-        body: await readBody(event),
-        headers: getRequestHeaders(event),
-        method: event.method,
-      })),
+      defineEventHandler(async (event) => {
+        const body = await readBody(event)
+
+        if (body?.throw) {
+          throw createError({
+            statusCode: 400,
+            statusMessage: 'Bad Request',
+          })
+        }
+
+        return {
+          url: event.path,
+          body,
+          headers: getRequestHeaders(event),
+          method: event.method,
+        }
+      }),
     )
     .use(
       '/params',

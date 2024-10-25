@@ -5,7 +5,7 @@ import { generateDTS } from '../src/openapi'
 import { currentDir } from './utils'
 
 // eslint-disable-next-line test/prefer-lowercase-title
-describe('OpenAPI TypeScript definitions generation', () => {
+describe('OpenAPI to TypeScript', () => {
   const config = defineApifulConfig({
     services: {
       sampleApi: {

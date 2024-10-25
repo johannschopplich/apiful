@@ -1,80 +1,147 @@
 openapi: 3.0.0
 info:
   title: Sample API
+  description: A sample API for testing purposes
   version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
 paths:
   /foo/1:
     get:
       summary: Get static foo object with value "1"
+      operationId: getFooOne
       responses:
         '200':
           description: A foo object with value "1"
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  foo:
-                    type: string
-                    example: '1'
+                $ref: '#/components/schemas/FooResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /foo:
     get:
       summary: Get static foo object with value "bar"
+      operationId: getFoo
       responses:
         '200':
           description: A foo object with value "bar"
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  foo:
-                    type: string
-                    example: bar
+                $ref: '#/components/schemas/FooResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /bar:
     post:
       summary: Post request details
+      operationId: postBar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BarRequest'
       responses:
         '200':
           description: An object containing the request details
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  url:
-                    type: string
-                    example: /bar
-                  body:
-                    type: string
-                    example: request body
-                  headers:
-                    type: object
-                    additionalProperties:
-                      type: string
-                  method:
-                    type: string
-                    example: POST
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              description: Request body content
-              additionalProperties: true
+                $ref: '#/components/schemas/BarResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   /params:
     get:
       summary: Get query parameters
+      operationId: getParams
+      parameters:
+        - name: foo
+          in: query
+          schema:
+            type: string
+          required: false
+          description: Optional query parameter
       responses:
         '200':
           description: An object containing the query parameters
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: string
+                $ref: '#/components/schemas/ParamsResponse'
+
+components:
+  schemas:
+    FooResponse:
+      type: object
+      required:
+        - foo
+      properties:
+        foo:
+          type: string
+          example: bar
+
+    BarRequest:
+      type: object
+      additionalProperties: true
+      description: Request body content
+
+    BarResponse:
+      type: object
+      required:
+        - url
+        - method
+      properties:
+        url:
+          type: string
+          example: /bar
+        body:
+          type: object
+          additionalProperties: true
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        method:
+          type: string
+          example: POST
+
+    ParamsResponse:
+      type: object
+      additionalProperties:
+        type: string
+
+    Error:
+      type: object
+      required:
+        - statusCode
+        - statusMessage
+      properties:
+        statusCode:
+          type: integer
+        statusMessage:
+          type: string
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

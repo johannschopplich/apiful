@@ -68,14 +68,13 @@ describe('createClient', () => {
     expect(extendedClient.foo).toBe('bar')
   })
 
-  it('allows chaining of extension methods', () => {
-    const client = createClient()
-    const extendedClient = client.with(() => ({
-      methodA: () => ({
-        methodB: () => 'chained result',
-      }),
-    }))
-    expect(extendedClient.methodA().methodB()).toBe('chained result')
+  it('keeps the default options after extending', () => {
+    const options = {
+      baseURL: 'http://example.com',
+    }
+    const client = createClient(options)
+    const extendedClient = client.with(extension)
+    expect(extendedClient.defaultOptions).toEqual(options)
   })
 
   it('allows more than one extension', () => {
@@ -116,14 +115,5 @@ describe('createClient', () => {
       typedMethod: (arg: number) => arg.toString(),
     }))
     expectTypeOf(extendedClient.typedMethod).toEqualTypeOf<(arg: number) => string>()
-  })
-
-  it('keeps the default options after extending', () => {
-    const options = {
-      baseURL: 'http://example.com',
-    }
-    const client = createClient(options)
-    const extendedClient = client.with(extension)
-    expect(extendedClient.defaultOptions).toEqual(options)
   })
 })

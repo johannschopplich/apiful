@@ -9,13 +9,13 @@ interface FooResponse {
 }
 
 describe('ofetch adapter', () => {
-  let listener: Listener
-  let client: ApiClient
+  let _listener: Listener
+  let _client: ApiClient
 
   beforeAll(async () => {
-    listener = await createListener()
-    client = createClient({
-      baseURL: listener.url,
+    _listener = await createListener()
+    _client = createClient({
+      baseURL: _listener.url,
       headers: {
         'X-Foo': 'bar',
       },
@@ -23,19 +23,23 @@ describe('ofetch adapter', () => {
   })
 
   afterAll(async () => {
-    await listener.close()
+    await _listener.close()
   })
 
   it('extends client with "ofetch" adapter', async () => {
-    const rest = client.with(ofetchBuilder())
-    const response = await rest<FooResponse>('foo')
+    const client = _client.with(ofetchBuilder())
+    const response = await client<FooResponse>('foo')
     expect(response).toEqual({ foo: 'bar' })
     assertType<{ foo: string }>(response)
   })
 
   it('allows fetch options for ofetch method', async () => {
-    const rest = client.with(ofetchBuilder())
-    const response = await rest('bar', { method: 'POST' })
+    const client = _client.with(ofetchBuilder())
+    const response = await client('bar', {
+      method: 'POST',
+      body: { foo: 'bar' },
+    })
     expect(response.method).toBe('POST')
+    expect(response.body).toEqual({ foo: 'bar' })
   })
 })
