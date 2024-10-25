@@ -23,7 +23,7 @@ Generates TypeScript definitions from OpenAPI schemas.
 
 By default, this command loads the APIful configuration from the `apiful.config.{js,ts,mjs,cjs,json}` file in the current working directory. If it cannot find a configuration file based on the supported extensions, it will throw an error.
 
-The generated TypeScript types are saved to the `apiful.d.ts` file in the same directory.
+The generated TypeScript types are stored in the file `apiful.d.ts` in the same directory. It augments the `apiful/schema` module with the generated types, so that the [OpenAPI](/extensions/openapi) extension and you can access the globally defined types.
 
 <<< @/snippets/generate.ansi
 

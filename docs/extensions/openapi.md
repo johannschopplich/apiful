@@ -25,7 +25,7 @@ export default defineApifulConfig({
 })
 ```
 
-Then, run the [`generate`](/guide/cli) command in your terminal to generate the TypeScript definitions, saved as `apiful.d.ts`:
+Then, run the [`generate`](/guide/cli) command in your terminal to generate the TypeScript definitions, saved as `apiful.d.ts`. It augments the `apiful/schema` module with the generated types, so that this extension and you can access the globally defined types.
 
 ```sh
 npx apiful generate
