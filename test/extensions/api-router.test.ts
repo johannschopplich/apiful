@@ -4,8 +4,8 @@ import { afterAll, assertType, beforeAll, describe, expect, it } from 'vitest'
 import { apiRouterBuilder, createClient } from '../../src'
 import { createListener } from '../utils'
 
-interface FooResponse {
-  foo: string
+interface EchoStaticConstantResponse {
+  value: string
 }
 
 describe('apiRouterBuilder adapter', () => {
@@ -28,8 +28,9 @@ describe('apiRouterBuilder adapter', () => {
 
   it('handles GET request', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.echo!.static!.constant!.get<FooResponse>()
+    const response = await client.echo!.static!.constant!.get<EchoStaticConstantResponse>()
     expect(response).toEqual({ value: 'foo' })
+    assertType<{ value: string }>(response)
   })
 
   it('handles POST request', async () => {
@@ -67,12 +68,12 @@ describe('apiRouterBuilder adapter', () => {
 
   it('handles default options', async () => {
     const client = _client.with(apiRouterBuilder())
-    const { headers } = await client.echo!.request!.post(undefined, {
+    const response = await client.echo!.request!.post(undefined, {
       headers: {
         'Content-Type': 'application/json',
       },
     })
-    expect(headers).to.include({
+    expect(response.headers).to.include({
       'x-foo': 'bar',
       'content-type': 'application/json',
     })
@@ -80,38 +81,38 @@ describe('apiRouterBuilder adapter', () => {
 
   it('should override default options', async () => {
     const client = _client.with(apiRouterBuilder())
-    const { headers } = await client.echo!.request!.post(undefined, {
+    const response = await client.echo!.request!.post(undefined, {
       headers: { 'X-Foo': 'baz' },
     })
-    expect(headers).to.include({ 'x-foo': 'baz' })
+    expect(response.headers).to.include({ 'x-foo': 'baz' })
   })
 
   it('supports bracket syntax for path segment', async () => {
     const client = _client.with(apiRouterBuilder())
     // eslint-disable-next-line dot-notation
-    const response = await client.echo!.static!['constant']!.get<FooResponse>()
+    const response = await client.echo!.static!['constant']!.get<EchoStaticConstantResponse>()
     expect(response).toEqual({ value: 'foo' })
-    assertType<{ foo: string }>(response)
+    assertType<{ value: string }>(response)
   })
 
   it('supports chain syntax for path segment', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.echo!.static!('constant').get<FooResponse>()
+    const response = await client.echo!.static!('constant').get<EchoStaticConstantResponse>()
     expect(response).toEqual({ value: 'foo' })
-    assertType<{ foo: string }>(response)
+    assertType<{ value: string }>(response)
   })
 
   it('supports multiple path segments', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client('echo', 'static', 'constant').get<FooResponse>()
+    const response = await client('echo', 'static', 'constant').get<EchoStaticConstantResponse>()
     expect(response).toEqual({ value: 'foo' })
-    assertType<{ foo: string }>(response)
+    assertType<{ value: string }>(response)
   })
 
   it('handles error responses', async () => {
     const client = _client.with(apiRouterBuilder())
     expect(async () => {
-      await client.baz!.get<FooResponse>()
+      await client.baz!.get<EchoStaticConstantResponse>()
     }).rejects.toThrow(/404/)
   })
 })
