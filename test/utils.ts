@@ -2,7 +2,6 @@ import { fileURLToPath } from 'node:url'
 import { getRandomPort } from 'get-port-please'
 import {
   createApp,
-  createError,
   defineEventHandler,
   getQuery,
   getRequestHeaders,
