@@ -24,9 +24,7 @@ export type RequestBodyOption<T> = OperationRequestBodyContent<T> extends never
     : { body: OperationRequestBodyContent<T> }
 
 export type FilterMethods<T> = {
-  [K in keyof Omit<T, 'parameters'> as T[K] extends never | undefined
-    ? never
-    : K]: T[K];
+  [K in keyof Omit<T, 'parameters'> as T[K] extends never | undefined ? never : K]: T[K];
 }
 
 export type OpenAPIFetchOptions<
