@@ -24,6 +24,9 @@ importers:
       consola:
         specifier: ^3.2.3
         version: 3.2.3
+      defu:
+        specifier: ^6.1.4
+        version: 6.1.4
       ofetch:
         specifier: ^1.4.1
         version: 1.4.1

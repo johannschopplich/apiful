@@ -1,5 +1,6 @@
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
 import type { ServiceOptions } from '../config'
+import { defu } from 'defu'
 import { pascalCase } from 'scule'
 
 const HEAD_DECLARATION = `/* eslint-disable */
@@ -68,8 +69,10 @@ async function generateSchemaTypes(options: {
   const { default: openAPITS, astToString } = await import('openapi-typescript')
   const schema = await resolveSchema(options.service)
 
+  const resolvedOpenAPITSOptions = defu(options.service.openAPITS, options.openAPITSOptions || {})
+
   try {
-    const ast = await openAPITS(schema, options.openAPITSOptions)
+    const ast = await openAPITS(schema, resolvedOpenAPITSOptions)
     return astToString(ast)
   }
   catch (error) {
