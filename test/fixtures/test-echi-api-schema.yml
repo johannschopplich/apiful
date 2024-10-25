@@ -1,109 +1,92 @@
 openapi: 3.0.0
 info:
-  title: Sample API
-  description: A sample API for testing purposes
+  title: Test Echo API
+  description: An API designed for testing HTTP client behaviors
   version: 1.0.0
-  contact:
-    name: API Support
-    email: support@example.com
 
 servers:
   - url: http://localhost:3000
     description: Local development server
 
 paths:
-  /foo/1:
+  /echo/static/constant:
     get:
-      summary: Get static foo object with value "1"
-      operationId: getFooOne
+      summary: Return a constant static response
+      operationId: getConstantResponse
       responses:
         '200':
-          description: A foo object with value "1"
+          description: A static response with constant value
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FooResponse'
+                $ref: '#/components/schemas/StaticResponse'
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /foo:
-    get:
-      summary: Get static foo object with value "bar"
-      operationId: getFoo
-      responses:
-        '200':
-          description: A foo object with value "bar"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FooResponse'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /bar:
+  /echo/request:
     post:
-      summary: Post request details
-      operationId: postBar
+      summary: Echo back the request details
+      operationId: echoRequest
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BarRequest'
+              $ref: '#/components/schemas/EchoRequest'
       responses:
         '200':
-          description: An object containing the request details
+          description: Echo of the request details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BarResponse'
+                $ref: '#/components/schemas/EchoResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /params:
+  /echo/query:
     get:
-      summary: Get query parameters
-      operationId: getParams
+      summary: Echo back the query parameters
+      operationId: echoQueryParams
       parameters:
-        - name: foo
+        - name: value
           in: query
           schema:
             type: string
           required: false
-          description: Optional query parameter
+          description: A query parameter to be echoed back
       responses:
         '200':
-          description: An object containing the query parameters
+          description: Echo of the query parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ParamsResponse'
+                $ref: '#/components/schemas/QueryResponse'
 
 components:
   schemas:
-    FooResponse:
+    StaticResponse:
       type: object
       required:
-        - foo
+        - value
       properties:
-        foo:
+        value:
           type: string
-          example: bar
+          example: foo
 
-    BarRequest:
+    EchoRequest:
       type: object
       additionalProperties: true
-      description: Request body content
+      description: Any JSON request body to be echoed back
 
-    BarResponse:
+    EchoResponse:
       type: object
       required:
-        - url
+        - path
         - method
       properties:
-        url:
+        path:
           type: string
-          example: /bar
+          example: /echo/request
         body:
           type: object
           additionalProperties: true
@@ -113,12 +96,14 @@ components:
             type: string
         method:
           type: string
+          enum: [GET, POST, PUT, DELETE, PATCH]
           example: POST
 
-    ParamsResponse:
+    QueryResponse:
       type: object
       additionalProperties:
         type: string
+      description: Echo of provided query parameters
 
     Error:
       type: object
@@ -128,8 +113,10 @@ components:
       properties:
         statusCode:
           type: integer
+          example: 404
         statusMessage:
           type: string
+          example: Not Found
 
   responses:
     NotFound:

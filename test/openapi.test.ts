@@ -8,8 +8,8 @@ import { currentDir } from './utils'
 describe('OpenAPI to TypeScript', () => {
   const config = defineApifulConfig({
     services: {
-      sampleApi: {
-        schema: path.join(currentDir, 'fixtures/sample-api-schema.yml'),
+      testEcho: {
+        schema: path.join(currentDir, 'fixtures/test-echi-api-schema.yml'),
       },
     },
   })

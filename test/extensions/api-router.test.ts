@@ -28,46 +28,46 @@ describe('apiRouterBuilder adapter', () => {
 
   it('handles GET request', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.foo!.get<FooResponse>()
-    expect(response).toEqual({ foo: 'bar' })
+    const response = await client.echo!.static!.constant!.get<FooResponse>()
+    expect(response).toEqual({ value: 'foo' })
   })
 
   it('handles POST request', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.bar!.post({ foo: 'bar' })
-    expect(response.body).toEqual({ foo: 'bar' })
+    const response = await client.echo!.request!.post({ foo: 'bar' })
     expect(response.method).toEqual('POST')
+    expect(response.body).toEqual({ foo: 'bar' })
   })
 
   it('handles PUT request', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.bar!.put({ foo: 'bar' })
-    expect(response.body).toEqual({ foo: 'bar' })
+    const response = await client.echo!.request!.put({ foo: 'bar' })
     expect(response.method).toEqual('PUT')
+    expect(response.body).toEqual({ foo: 'bar' })
   })
 
   it('handles DELETE request', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.bar!.delete()
+    const response = await client.echo!.request!.delete()
     expect(response.method).toEqual('DELETE')
   })
 
   it('handles PATCH request', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.bar!.patch({ foo: 'bar' })
-    expect(response.body).toEqual({ foo: 'bar' })
+    const response = await client.echo!.request!.patch({ foo: 'bar' })
     expect(response.method).toEqual('PATCH')
+    expect(response.body).toEqual({ foo: 'bar' })
   })
 
   it('handles query parameters', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.params!.get({ test: 'true' })
-    expect(response).toEqual({ test: 'true' })
+    const response = await client.echo!.query!.get({ value: 'bar' })
+    expect(response).toEqual({ value: 'bar' })
   })
 
   it('handles default options', async () => {
     const client = _client.with(apiRouterBuilder())
-    const { headers } = await client.bar!.post(undefined, {
+    const { headers } = await client.echo!.request!.post(undefined, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -80,7 +80,7 @@ describe('apiRouterBuilder adapter', () => {
 
   it('should override default options', async () => {
     const client = _client.with(apiRouterBuilder())
-    const { headers } = await client.bar!.post(undefined, {
+    const { headers } = await client.echo!.request!.post(undefined, {
       headers: { 'X-Foo': 'baz' },
     })
     expect(headers).to.include({ 'x-foo': 'baz' })
@@ -88,22 +88,23 @@ describe('apiRouterBuilder adapter', () => {
 
   it('supports bracket syntax for path segment', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.foo!['1']!.get<FooResponse>()
-    expect(response).toEqual({ foo: '1' })
+    // eslint-disable-next-line dot-notation
+    const response = await client.echo!.static!['constant']!.get<FooResponse>()
+    expect(response).toEqual({ value: 'foo' })
     assertType<{ foo: string }>(response)
   })
 
   it('supports chain syntax for path segment', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.foo!(1).get<FooResponse>()
-    expect(response).toEqual({ foo: '1' })
+    const response = await client.echo!.static!('constant').get<FooResponse>()
+    expect(response).toEqual({ value: 'foo' })
     assertType<{ foo: string }>(response)
   })
 
   it('supports multiple path segments', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client('foo', '1').get<FooResponse>()
-    expect(response).toEqual({ foo: '1' })
+    const response = await client('echo', 'static', 'constant').get<FooResponse>()
+    expect(response).toEqual({ value: 'foo' })
     assertType<{ foo: string }>(response)
   })
 

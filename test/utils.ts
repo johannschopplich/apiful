@@ -16,35 +16,20 @@ export const currentDir = fileURLToPath(new URL('.', import.meta.url))
 export async function createListener() {
   const app = createApp()
     .use(
-      '/foo/1',
-      defineEventHandler(() => ({ foo: '1' })),
+      '/echo/static/constant',
+      defineEventHandler(() => ({ value: 'foo' })),
     )
     .use(
-      '/foo',
-      defineEventHandler(() => ({ foo: 'bar' })),
+      '/echo/request',
+      defineEventHandler(async event => ({
+        path: event.path,
+        body: await readBody(event),
+        headers: getRequestHeaders(event),
+        method: event.method,
+      })),
     )
     .use(
-      '/bar',
-      defineEventHandler(async (event) => {
-        const body = await readBody(event)
-
-        if (body?.throw) {
-          throw createError({
-            statusCode: 400,
-            statusMessage: 'Bad Request',
-          })
-        }
-
-        return {
-          url: event.path,
-          body,
-          headers: getRequestHeaders(event),
-          method: event.method,
-        }
-      }),
-    )
-    .use(
-      '/params',
+      '/echo/query',
       defineEventHandler(event => getQuery(event)),
     )
 

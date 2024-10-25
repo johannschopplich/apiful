@@ -2,8 +2,8 @@ import { defineApifulConfig } from './src/config'
 
 export default defineApifulConfig({
   services: {
-    sampleApi: {
-      schema: 'test/fixtures/sample-api-schema.yml',
+    testEcho: {
+      schema: 'test/fixtures/test-echi-api-schema.yml',
     },
     petStore: {
       schema: 'playground/schemas/pet-store.json',
