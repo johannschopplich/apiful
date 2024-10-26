@@ -10,7 +10,8 @@ Extensions that add additional methods to the client.
 ```ts
 // Internal use only
 type Fn<T = any> = (...args: any[]) => T
-type MethodsExtension = Record<string, Fn>
+type ExtensionValue = string | number | boolean | any[] | Fn | Record<string, any>
+type MethodsExtension = Record<string, ExtensionValue>
 
 // Use this type to create extensions
 type MethodsExtensionBuilder = (client: ApiClient) => MethodsExtension

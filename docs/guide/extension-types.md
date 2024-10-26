@@ -25,7 +25,8 @@ To create a custom extension, you need to define an extension builder. An extens
 ```ts
 // Only used internally
 type HandlerExtension = Fn
-type MethodsExtension = Record<string, Fn>
+type ExtensionValue = string | number | boolean | any[] | Fn | Record<string, any>
+type MethodsExtension = Record<string, ExtensionValue>
 
 // Used to create extensions
 type HandlerExtensionBuilder = (client: ApiClient) => HandlerExtension

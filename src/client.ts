@@ -2,15 +2,17 @@ import type { FetchOptions } from 'ofetch'
 
 type Fn<T = any> = (...args: any[]) => T
 
+export type ExtensionValue = string | number | boolean | any[] | Fn | Record<string, any>
 export type HandlerExtension = Fn
-export type MethodsExtension = Record<string, Fn>
+export type MethodsExtension = Record<string, ExtensionValue>
 export type ApiExtension = HandlerExtension | MethodsExtension
 
 export type HandlerExtensionBuilder = (client: ApiClient) => HandlerExtension
 export type MethodsExtensionBuilder = (client: ApiClient) => MethodsExtension
 
 export interface ApiClient<BaseURL extends string = string> extends Function {
-  _extensions: Record<PropertyKey, Fn>
+  _handler: Fn
+  _extensions: Record<PropertyKey, ExtensionValue>
   defaultOptions: FetchOptions
   with: <Extension extends ApiExtension>(
     createExtension: (client: ApiClient<BaseURL>) => Extension,
@@ -23,17 +25,23 @@ export function createClient<const BaseURL extends string = '/'>(
   const client = (() => {}) as unknown as ApiClient<BaseURL>
 
   client.defaultOptions = defaultOptions
-
-  client._extensions = {}
+  client._extensions = Object.create(null)
 
   client.with = function <Extension extends ApiExtension>(
     createExtension: (client: ApiClient<BaseURL>) => Extension,
   ) {
     const extension = createExtension(this)
 
-    // Accumulate all non-callable extensions
-    if (typeof extension !== 'function')
-      Object.assign(this._extensions, extension)
+    if (typeof extension === 'function') {
+      this._handler = extension
+    }
+    else {
+      for (const key in extension) {
+        if (Object.prototype.hasOwnProperty.call(extension, key)) {
+          this._extensions[key] = extension[key] as ExtensionValue
+        }
+      }
+    }
 
     return new Proxy(this, {
       get(target, prop, receiver) {
@@ -54,8 +62,8 @@ export function createClient<const BaseURL extends string = '/'>(
         return Reflect.set(extension, prop, value, receiver)
       },
       apply(target, thisArg, args) {
-        if (typeof extension === 'function')
-          return extension(...args)
+        if (target._handler)
+          return target._handler(...args)
 
         return Reflect.apply(target, thisArg, args)
       },
