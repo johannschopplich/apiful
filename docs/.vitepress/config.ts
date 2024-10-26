@@ -1,7 +1,8 @@
 import type { DefaultTheme } from 'vitepress'
 import { defineConfig } from 'vitepress'
-import { description, version } from '../../package.json'
-import { github, name, ogImage, ogUrl, releases, twitterImage } from './meta'
+import { description, github, name, ogImage, ogUrl, releases, twitterImage, version } from './meta'
+
+const url = new URL(ogUrl)
 
 export default defineConfig({
   title: name,
@@ -20,6 +21,8 @@ export default defineConfig({
     ['meta', { name: 'twitter:site', content: '@jschopplich' }],
     ['meta', { name: 'twitter:creator', content: '@jschopplich' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    // Plausible Analytics
+    ['script', { 'src': 'https://plausible.io/js/script.js', 'defer': '', 'data-domain': url.hostname }],
   ],
 
   themeConfig: {

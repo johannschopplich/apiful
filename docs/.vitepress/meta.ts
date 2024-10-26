@@ -1,3 +1,5 @@
+export { description, version } from '../../package.json'
+
 /* VitePress head */
 export const name = 'APIful'
 export const ogUrl = 'https://apiful.byjohann.dev/'
