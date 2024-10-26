@@ -2,7 +2,7 @@ import type { FetchOptions } from 'ofetch'
 
 type Fn<T = any> = (...args: any[]) => T
 
-export type ExtensionValue = string | number | boolean | any[] | Fn | Record<string, any>
+export type ExtensionValue = string | number | boolean | any[] | Fn | Record<string, any> | undefined
 export type HandlerExtension = Fn
 export type MethodsExtension = Record<string, ExtensionValue>
 export type ApiExtension = HandlerExtension | MethodsExtension
