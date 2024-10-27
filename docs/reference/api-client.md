@@ -7,7 +7,7 @@ Instances of `ApiClient` created using the [`createClient`](/reference/create-cl
 ```ts
 interface ApiClient<BaseURL extends string = string> extends Function {
   _handler: Fn
-  _extensions: Record<PropertyKey, ExtensionValue>
+  _extensions: Record<PropertyKey, unknown>
   defaultOptions: FetchOptions
   with: <Extension extends ApiExtension>(
     createExtension: (client: ApiClient<BaseURL>) => Extension,

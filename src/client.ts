@@ -2,9 +2,8 @@ import type { FetchOptions } from 'ofetch'
 
 type Fn<T = any> = (...args: any[]) => T
 
-export type ExtensionValue = string | number | boolean | any[] | Fn | Record<string, any> | undefined
 export type HandlerExtension = Fn
-export type MethodsExtension = Record<string, ExtensionValue>
+export type MethodsExtension = Record<string, unknown>
 export type ApiExtension = HandlerExtension | MethodsExtension
 
 export type HandlerExtensionBuilder = (client: ApiClient) => HandlerExtension
@@ -12,7 +11,7 @@ export type MethodsExtensionBuilder = (client: ApiClient) => MethodsExtension
 
 export interface ApiClient<BaseURL extends string = string> extends Function {
   _handler: Fn
-  _extensions: Record<PropertyKey, ExtensionValue>
+  _extensions: Record<PropertyKey, unknown>
   defaultOptions: FetchOptions
   with: <Extension extends ApiExtension>(
     createExtension: (client: ApiClient<BaseURL>) => Extension,
@@ -38,7 +37,7 @@ export function createClient<const BaseURL extends string = '/'>(
     else {
       for (const key in extension) {
         if (Object.prototype.hasOwnProperty.call(extension, key)) {
-          this._extensions[key] = extension[key] as ExtensionValue
+          this._extensions[key] = extension[key]
         }
       }
     }
