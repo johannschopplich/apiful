@@ -58,6 +58,9 @@ export function createClient<const BaseURL extends string = '/'>(
           return true
         }
 
+        if (prop in target)
+          return Reflect.set(target, prop, value, receiver)
+
         return Reflect.set(extension, prop, value, receiver)
       },
       apply(target, thisArg, args) {
