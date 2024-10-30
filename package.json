@@ -88,6 +88,9 @@
     "scule": "^1.3.0",
     "ufo": "^1.5.4"
   },
+  "optionalDependencies": {
+    "json-schema-to-typescript": "^15.0.2"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "^3.8.0",
     "@iconify-json/carbon": "^1.2.3",
