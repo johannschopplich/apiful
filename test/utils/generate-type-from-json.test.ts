@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateTypeFromJson } from './generate-type-from-json'
+import { generateTypeFromJson } from '../../src/utils/generate-type-from-json'
 
 describe('generateTypeFromJson', () => {
   it('should infer types from basic JSON data', async () => {

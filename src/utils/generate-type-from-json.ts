@@ -1,13 +1,13 @@
 import type { JSONSchema } from 'json-schema-to-typescript'
 import type { JsonValue } from './types'
-import { compile } from 'json-schema-to-typescript'
 
-export function generateTypeFromJson(data: Record<string, JsonValue>, typeName: string) {
+export async function generateTypeFromJson(data: Record<string, JsonValue>, typeName: string) {
   const schema = createJsonSchema(data)
-  return generateTypeFromSchema(schema, typeName || 'Root')
+  return await generateTypeFromSchema(schema, typeName || 'Root')
 }
 
 async function generateTypeFromSchema(schema: JSONSchema, typeName: string): Promise<string> {
+  const { compile } = await import ('json-schema-to-typescript')
   if (schema.type === 'array' && schema.items) {
     const itemTypeName = `${typeName}Item`
     const itemType = await compile(schema.items, itemTypeName, { bannerComment: '' })
