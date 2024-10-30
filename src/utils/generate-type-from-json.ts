@@ -6,14 +6,15 @@ export async function generateTypeFromJson(data: Record<string, JsonValue>, type
   return await generateTypeFromSchema(schema, typeName || 'Root')
 }
 
-async function generateTypeFromSchema(schema: JSONSchema, typeName: string): Promise<string> {
+export async function generateTypeFromSchema(schema: JSONSchema, typeName: string): Promise<string> {
   const { compile } = await import ('json-schema-to-typescript')
+
   if (schema.type === 'array' && schema.items) {
     const itemTypeName = `${typeName}Item`
     const itemType = await compile(schema.items, itemTypeName, { bannerComment: '' })
     return `
 ${itemType}
-export type ${typeName} = ${itemTypeName}[]
+export type ${typeName} = ${itemTypeName}[];
 `.trimStart()
   }
 
@@ -77,13 +78,8 @@ function mergeSchemas(schemas: JSONSchema[]): JSONSchema {
   if (type === 'object') {
     // Merge object properties
     const allProperties = new Map<string, JSONSchema[]>()
-    let additionalProperties = false
 
     for (const schema of schemas) {
-      if (schema.additionalProperties) {
-        additionalProperties = true
-      }
-
       if (schema.properties) {
         for (const [key, value] of Object.entries(schema.properties)) {
           if (!allProperties.has(key)) {
@@ -102,7 +98,7 @@ function mergeSchemas(schemas: JSONSchema[]): JSONSchema {
           mergeSchemas(propertySchemas),
         ]),
       ),
-      additionalProperties,
+      additionalProperties: allProperties.size === 0,
     }
   }
   else if (type === 'array') {

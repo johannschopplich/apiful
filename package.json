@@ -52,6 +52,10 @@
     "./http-status-phrases": {
       "types": "./dist/generated/http-status-phrases.d.mts",
       "import": "./dist/generated/http-status-phrases.mjs"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.mts",
+      "import": "./dist/utils/index.mjs"
     }
   },
   "types": "./dist/index.d.ts",

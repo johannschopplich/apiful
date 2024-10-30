@@ -9,8 +9,9 @@ export default defineBuildConfig({
     'src/openapi/index',
     'src/generated/http-status-codes',
     'src/generated/http-status-phrases',
+    'src/utils/index',
   ],
-  externals: ['apiful/schema'],
+  externals: ['apiful/schema', 'json-schema-to-typescript'],
   clean: true,
   declaration: true,
 })
