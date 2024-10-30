@@ -12,25 +12,25 @@ Import the `jsonToTypeDefinition` function from `apiful/utils`. Pass it your JSO
 ```ts
 import { jsonToTypeDefinition } from 'apiful/utils'
 
-const apiReponse = {
+const response = {
   status: 'success',
   data: {
     id: 123,
     items: [
       { name: 'Item 1', price: 10 },
-      { name: 'Item 2', price: 20 }
+      { name: 'Item 2', price: 20 },
     ],
     metadata: {
       total: 2,
-      page: 1
-    }
-  }
+      page: 1,
+    },
+  },
 }
 
-const apiTypeDefinition = await jsonToTypeDefinition(apiReponse, 'Response')
+const responseTypeDefinition = await jsonToTypeDefinition(apiReponse, { typeName: 'Response' })
 ```
 
-The `apiTypeDefinition` variable will contain the following TypeScript interface as a string:
+The `responseTypeDefinition` variable will contain the following TypeScript interface as a string:
 
 ```ts
 export interface Response {
