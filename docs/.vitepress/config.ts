@@ -73,6 +73,7 @@ export default defineConfig({
         items: [
           { text: 'HTTP Status Codes', link: '/utilities/http-status-codes' },
           { text: 'HTTP Status Phrases', link: '/utilities/http-status-phrases' },
+          { text: 'Types from JSON', link: '/utilities/types-from-json' },
         ],
       },
       {
@@ -159,6 +160,7 @@ function utilitiesGuide(): DefaultTheme.SidebarItem[] {
         { text: 'Overview', link: '/utilities' },
         { text: 'HTTP Status Codes', link: '/utilities/http-status-codes' },
         { text: 'HTTP Status Phrases', link: '/utilities/http-status-phrases' },
+        { text: 'Types from JSON', link: '/utilities/types-from-json' },
       ],
     },
   ]
