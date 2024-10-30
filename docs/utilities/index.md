@@ -10,9 +10,9 @@ List of all [common HTTP status codes](/utilities/http-status-codes) as individu
 
 List of all [common HTTP status reason phrases](/utilities/http-status-phrases) as individually exported constants.
 
-## Generate Types from JSON
+## JSON to Type Definition
 
-Utility function to create [TypeScript interfaces from JSON data](/utilities/types-from-json). Useful for defining API response types or working with dynamic JSON structures.
+Create TypeScript interfaces from JSON data using the [`jsonToTypeDefinition`](/utilities/json-to-type-definition) function. Useful for defining API response types or working with dynamic JSON structures.
 
 ## Examples
 

@@ -1,2 +1,2 @@
-export * from './generate-type-from-json'
+export * from './json-to-type-definition'
 export * from './types'

@@ -1,8 +1,8 @@
 import type { JsonValue } from '../../src/utils'
 import { describe, expect, it } from 'vitest'
-import { generateTypeFromJson } from '../../src/utils/generate-type-from-json'
+import { jsonToTypeDefinition } from '../../src/utils/json-to-type-definition'
 
-describe('generateTypeFromJson', () => {
+describe('jsonToTypeDefinition', () => {
   it('should infer types from basic JSON data', async () => {
     const input = {
       name: 'John',
@@ -17,7 +17,7 @@ describe('generateTypeFromJson', () => {
       nullValue: null,
     }
 
-    const result = await generateTypeFromJson(input, 'User')
+    const result = await jsonToTypeDefinition(input, { typeName: 'User' })
     expect(result).toMatchInlineSnapshot(`
       "export interface User {
         name?: string;
@@ -36,7 +36,7 @@ describe('generateTypeFromJson', () => {
   })
 
   it('should handle empty objects', async () => {
-    const result = await generateTypeFromJson({}, 'Empty')
+    const result = await jsonToTypeDefinition({}, { typeName: 'Empty' })
     expect(result).toMatchInlineSnapshot(`
       "export interface Empty {
         [k: string]: unknown;
@@ -54,7 +54,7 @@ describe('generateTypeFromJson', () => {
       ],
     }
 
-    const result = await generateTypeFromJson(input, 'Matrix')
+    const result = await jsonToTypeDefinition(input, { typeName: 'Matrix' })
     expect(result).toMatchInlineSnapshot(`
       "export interface Matrix {
         matrix?: number[][];
@@ -80,7 +80,7 @@ describe('generateTypeFromJson', () => {
       },
     }
 
-    const result = await generateTypeFromJson(input, 'ComplexData')
+    const result = await jsonToTypeDefinition(input, { typeName: 'ComplexData' })
     expect(result).toMatchInlineSnapshot(`
       "export interface ComplexData {
         id?: number;
@@ -102,7 +102,7 @@ describe('generateTypeFromJson', () => {
       mixedArray: [1, 'string', true, { key: 'value' }],
     }
 
-    const result = await generateTypeFromJson(input, 'MixedArray')
+    const result = await jsonToTypeDefinition(input, { typeName: 'MixedArray' })
     expect(result).toMatchInlineSnapshot(`
       "export interface MixedArray {
         mixedArray?: (
@@ -127,7 +127,7 @@ describe('generateTypeFromJson', () => {
       ],
     }
 
-    const result = await generateTypeFromJson(input, 'Users')
+    const result = await jsonToTypeDefinition(input, { typeName: 'Users' })
     expect(result).toMatchInlineSnapshot(`
       "export interface Users {
         users?: {
@@ -150,7 +150,7 @@ describe('generateTypeFromJson', () => {
       ],
     }
 
-    const result = await generateTypeFromJson(input, 'DeepNested')
+    const result = await jsonToTypeDefinition(input, { typeName: 'DeepNested' })
     expect(result).toMatchInlineSnapshot(`
       "export interface DeepNested {
         data?: {
@@ -175,7 +175,7 @@ describe('generateTypeFromJson', () => {
       },
     }
 
-    const result = await generateTypeFromJson(input, 'EmptyArrays')
+    const result = await jsonToTypeDefinition(input, { typeName: 'EmptyArrays' })
     expect(result).toMatchInlineSnapshot(`
       "export interface EmptyArrays {
         emptyArray?: unknown[];
@@ -197,7 +197,7 @@ describe('generateTypeFromJson', () => {
       ],
     }
 
-    const result = await generateTypeFromJson(input, 'Result')
+    const result = await jsonToTypeDefinition(input, { typeName: 'Result' })
     expect(result).toMatchInlineSnapshot(`
       "export interface Result {
         result?: {
@@ -231,14 +231,21 @@ describe('generateTypeFromJson', () => {
       },
     }
 
-    const result = await generateTypeFromJson(input, 'Tree')
+    const result = await jsonToTypeDefinition(input, { typeName: 'Tree' })
     expect(result).toMatchInlineSnapshot(`
       "export interface Tree {
         tree?: {
           value?: number;
           children?: {
             value?: number;
-            children?: unknown[];
+            children?: (
+              | {
+                  value?: number;
+                }
+              | {
+                  [k: string]: unknown;
+                }
+            )[];
           }[];
         };
       }
@@ -255,7 +262,7 @@ describe('generateTypeFromJson', () => {
       ],
     }
 
-    const result = await generateTypeFromJson(input, 'Properties')
+    const result = await jsonToTypeDefinition(input, { typeName: 'Properties' })
     expect(result).toMatchInlineSnapshot(`
       "export interface Properties {
         properties?: {
