@@ -5,6 +5,22 @@ APIful provides a utility for generating TypeScript interfaces from JSON data. T
 > [!NOTE]
 > All properties in generated interfaces are optional by default to accommodate varying JSON structures. Mark them as required as needed with the `strictProperties` option.
 
+## Prerequisites
+
+This piece of APIful requires `json-schema-to-typescript` to be installed in your project. You can install it using your preferred package manager:
+
+::: code-group
+  ```bash [pnpm]
+  pnpm add -D json-schema-to-typescript
+  ```
+  ```bash [yarn]
+  yarn add -D json-schema-to-typescript
+  ```
+  ```bash [npm]
+  npm install -D json-schema-to-typescript
+  ```
+:::
+
 ## Usage
 
 Import the `jsonToTypeDefinition` function from `apiful/utils`. Pass it your JSON data and define the interface name you want to generate. The function returns a promise that resolves to a string containing the TypeScript interface definition.

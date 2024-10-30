@@ -16,10 +16,10 @@ export async function jsonToTypeDefinition(
 ) {
   const resolvedOptions = resolveOptions(options)
   const schema = createJsonSchema(data, resolvedOptions)
-  return await createTypeDefinitionFromSchema(schema, resolvedOptions)
+  return await schemaToTypeDefinition(schema, resolvedOptions)
 }
 
-export async function createTypeDefinitionFromSchema(schema: JSONSchema, options: Partial<TypeDefinitionOptions> = {}): Promise<string> {
+export async function schemaToTypeDefinition(schema: JSONSchema, options: Partial<TypeDefinitionOptions> = {}): Promise<string> {
   const resolvedOptions = resolveOptions(options)
   const { typeName } = resolvedOptions
   const { compile } = await import ('json-schema-to-typescript')

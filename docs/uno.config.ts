@@ -4,7 +4,6 @@ export default defineConfig({
   presets: [
     presetUno(),
     presetIcons(),
-
   ],
   transformers: [
     transformerDirectives(),
