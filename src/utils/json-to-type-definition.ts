@@ -3,32 +3,39 @@ import type { JsonValue } from './types'
 
 export interface TypeDefinitionOptions {
   /** @default 'Root' */
-  typeName: string
+  typeName?: string
   /** @default false */
-  strictProperties: boolean
+  strictProperties?: boolean
   /** @default '' */
-  bannerComment: string
+  bannerComment?: string
 }
+
+export type ResolvedTypeDefinitionOptions = Required<TypeDefinitionOptions>
 
 export async function jsonToTypeDefinition(
   data: Record<string, JsonValue>,
-  options: Partial<TypeDefinitionOptions> = {},
+  options: TypeDefinitionOptions = {},
 ) {
   const resolvedOptions = resolveOptions(options)
   const schema = createJsonSchema(data, resolvedOptions)
   return await schemaToTypeDefinition(schema, resolvedOptions)
 }
 
-export async function schemaToTypeDefinition(schema: JSONSchema, options: Partial<TypeDefinitionOptions> = {}): Promise<string> {
+export async function schemaToTypeDefinition(
+  schema: JSONSchema,
+  options: TypeDefinitionOptions = {},
+): Promise<string> {
   const resolvedOptions = resolveOptions(options)
   const { typeName } = resolvedOptions
-  const { compile } = await import ('json-schema-to-typescript')
+  const { compile } = await import('json-schema-to-typescript')
 
   if (schema.type === 'array' && schema.items) {
     const itemTypeName = `${typeName}Item`
     const itemType = await compile(schema.items, itemTypeName, { bannerComment: options.bannerComment })
+
     return `
 ${itemType}
+
 export type ${typeName} = ${itemTypeName}[];
 `.trimStart()
   }
@@ -36,7 +43,7 @@ export type ${typeName} = ${itemTypeName}[];
   return await compile(schema, typeName, { bannerComment: options.bannerComment })
 }
 
-function createJsonSchema(data: unknown, options: TypeDefinitionOptions): JSONSchema {
+function createJsonSchema(data: unknown, options: ResolvedTypeDefinitionOptions): JSONSchema {
   if (Array.isArray(data)) {
     if (data.length === 0) {
       return {
@@ -78,7 +85,7 @@ function createJsonSchema(data: unknown, options: TypeDefinitionOptions): JSONSc
   }
 }
 
-function mergeSchemas(schemas: JSONSchema[], options: TypeDefinitionOptions): JSONSchema {
+function mergeSchemas(schemas: JSONSchema[], options: ResolvedTypeDefinitionOptions): JSONSchema {
   if (schemas.length === 0)
     return {}
 
@@ -105,18 +112,19 @@ function mergeSchemas(schemas: JSONSchema[], options: TypeDefinitionOptions): JS
     const requiredProperties = new Set<string>()
 
     for (const schema of schemas) {
-      if (schema.properties) {
-        for (const [key, value] of Object.entries(schema.properties)) {
-          if (!schemaRegistry.has(key)) {
-            schemaRegistry.set(key, [])
-          }
-          schemaRegistry.get(key)!.push(value)
-        }
+      if (!schema.properties)
+        continue
 
-        if (Array.isArray(schema.required)) {
-          for (const key of schema.required)
-            requiredProperties.add(key)
-        }
+      for (const [key, value] of Object.entries(schema.properties)) {
+        if (!schemaRegistry.has(key))
+          schemaRegistry.set(key, [])
+
+        schemaRegistry.get(key)!.push(value)
+      }
+
+      if (Array.isArray(schema.required)) {
+        for (const key of schema.required)
+          requiredProperties.add(key)
       }
     }
 
@@ -128,7 +136,9 @@ function mergeSchemas(schemas: JSONSchema[], options: TypeDefinitionOptions): JS
           mergeSchemas(propertySchemas, options),
         ]),
       ),
-      required: (options.strictProperties && requiredProperties.size > 0) ? Array.from(requiredProperties) : false,
+      required: options.strictProperties && requiredProperties.size > 0
+        ? Array.from(requiredProperties)
+        : false,
       additionalProperties: schemaRegistry.size === 0,
     }
   }
@@ -147,7 +157,7 @@ function mergeSchemas(schemas: JSONSchema[], options: TypeDefinitionOptions): JS
   }
 }
 
-function resolveOptions(options: Partial<TypeDefinitionOptions>): TypeDefinitionOptions {
+function resolveOptions(options: TypeDefinitionOptions): ResolvedTypeDefinitionOptions {
   return {
     typeName: options.typeName || 'Root',
     strictProperties: options.strictProperties || false,

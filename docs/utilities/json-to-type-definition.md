@@ -25,6 +25,10 @@ This piece of APIful requires `json-schema-to-typescript` to be installed in you
 
 Import the `jsonToTypeDefinition` function from `apiful/utils`. Pass it your JSON data and define the interface name you want to generate. The function returns a promise that resolves to a string containing the TypeScript interface definition.
 
+All objects, arrays, and primitive values in the JSON data are converted to TypeScript interfaces, types, and literals. The generated interfaces are named based on the `typeName` option or default to `Root`. The `strictProperties` option can be used to mark all properties as required.
+
+Here's an example of how to generate a type definition for a JSON response:
+
 ```ts
 import { jsonToTypeDefinition } from 'apiful/utils'
 
@@ -43,7 +47,10 @@ const response = {
   },
 }
 
-const responseTypeDefinition = await jsonToTypeDefinition(apiReponse, { typeName: 'Response' })
+const responseTypeDefinition = await jsonToTypeDefinition(
+  apiReponse,
+  { typeName: 'Response' },
+)
 ```
 
 The `responseTypeDefinition` variable will contain the following TypeScript interface as a string:
@@ -73,15 +80,24 @@ export interface Response {
 ```ts
 interface TypeDefinitionOptions {
   /** @default 'Root' */
-  typeName: string
+  typeName?: string
   /** @default false */
-  strictProperties: boolean
+  strictProperties?: boolean
   /** @default '' */
-  bannerComment: string
+  bannerComment?: string
 }
 
 declare function jsonToTypeDefinition(
   data: Record<string, JsonValue>,
-  options?: Partial<TypeDefinitionOptions>,
+  options?: TypeDefinitionOptions,
 ): Promise<string>
+```
+
+The `data` is a JSON object that is typed as a `Record<string, JsonValue>`. The `JsonValue` type is defined as follows:
+
+```ts
+type JsonObject = { [Key in string]: JsonValue } & { [Key in string]?: JsonValue | undefined }
+type JsonArray = JsonValue[] | readonly JsonValue[]
+type JsonPrimitive = string | number | boolean | null
+type JsonValue = JsonPrimitive | JsonObject | JsonArray
 ```
