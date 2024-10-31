@@ -1,4 +1,5 @@
 import type { DefaultTheme } from 'vitepress'
+import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vitepress'
 import { description, github, name, ogImage, ogUrl, releases, twitterImage, version } from './meta'
 
@@ -24,6 +25,10 @@ export default defineConfig({
     // Plausible Analytics
     ['script', { 'src': 'https://plausible.io/js/script.js', 'defer': '', 'data-domain': url.hostname }],
   ],
+
+  vite: {
+    plugins: [UnoCSS()],
+  },
 
   themeConfig: {
     nav: [
