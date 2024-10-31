@@ -8,6 +8,8 @@ export interface TypeDefinitionOptions {
   strictProperties?: boolean
   /** @default '' */
   bannerComment?: string
+  /** @default true */
+  format?: boolean
 }
 
 export type ResolvedTypeDefinitionOptions = Required<TypeDefinitionOptions>
@@ -31,7 +33,10 @@ export async function schemaToTypeDefinition(
 
   if (schema.type === 'array' && schema.items) {
     const itemTypeName = `${typeName}Item`
-    const itemType = await compile(schema.items, itemTypeName, { bannerComment: options.bannerComment })
+    const itemType = await compile(schema.items, itemTypeName, {
+      bannerComment: options.bannerComment,
+      format: options.format,
+    })
 
     return `
 ${itemType}
@@ -40,7 +45,10 @@ export type ${typeName} = ${itemTypeName}[];
 `.trimStart()
   }
 
-  return await compile(schema, typeName, { bannerComment: options.bannerComment })
+  return await compile(schema, typeName, {
+    bannerComment: options.bannerComment,
+    format: options.format,
+  })
 }
 
 function createJsonSchema(data: unknown, options: ResolvedTypeDefinitionOptions): JSONSchema {
@@ -160,7 +168,8 @@ function mergeSchemas(schemas: JSONSchema[], options: ResolvedTypeDefinitionOpti
 function resolveOptions(options: TypeDefinitionOptions): ResolvedTypeDefinitionOptions {
   return {
     typeName: options.typeName || 'Root',
-    strictProperties: options.strictProperties || false,
-    bannerComment: options.bannerComment || '',
+    strictProperties: options.strictProperties ?? false,
+    bannerComment: options.bannerComment ?? '',
+    format: options.format ?? true,
   }
 }

@@ -85,6 +85,8 @@ interface TypeDefinitionOptions {
   strictProperties?: boolean
   /** @default '' */
   bannerComment?: string
+  /** @default true */
+  format?: boolean
 }
 
 declare function jsonToTypeDefinition(

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { jsonToTypeDefinition } from '../../src/utils/json-to-type-definition'
 
 describe('jsonToTypeDefinition', () => {
-  it('should infer types from basic JSON data', async () => {
+  it('inferes types from basic JSON data', async () => {
     const input = {
       name: 'John',
       age: 30,
@@ -35,7 +35,7 @@ describe('jsonToTypeDefinition', () => {
     `)
   })
 
-  it('should handle empty objects', async () => {
+  it('handles empty objects', async () => {
     const result = await jsonToTypeDefinition({}, { typeName: 'Empty' })
     expect(result).toMatchInlineSnapshot(`
       "export interface Empty {
@@ -45,7 +45,7 @@ describe('jsonToTypeDefinition', () => {
     `)
   })
 
-  it('should handle nested arrays', async () => {
+  it('handles nested arrays', async () => {
     const input = {
       matrix: [[1, 2], [3, 4]],
       points: [
@@ -67,7 +67,7 @@ describe('jsonToTypeDefinition', () => {
     `)
   })
 
-  it('should handle mixed types', async () => {
+  it('handles mixed types', async () => {
     const input = {
       id: 1,
       metadata: {
@@ -97,7 +97,7 @@ describe('jsonToTypeDefinition', () => {
     `)
   })
 
-  it('should handle arrays with mixed types', async () => {
+  it('handles arrays with mixed types', async () => {
     const input = {
       mixedArray: [1, 'string', true, { key: 'value' }],
     }
@@ -141,7 +141,7 @@ describe('jsonToTypeDefinition', () => {
     `)
   })
 
-  it('should handle deeply nested mixed arrays', async () => {
+  it('handles deeply nested mixed arrays', async () => {
     const input = {
       data: [
         [{ id: 1, type: 'A' }],
@@ -166,7 +166,7 @@ describe('jsonToTypeDefinition', () => {
     `)
   })
 
-  it('should handle empty arrays', async () => {
+  it('handles empty arrays', async () => {
     const input = {
       emptyArray: [],
       nestedEmpty: [[]],
@@ -188,7 +188,7 @@ describe('jsonToTypeDefinition', () => {
     `)
   })
 
-  it('should handle complex union types', async () => {
+  it('handles complex union types', async () => {
     const input: JsonValue = {
       result: [
         { type: 'success', data: { id: 1 } },
@@ -212,7 +212,7 @@ describe('jsonToTypeDefinition', () => {
     `)
   })
 
-  it('should handle recursive structures', async () => {
+  it('handles recursive structures', async () => {
     const input = {
       tree: {
         value: 1,
@@ -253,7 +253,7 @@ describe('jsonToTypeDefinition', () => {
     `)
   })
 
-  it('should handle objects with mixed property types', async () => {
+  it('handles objects with mixed property types', async () => {
     const input = {
       properties: [
         { name: 'prop1', value: 123 },
@@ -274,6 +274,22 @@ describe('jsonToTypeDefinition', () => {
                 nested?: boolean;
               };
         }[];
+      }
+      "
+    `)
+  })
+
+  it('allows disabling code formatting', async () => {
+    const input = {
+      name: 'John',
+      age: 30,
+    }
+
+    const result = await jsonToTypeDefinition(input, { typeName: 'User', format: false })
+    expect(result).toMatchInlineSnapshot(`
+      "export interface User {
+      name?: string
+      age?: number
       }
       "
     `)

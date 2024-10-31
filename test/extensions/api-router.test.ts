@@ -79,7 +79,7 @@ describe('apiRouterBuilder adapter', () => {
     })
   })
 
-  it('should override default options', async () => {
+  it('overrides default options', async () => {
     const client = _client.with(apiRouterBuilder())
     const response = await client.echo!.request!.post(undefined, {
       headers: { 'X-Foo': 'baz' },
