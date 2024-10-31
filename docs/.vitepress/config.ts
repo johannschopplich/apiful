@@ -90,6 +90,7 @@ export default defineConfig({
     sidebar: {
       '/guide/': sidebarGuide(),
       '/extensions/': sidebarGuide(),
+      '/cookbook/': sidebarGuide(),
       '/reference/': referenceGuide(),
       '/utilities/': utilitiesGuide(),
     },
@@ -126,6 +127,12 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
         { text: 'ofetch', link: '/extensions/ofetch' },
         { text: 'OpenAPI', link: '/extensions/openapi' },
         { text: 'API Router', link: '/extensions/api-router' },
+      ],
+    },
+    {
+      text: 'Cookbook',
+      items: [
+        { text: 'Typed Clients for Nitro', link: '/cookbook/typed-nitro-client' },
       ],
     },
     { text: 'Utilities', link: '/utilities' },

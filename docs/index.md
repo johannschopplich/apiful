@@ -50,9 +50,9 @@ features:
     linkText: OpenAPI Integration
   - icon: <span class="i-carbon:chart-network"></span>
     title: UnJS Integration
-    details: Designed on top of ofetch by UnJS.
-    link: /extensions/ofetch
-    linkText: ofetch Adapter
+    details: Create typed clients for Nitro servers. Designed on top of ofetch.
+    link: /cookbook/typed-nitro-client
+    linkText: Typed Clients for Nitro
   - icon: <span class="i-carbon:application"></span>
     title: Server-Side Utilities
     details: Ease server-side development with utilities for Hono, Elysia, and more.
