@@ -20,7 +20,7 @@ export function createOpenAPIClient<Paths>(
   )
 }
 
-export function resolvePathParams(path: string, params?: Record<string, unknown>) {
+export function resolvePathParams(path: string, params?: Record<string, string>) {
   if (params) {
     for (const [key, value] of Object.entries(params))
       path = path.replace(`{${key}}`, encodeURIComponent(String(value)))

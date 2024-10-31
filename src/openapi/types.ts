@@ -8,8 +8,8 @@ import type {
   SuccessResponse,
 } from 'openapi-typescript-helpers'
 
-export type FetchResponseData<T> = SuccessResponse<ResponseObjectMap<T>, MediaType>
-export type FetchResponseError<T> = FetchError<ErrorResponse<ResponseObjectMap<T>, MediaType>>
+export type FetchResponseData<T extends Record<PropertyKey, any>> = SuccessResponse<ResponseObjectMap<T>, MediaType>
+export type FetchResponseError<T extends Record<PropertyKey, any>> = FetchError<ErrorResponse<ResponseObjectMap<T>, MediaType>>
 
 export type MethodOption<M, P> = 'get' extends keyof P ? { method?: M } : { method: M }
 
@@ -42,9 +42,9 @@ export type OpenAPIClient<Paths> = <
   ReqT extends Extract<keyof Paths, string>,
   Methods extends FilterMethods<Paths[ReqT]>,
   Method extends Extract<keyof Methods, string> | Uppercase<Extract<keyof Methods, string>>,
-  LowercasedMethod extends Lowercase<Method> extends keyof FilterMethods<Paths[ReqT]> ? Lowercase<Method> : never,
+  LowercasedMethod extends Lowercase<Method> extends keyof Methods ? Lowercase<Method> : never,
   DefaultMethod extends 'get' extends LowercasedMethod ? 'get' : LowercasedMethod,
-  ResT = FetchResponseData<Paths[ReqT][DefaultMethod]>,
+  ResT = Methods[DefaultMethod] extends Record<PropertyKey, any> ? FetchResponseData<Methods[DefaultMethod]> : never,
 >(
   url: ReqT,
   options?: OpenAPIFetchOptions<Method, LowercasedMethod, Methods>
