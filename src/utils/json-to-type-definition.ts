@@ -143,9 +143,7 @@ function mergeSchemas(schemas: JSONSchema[], options: ResolvedTypeDefinitionOpti
           mergeSchemas(propertySchemas, options),
         ]),
       ),
-      required: options.strictProperties && requiredProperties.size > 0
-        ? Array.from(requiredProperties)
-        : undefined,
+      required: requiredProperties.size > 0 ? Array.from(requiredProperties) : undefined,
       additionalProperties: propertySchemas.size === 0,
     }
   }
