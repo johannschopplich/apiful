@@ -238,14 +238,9 @@ describe('jsonToTypeDefinition', () => {
           value?: number;
           children?: {
             value?: number;
-            children?: (
-              | {
-                  value?: number;
-                }
-              | {
-                  [k: string]: unknown;
-                }
-            )[];
+            children?: {
+              value?: number;
+            }[];
           }[];
         };
       }

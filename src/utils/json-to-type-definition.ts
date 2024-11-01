@@ -15,7 +15,7 @@ export interface TypeDefinitionOptions {
 export type ResolvedTypeDefinitionOptions = Required<TypeDefinitionOptions>
 
 export async function jsonToTypeDefinition(
-  data: Record<string, JsonValue>,
+  data: JsonValue,
   options: TypeDefinitionOptions = {},
 ) {
   const resolvedOptions = resolveOptions(options)
@@ -56,7 +56,6 @@ function createJsonSchema(data: unknown, options: ResolvedTypeDefinitionOptions)
     if (data.length === 0) {
       return {
         type: 'array',
-        items: {},
       }
     }
 
@@ -116,7 +115,7 @@ function mergeSchemas(schemas: JSONSchema[], options: ResolvedTypeDefinitionOpti
   const type = schemas[0]!.type
 
   if (type === 'object') {
-    const schemaRegistry = new Map<string, JSONSchema[]>()
+    const propertySchemas = new Map<string, JSONSchema[]>()
     const requiredProperties = new Set<string>()
 
     for (const schema of schemas) {
@@ -124,10 +123,10 @@ function mergeSchemas(schemas: JSONSchema[], options: ResolvedTypeDefinitionOpti
         continue
 
       for (const [key, value] of Object.entries(schema.properties)) {
-        if (!schemaRegistry.has(key))
-          schemaRegistry.set(key, [])
+        if (!propertySchemas.has(key))
+          propertySchemas.set(key, [])
 
-        schemaRegistry.get(key)!.push(value)
+        propertySchemas.get(key)!.push(value)
       }
 
       if (Array.isArray(schema.required)) {
@@ -139,15 +138,15 @@ function mergeSchemas(schemas: JSONSchema[], options: ResolvedTypeDefinitionOpti
     return {
       type: 'object',
       properties: Object.fromEntries(
-        Array.from(schemaRegistry.entries()).map(([key, propertySchemas]) => [
+        Array.from(propertySchemas.entries()).map(([key, propertySchemas]) => [
           key,
           mergeSchemas(propertySchemas, options),
         ]),
       ),
       required: options.strictProperties && requiredProperties.size > 0
         ? Array.from(requiredProperties)
-        : false,
-      additionalProperties: schemaRegistry.size === 0,
+        : undefined,
+      additionalProperties: propertySchemas.size === 0,
     }
   }
   else if (type === 'array') {
