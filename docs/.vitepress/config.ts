@@ -70,6 +70,12 @@ export default defineConfig({
               { text: 'MethodsExtensionBuilder', link: '/reference/methods-extension-builder' },
             ],
           },
+          {
+            text: 'Extensions',
+            items: [
+              { text: 'OpenAPI Type Helpers', link: '/reference/openapi-type-helpers' },
+            ],
+          },
         ],
       },
       {
@@ -159,6 +165,12 @@ function referenceGuide(): DefaultTheme.SidebarItem[] {
         { text: 'ApiClient', link: '/reference/api-client' },
         { text: 'HandlerExtensionBuilder', link: '/reference/handler-extension-builder' },
         { text: 'MethodsExtensionBuilder', link: '/reference/methods-extension-builder' },
+      ],
+    },
+    {
+      text: 'Extensions',
+      items: [
+        { text: 'OpenAPI Type Helpers', link: '/reference/openapi-type-helpers' },
       ],
     },
   ]
