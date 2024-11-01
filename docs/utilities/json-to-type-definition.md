@@ -90,12 +90,12 @@ interface TypeDefinitionOptions {
 }
 
 declare function jsonToTypeDefinition(
-  data: Record<string, JsonValue>,
+  data: JsonValue,
   options?: TypeDefinitionOptions,
 ): Promise<string>
 ```
 
-The `data` is a JSON object that is typed as a `Record<string, JsonValue>`. The `JsonValue` type is defined as follows:
+The input parameter `data` is a JSON object or any other valid JSON value. For reference, here's the definition of the `JsonValue` type:
 
 ```ts
 type JsonObject = { [Key in string]: JsonValue } & { [Key in string]?: JsonValue | undefined }
