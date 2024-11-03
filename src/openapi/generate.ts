@@ -2,11 +2,7 @@ import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
 import type { ServiceOptions } from '../config'
 import { defu } from 'defu'
 import { pascalCase } from 'scule'
-
-const HEAD_DECLARATION = `/* eslint-disable */
-/* prettier-ignore */
-// @ts-nocheck
-` as const
+import { CODE_HEADER_DIRECTIVES } from '../constants'
 
 export async function generateDTS(
   services: Record<string, ServiceOptions>,
@@ -24,7 +20,7 @@ export async function generateDTS(
   const resolvedSchemas = Object.fromEntries(resolvedSchemaEntries)
 
   return `
-${HEAD_DECLARATION}
+${CODE_HEADER_DIRECTIVES}
 declare module 'apiful/schema' {
 ${Object.keys(resolvedSchemas)
   .map(i => `  import { paths as ${pascalCase(i)}Paths, operations as ${pascalCase(i)}Operations } from 'apiful/__${i}__'`)

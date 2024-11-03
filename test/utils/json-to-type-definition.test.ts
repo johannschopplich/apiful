@@ -19,18 +19,22 @@ describe('jsonToTypeDefinition', () => {
 
     const result = await jsonToTypeDefinition(input, { typeName: 'User' })
     expect(result).toMatchInlineSnapshot(`
-      "export interface User {
-        name?: string;
-        age?: number;
-        isActive?: boolean;
-        tags?: string[];
+      "/* eslint-disable */
+      /* prettier-ignore */
+
+      export interface User {
+        name?: string
+        age?: number
+        isActive?: boolean
+        tags?: string[]
         address?: {
-          street?: string;
-          city?: string;
-          zipCode?: number;
-        };
-        nullValue?: unknown;
+          street?: string
+          city?: string
+          zipCode?: number
+        }
+        nullValue?: unknown
       }
+
       "
     `)
   })
@@ -38,9 +42,13 @@ describe('jsonToTypeDefinition', () => {
   it('handles empty objects', async () => {
     const result = await jsonToTypeDefinition({}, { typeName: 'Empty' })
     expect(result).toMatchInlineSnapshot(`
-      "export interface Empty {
-        [k: string]: unknown;
+      "/* eslint-disable */
+      /* prettier-ignore */
+
+      export interface Empty {
+        [k: string]: unknown
       }
+
       "
     `)
   })
@@ -56,13 +64,17 @@ describe('jsonToTypeDefinition', () => {
 
     const result = await jsonToTypeDefinition(input, { typeName: 'Matrix' })
     expect(result).toMatchInlineSnapshot(`
-      "export interface Matrix {
-        matrix?: number[][];
+      "/* eslint-disable */
+      /* prettier-ignore */
+
+      export interface Matrix {
+        matrix?: number[][]
         points?: {
-          x?: number;
-          y?: number;
-        }[];
+          x?: number
+          y?: number
+        }[]
       }
+
       "
     `)
   })
@@ -82,17 +94,21 @@ describe('jsonToTypeDefinition', () => {
 
     const result = await jsonToTypeDefinition(input, { typeName: 'ComplexData' })
     expect(result).toMatchInlineSnapshot(`
-      "export interface ComplexData {
-        id?: number;
+      "/* eslint-disable */
+      /* prettier-ignore */
+
+      export interface ComplexData {
+        id?: number
         metadata?: {
-          tags?: string[];
-          values?: number[];
+          tags?: string[]
+          values?: number[]
           settings?: {
-            enabled?: boolean;
-            config?: unknown;
-          };
-        };
+            enabled?: boolean
+            config?: unknown
+          }
+        }
       }
+
       "
     `)
   })
@@ -104,16 +120,15 @@ describe('jsonToTypeDefinition', () => {
 
     const result = await jsonToTypeDefinition(input, { typeName: 'MixedArray' })
     expect(result).toMatchInlineSnapshot(`
-      "export interface MixedArray {
-        mixedArray?: (
-          | number
-          | string
-          | boolean
-          | {
-              key?: string;
-            }
-        )[];
+      "/* eslint-disable */
+      /* prettier-ignore */
+
+      export interface MixedArray {
+        mixedArray?: (number | string | boolean | {
+          key?: string
+        })[]
       }
+
       "
     `)
   })
@@ -129,14 +144,18 @@ describe('jsonToTypeDefinition', () => {
 
     const result = await jsonToTypeDefinition(input, { typeName: 'Users' })
     expect(result).toMatchInlineSnapshot(`
-      "export interface Users {
+      "/* eslint-disable */
+      /* prettier-ignore */
+
+      export interface Users {
         users?: {
-          id?: number;
-          name?: string;
-          email?: string;
-          age?: number;
-        }[];
+          id?: number
+          name?: string
+          email?: string
+          age?: number
+        }[]
       }
+
       "
     `)
   })
@@ -152,16 +171,20 @@ describe('jsonToTypeDefinition', () => {
 
     const result = await jsonToTypeDefinition(input, { typeName: 'DeepNested' })
     expect(result).toMatchInlineSnapshot(`
-      "export interface DeepNested {
+      "/* eslint-disable */
+      /* prettier-ignore */
+
+      export interface DeepNested {
         data?: {
-          id?: number;
-          type?: string;
-          status?: string;
+          id?: number
+          type?: string
+          status?: string
           meta?: {
-            tag?: string;
-          };
-        }[][];
+            tag?: string
+          }
+        }[][]
       }
+
       "
     `)
   })
@@ -177,13 +200,17 @@ describe('jsonToTypeDefinition', () => {
 
     const result = await jsonToTypeDefinition(input, { typeName: 'EmptyArrays' })
     expect(result).toMatchInlineSnapshot(`
-      "export interface EmptyArrays {
-        emptyArray?: unknown[];
-        nestedEmpty?: unknown[][];
+      "/* eslint-disable */
+      /* prettier-ignore */
+
+      export interface EmptyArrays {
+        emptyArray?: unknown[]
+        nestedEmpty?: unknown[][]
         mixedEmpty?: {
-          data?: unknown[];
-        };
+          data?: unknown[]
+        }
       }
+
       "
     `)
   })
@@ -199,15 +226,19 @@ describe('jsonToTypeDefinition', () => {
 
     const result = await jsonToTypeDefinition(input, { typeName: 'Result' })
     expect(result).toMatchInlineSnapshot(`
-      "export interface Result {
+      "/* eslint-disable */
+      /* prettier-ignore */
+
+      export interface Result {
         result?: {
-          type?: string;
+          type?: string
           data?: {
-            id?: number;
-          };
-          message?: string;
-        }[];
+            id?: number
+          }
+          message?: string
+        }[]
       }
+
       "
     `)
   })
@@ -233,17 +264,21 @@ describe('jsonToTypeDefinition', () => {
 
     const result = await jsonToTypeDefinition(input, { typeName: 'Tree' })
     expect(result).toMatchInlineSnapshot(`
-      "export interface Tree {
+      "/* eslint-disable */
+      /* prettier-ignore */
+
+      export interface Tree {
         tree?: {
-          value?: number;
+          value?: number
           children?: {
-            value?: number;
+            value?: number
             children?: {
-              value?: number;
-            }[];
-          }[];
-        };
+              value?: number
+            }[]
+          }[]
+        }
       }
+
       "
     `)
   })
@@ -259,17 +294,18 @@ describe('jsonToTypeDefinition', () => {
 
     const result = await jsonToTypeDefinition(input, { typeName: 'Properties' })
     expect(result).toMatchInlineSnapshot(`
-      "export interface Properties {
+      "/* eslint-disable */
+      /* prettier-ignore */
+
+      export interface Properties {
         properties?: {
-          name?: string;
-          value?:
-            | number
-            | string
-            | {
-                nested?: boolean;
-              };
-        }[];
+          name?: string
+          value?: (number | string | {
+            nested?: boolean
+          })
+        }[]
       }
+
       "
     `)
   })
@@ -282,10 +318,14 @@ describe('jsonToTypeDefinition', () => {
 
     const result = await jsonToTypeDefinition(input, { typeName: 'User', format: false })
     expect(result).toMatchInlineSnapshot(`
-      "export interface User {
-      name?: string
-      age?: number
+      "/* eslint-disable */
+      /* prettier-ignore */
+
+      export interface User {
+        name?: string
+        age?: number
       }
+
       "
     `)
   })

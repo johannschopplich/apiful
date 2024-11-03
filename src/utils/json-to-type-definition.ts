@@ -1,15 +1,13 @@
-import type { JSONSchema } from 'json-schema-to-typescript'
+import type { JSONSchema4 } from 'json-schema'
 import type { JsonValue } from './types'
+import { compile } from 'json-schema-to-typescript-lite'
+import { CODE_HEADER_DIRECTIVES } from '../constants'
 
 export interface TypeDefinitionOptions {
   /** @default 'Root' */
   typeName?: string
   /** @default false */
   strictProperties?: boolean
-  /** @default '' */
-  bannerComment?: string
-  /** @default true */
-  format?: boolean
 }
 
 export type ResolvedTypeDefinitionOptions = Required<TypeDefinitionOptions>
@@ -20,38 +18,15 @@ export async function jsonToTypeDefinition(
 ) {
   const resolvedOptions = resolveOptions(options)
   const schema = createJsonSchema(data, resolvedOptions)
-  return await schemaToTypeDefinition(schema, resolvedOptions)
-}
+  const output = await compile(schema, resolvedOptions.typeName)
 
-export async function schemaToTypeDefinition(
-  schema: JSONSchema,
-  options: TypeDefinitionOptions = {},
-): Promise<string> {
-  const resolvedOptions = resolveOptions(options)
-  const { typeName } = resolvedOptions
-  const { compile } = await import('json-schema-to-typescript')
-
-  if (schema.type === 'array' && schema.items) {
-    const itemTypeName = `${typeName}Item`
-    const itemType = await compile(schema.items, itemTypeName, {
-      bannerComment: options.bannerComment,
-      format: options.format,
-    })
-
-    return `
-${itemType}
-
-export type ${typeName} = ${itemTypeName}[];
+  return `
+${CODE_HEADER_DIRECTIVES}
+${output}
 `.trimStart()
-  }
-
-  return await compile(schema, typeName, {
-    bannerComment: options.bannerComment,
-    format: options.format,
-  })
 }
 
-function createJsonSchema(data: unknown, options: ResolvedTypeDefinitionOptions): JSONSchema {
+function createJsonSchema(data: unknown, options: ResolvedTypeDefinitionOptions): JSONSchema4 {
   if (Array.isArray(data)) {
     if (data.length === 0) {
       return {
@@ -87,12 +62,12 @@ function createJsonSchema(data: unknown, options: ResolvedTypeDefinitionOptions)
   }
   else {
     return {
-      type: typeof data as JSONSchema['type'],
+      type: typeof data as JSONSchema4['type'],
     }
   }
 }
 
-function mergeSchemas(schemas: JSONSchema[], options: ResolvedTypeDefinitionOptions): JSONSchema {
+function mergeSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOptions): JSONSchema4 {
   if (schemas.length === 0)
     return {}
 
@@ -115,7 +90,7 @@ function mergeSchemas(schemas: JSONSchema[], options: ResolvedTypeDefinitionOpti
   const type = schemas[0]!.type
 
   if (type === 'object') {
-    const propertySchemas = new Map<string, JSONSchema[]>()
+    const propertySchemas = new Map<string, JSONSchema4[]>()
     const requiredProperties = new Set<string>()
 
     for (const schema of schemas) {
@@ -150,7 +125,7 @@ function mergeSchemas(schemas: JSONSchema[], options: ResolvedTypeDefinitionOpti
   else if (type === 'array') {
     const itemSchemas = schemas
       .map(schema => schema.items)
-      .filter((items): items is JSONSchema => Boolean(items))
+      .filter((items): items is JSONSchema4 => Boolean(items))
 
     return {
       type: 'array',
@@ -166,7 +141,5 @@ function resolveOptions(options: TypeDefinitionOptions): ResolvedTypeDefinitionO
   return {
     typeName: options.typeName || 'Root',
     strictProperties: options.strictProperties ?? false,
-    bannerComment: options.bannerComment ?? '',
-    format: options.format ?? true,
   }
 }

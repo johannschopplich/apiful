@@ -3,7 +3,6 @@
 # APIful
 
 [![npm version][npm-version-src]][npm-version-href]
-[![bundle][bundle-src]][bundle-href]
 
 APIful provides a unified interface to manage all your API interactions by setting up a client with default fetch options, such as the base API URL and headers. Extensions add a variety of features to the client to match your favorite flavor of API management.
 
@@ -172,5 +171,3 @@ Published under [MIT License](./LICENSE).
 
 [npm-version-src]: https://img.shields.io/npm/v/apiful?style=flat
 [npm-version-href]: https://npmjs.com/package/apiful
-[bundle-src]: https://img.shields.io/bundlephobia/minzip/apiful?style=flat
-[bundle-href]: https://bundlephobia.com/result?p=apiful

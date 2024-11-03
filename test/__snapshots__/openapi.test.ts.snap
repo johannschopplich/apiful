@@ -3,7 +3,6 @@
 exports[`OpenAPI to TypeScript > generates OpenAPI types 1`] = `
 "/* eslint-disable */
 /* prettier-ignore */
-// @ts-nocheck
 
 declare module 'apiful/schema' {
   import { paths as TestEchoPaths, operations as TestEchoOperations } from 'apiful/__testEcho__'
