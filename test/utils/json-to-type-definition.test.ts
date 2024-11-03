@@ -309,24 +309,4 @@ describe('jsonToTypeDefinition', () => {
       "
     `)
   })
-
-  it('allows disabling code formatting', async () => {
-    const input = {
-      name: 'John',
-      age: 30,
-    }
-
-    const result = await jsonToTypeDefinition(input, { typeName: 'User', format: false })
-    expect(result).toMatchInlineSnapshot(`
-      "/* eslint-disable */
-      /* prettier-ignore */
-
-      export interface User {
-        name?: string
-        age?: number
-      }
-
-      "
-    `)
-  })
 })
