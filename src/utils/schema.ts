@@ -31,7 +31,7 @@ export function jsonSchema<T = unknown>(
 ): Schema<T> {
   return {
     [schemaSymbol]: true,
-    _type: undefined as T, // should never be used directly
+    _type: undefined as T, // Should never be used directly
     [validatorSymbol]: true,
     jsonSchema,
     validate,
