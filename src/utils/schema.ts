@@ -4,7 +4,7 @@ import { validatorSymbol } from './validator'
 
 const schemaSymbol = Symbol.for('apiful.schema')
 
-export type Schema<T = unknown> = Validator<T> & {
+export interface Schema<T = unknown> extends Validator<T> {
   [schemaSymbol]: true
 
   /**
@@ -23,9 +23,7 @@ export type Schema<T = unknown> = Validator<T> & {
  */
 export function jsonSchema<T = unknown>(
   jsonSchema: JSONSchema7,
-  {
-    validate,
-  }: {
+  { validate }: {
     validate?: (value: unknown) => ValidationResult<T>
   } = {},
 ): Schema<T> {
