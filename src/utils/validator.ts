@@ -1,13 +1,13 @@
-// Adapted from Vercel's `provider-utils` package:
+// Inspired from Vercel's `provider-utils` package:
 // https://github.com/vercel/ai/blob/b113999e8667417b042b9e1c2401402adb0ed9f3/packages/provider-utils/src/validate-types.ts
 // License: Apache-2.0
 
 /* eslint-disable jsdoc/check-param-names */
 export const validatorSymbol = Symbol.for('apiful.validator')
 
-export type ValidationResult<T> =
+export type ValidationResult<T, E = Error> =
   | { success: true, value: T }
-  | { success: false, error: Error }
+  | { success: false, error: E }
 
 export interface Validator<T = unknown> {
   [validatorSymbol]: true
@@ -90,9 +90,7 @@ export function safeValidateTypes<T>({
 }: {
   value: unknown
   schema: Validator<T>
-}):
-  | { success: true, value: T }
-  | { success: false, error: TypeValidationError } {
+}): ValidationResult<T, TypeValidationError> {
   try {
     if (schema.validate == null) {
       return { success: true, value: value as T }
