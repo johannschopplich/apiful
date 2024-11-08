@@ -1,6 +1,5 @@
 import type { JSONSchema4 } from 'json-schema'
 import type { JsonValue } from './types'
-import { compile } from 'json-schema-to-typescript-lite'
 import { CODE_HEADER_DIRECTIVES } from '../constants'
 
 export interface TypeDefinitionOptions {
@@ -16,6 +15,11 @@ export async function jsonToTypeDefinition(
   data: JsonValue,
   options: TypeDefinitionOptions = {},
 ) {
+  const { compile } = await import('json-schema-to-typescript-lite')
+    .catch(() => {
+      throw new Error('Missing dependency: Please install "json-schema-to-typescript-lite"')
+    })
+
   const resolvedOptions = resolveOptions(options)
   const schema = createJsonSchema(data, resolvedOptions)
   const output = await compile(schema, resolvedOptions.typeName)

@@ -18,6 +18,20 @@ At the current development stage, the CLI provides only one command:
 
 Generates TypeScript definitions from OpenAPI schemas.
 
+This command requires the `openapi-typescript` package, which APIful does not include by default to keep its package size small. Install the package using your preferred package manager:
+
+::: code-group
+  ```bash [pnpm]
+  pnpm add -D openapi-typescript
+  ```
+  ```bash [yarn]
+  yarn add -D openapi-typescript
+  ```
+  ```bash [npm]
+  npm install -D openapi-typescript
+  ```
+:::
+
 > [!TIP]
 > Read the [OpenAPI](/extensions/openapi) extension documentation to learn how to build the type-safe API client.
 

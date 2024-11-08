@@ -7,6 +7,22 @@ This built-in APIful extension adds type-safety for API calls based on an OpenAP
 
 In order to use this extension, APIful needs to generate TypeScript definitions from your OpenAPI schema files beforehand.
 
+## Prerequisites
+
+To keep the package size small, APIful does not include `openapi-typescript` as a dependency. Install the package using your preferred package manager:
+
+::: code-group
+  ```bash [pnpm]
+  pnpm add -D openapi-typescript
+  ```
+  ```bash [yarn]
+  yarn add -D openapi-typescript
+  ```
+  ```bash [npm]
+  npm install -D openapi-typescript
+  ```
+:::
+
 ## TypeScript Definitions Generation
 
 Before initiating the type-safe API client, you need to generate TypeScript definitions from your OpenAPI schema files. You can do this by defining API services with OpenAPI schemas in the `apiful.config.ts` file and running the [`generate`](/guide/cli) command of the APIful CLI.

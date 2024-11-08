@@ -11,7 +11,12 @@ export default defineBuildConfig({
     'src/generated/http-status-phrases',
     'src/utils/index',
   ],
-  externals: ['apiful/schema', 'json-schema'],
+  externals: [
+    'apiful/schema',
+    'json-schema',
+    'json-schema-to-typescript-lite',
+    'openapi-typescript',
+  ],
   clean: true,
   declaration: true,
 })

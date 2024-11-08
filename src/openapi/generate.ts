@@ -63,8 +63,11 @@ async function generateSchemaTypes(options: {
 },
 ) {
   const { default: openAPITS, astToString } = await import('openapi-typescript')
-  const schema = await resolveSchema(options.service)
+    .catch(() => {
+      throw new Error('Missing dependency: Please install "openapi-typescript"')
+    })
 
+  const schema = await resolveSchema(options.service)
   const resolvedOpenAPITSOptions = defu(options.service.openAPITS, options.openAPITSOptions || {})
 
   try {
