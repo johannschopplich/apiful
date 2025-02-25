@@ -1,3 +1,4 @@
+import type { Validator } from '../../src/utils/validator'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   isValidator,
@@ -5,7 +6,6 @@ import {
   TypeValidationError,
   validateTypes,
   validator,
-  type Validator,
 } from '../../src/utils/validator'
 
 describe('validator', () => {

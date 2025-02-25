@@ -111,7 +111,7 @@ describe('apiRouterBuilder adapter', () => {
 
   it('handles error responses', async () => {
     const client = _client.with(apiRouterBuilder())
-    expect(async () => {
+    await expect(async () => {
       await client.baz!.get<EchoStaticConstantResponse>()
     }).rejects.toThrow(/404/)
   })

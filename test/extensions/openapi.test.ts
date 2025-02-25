@@ -46,7 +46,7 @@ describe('OpenAPI adapter', () => {
 
   it('handles error responses', async () => {
     const client = _client.with(OpenAPIBuilder<'testEcho'>())
-    expect(() => {
+    await expect(() => {
       return client(
         // @ts-expect-error: Path not defined in OpenAPI schema
         '/not-found',
