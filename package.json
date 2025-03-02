@@ -27,38 +27,38 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs"
+      "default": "./dist/index.mjs"
     },
     "./config": {
       "types": "./dist/config.d.mts",
-      "import": "./dist/config.mjs"
+      "default": "./dist/config.mjs"
     },
     "./extensions": {
       "types": "./dist/extensions/index.d.mts",
-      "import": "./dist/extensions/index.mjs"
+      "default": "./dist/extensions/index.mjs"
     },
     "./openapi": {
       "types": "./dist/openapi/index.d.mts",
-      "import": "./dist/openapi/index.mjs"
+      "default": "./dist/openapi/index.mjs"
     },
     "./schema": {
       "types": "./schema.d.mts",
-      "import": "./schema.mjs"
+      "default": "./schema.mjs"
     },
     "./http-status-codes": {
       "types": "./dist/generated/http-status-codes.d.mts",
-      "import": "./dist/generated/http-status-codes.mjs"
+      "default": "./dist/generated/http-status-codes.mjs"
     },
     "./http-status-phrases": {
       "types": "./dist/generated/http-status-phrases.d.mts",
-      "import": "./dist/generated/http-status-phrases.mjs"
+      "default": "./dist/generated/http-status-phrases.mjs"
     },
     "./utils": {
       "types": "./dist/utils/index.d.mts",
-      "import": "./dist/utils/index.mjs"
+      "default": "./dist/utils/index.mjs"
     }
   },
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.mts",
   "bin": {
     "apiful": "./bin/apiful.mjs"
   },
