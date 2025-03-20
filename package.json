@@ -58,9 +58,9 @@
       "default": "./dist/utils/index.mjs"
     }
   },
-  "types": "./dist/index.d.mts",
+  "types": "dist/index.d.mts",
   "bin": {
-    "apiful": "./bin/apiful.mjs"
+    "apiful": "bin/apiful.mjs"
   },
   "files": [
     "bin",
