@@ -17,7 +17,7 @@ export async function jsonToTypeDefinition(
 ) {
   const { compile } = await import('json-schema-to-typescript-lite')
     .catch(() => {
-      throw new Error('Missing dependency: Please install "json-schema-to-typescript-lite"')
+      throw new Error('Missing dependency "json-schema-to-typescript-lite", please install it')
     })
 
   const resolvedOptions = resolveOptions(options)
