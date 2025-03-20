@@ -104,3 +104,19 @@ const response = await petStore('/foo/{id}', {
 
 > [!WARNING]
 > Incorrect parameters will not be reported at runtime. An incomplete path will be sent to the backend _as-is_.
+
+## Request Headers
+
+When working with typed headers in the OpenAPI specification, use the `header` property (not `headers`) to pass your headers:
+
+```ts
+const response = await petStore('/some/endpoint', {
+  method: 'GET',
+  header: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer <token>',
+  }
+})
+```
+
+The extension will automatically convert this to the correct `headers` property expected by the underlying fetch implementation ([ofetch](https://github.com/unjs/ofetch)).
