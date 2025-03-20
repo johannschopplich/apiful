@@ -107,16 +107,14 @@ const response = await petStore('/foo/{id}', {
 
 ## Request Headers
 
-When working with typed headers in the OpenAPI specification, use the `header` property (not `headers`) to pass your headers:
+Add headers to the request using the `headers`field. All headers defined in the OpenAPI schema will be type checked. You can still add additional headers that are not defined in the schema, which will not be type checked.
 
 ```ts
 const response = await petStore('/some/endpoint', {
   method: 'GET',
-  header: {
+  headers: {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer <token>',
   }
 })
 ```
-
-The extension will automatically convert this to the correct `headers` property expected by the underlying fetch implementation ([ofetch](https://github.com/unjs/ofetch)).

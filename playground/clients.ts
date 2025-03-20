@@ -37,3 +37,21 @@ const petResponse = await petStore('/pet/{petId}', {
 })
 consola.success(userResponse)
 consola.success(petResponse)
+
+async function _removePet(petId: number) {
+  try {
+    await petStore('/pet/{petId}', {
+      method: 'DELETE',
+      path: { petId },
+      headers: {
+        // Typed OpenAPI header
+        'api_key': 'special-key',
+        // Custom header
+        'x-foo': 'bar',
+      },
+    })
+  }
+  catch (error) {
+    console.error(error)
+  }
+}

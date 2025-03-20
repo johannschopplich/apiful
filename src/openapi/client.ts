@@ -5,14 +5,12 @@ import { ofetch } from 'ofetch'
 export function createOpenAPIClient<Paths>(
   defaultOptions: FetchOptions | (() => FetchOptions) = {},
 ): OpenAPIClient<Paths> {
-  const client = ofetch.create(
-    normalizeFetchHeaders(typeof defaultOptions === 'function' ? defaultOptions() : defaultOptions),
-  )
+  const client = ofetch.create(typeof defaultOptions === 'function' ? defaultOptions() : defaultOptions)
 
   return (url, options) => client(
     // @ts-expect-error: Path parameter provided by OpenAPI types
     resolvePathParams(url, options?.path),
-    normalizeFetchHeaders(options),
+    options as Record<string, any>,
   )
 }
 
@@ -31,14 +29,4 @@ export function fetchRequestInterceptor(ctx: FetchContext) {
     // @ts-expect-error: Path parameter provided by OpenAPI types
     ctx.options.path,
   )
-}
-
-export function normalizeFetchHeaders(options: Record<string, any> = {}) {
-  // Typed OpenAPI headers expect a `header` field, but ofetch requires `headers` instead
-  if (options.header) {
-    options.headers = options.header
-    delete options.header
-  }
-
-  return options
 }
