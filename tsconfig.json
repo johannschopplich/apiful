@@ -1,15 +1,33 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "lib": ["ESNext"],
+    "rootDir": ".",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "paths": {
+      "apiful": [
+        "./src/index.ts"
+      ],
+      "apiful/types": [
+        "./src/types/index.ts"
+      ],
+      "apiful/utils": [
+        "./src/utils/index.ts"
+      ]
+    },
     "resolveJsonModule": true,
+    "types": ["node", "vitest/globals"],
+    "allowImportingTsExtensions": true,
     "strict": true,
-    "noUncheckedIndexedAccess": true,
+    "declaration": true,
     "noEmit": true,
+    "outDir": "dist",
     "esModuleInterop": true,
+    "isolatedDeclarations": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
+    "skipDefaultLibCheck": true,
     "skipLibCheck": true
   }
 }
