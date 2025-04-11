@@ -1,4 +1,4 @@
-import type { Validator } from '../../src/utils/validator'
+import type { Validator } from '../../src/utils/validator.ts'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   isValidator,
@@ -6,7 +6,7 @@ import {
   TypeValidationError,
   validateTypes,
   validator,
-} from '../../src/utils/validator'
+} from '../../src/utils/validator.ts'
 
 describe('validator', () => {
   const schema = validator<number>((value) => {

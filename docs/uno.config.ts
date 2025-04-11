@@ -1,6 +1,7 @@
+import type { UserConfig } from 'unocss'
 import { defineConfig, presetIcons, presetUno, transformerDirectives } from 'unocss'
 
-export default defineConfig({
+const config: UserConfig<object> = defineConfig({
   presets: [
     presetUno(),
     presetIcons(),
@@ -9,3 +10,5 @@ export default defineConfig({
     transformerDirectives(),
   ],
 })
+
+export default config

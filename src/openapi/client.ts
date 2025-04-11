@@ -1,5 +1,5 @@
 import type { FetchContext, FetchOptions } from 'ofetch'
-import type { OpenAPIClient } from './types'
+import type { OpenAPIClient } from './types.ts'
 import { ofetch } from 'ofetch'
 
 export function createOpenAPIClient<Paths>(
@@ -14,7 +14,7 @@ export function createOpenAPIClient<Paths>(
   )
 }
 
-export function resolvePathParams(path: string, params?: Record<string, string>) {
+export function resolvePathParams(path: string, params?: Record<string, string>): string {
   if (params) {
     for (const [key, value] of Object.entries(params))
       path = path.replace(`{${key}}`, encodeURIComponent(String(value)))
@@ -23,7 +23,7 @@ export function resolvePathParams(path: string, params?: Record<string, string>)
   return path
 }
 
-export function fetchRequestInterceptor(ctx: FetchContext) {
+export function fetchRequestInterceptor(ctx: FetchContext): void {
   ctx.request = resolvePathParams(
     ctx.request as string,
     // @ts-expect-error: Path parameter provided by OpenAPI types

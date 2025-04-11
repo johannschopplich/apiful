@@ -1,12 +1,25 @@
+import type { CommandDef } from 'citty'
 import * as fsp from 'node:fs/promises'
 import * as path from 'node:path'
 import process from 'node:process'
 import { defineCommand } from 'citty'
 import { consola } from 'consola'
-import { generateDTS } from '../../openapi/generate'
-import { loadConfig } from '../utils'
+import { generateDTS } from '../../openapi/generate.ts'
+import { loadConfig } from '../utils.ts'
 
-export default defineCommand({
+const command: CommandDef<{
+  outfile: {
+    type: 'string'
+    description: string
+    default: string
+    required: false
+  }
+  root: {
+    type: 'string'
+    description: string
+    required: false
+  }
+}> = defineCommand({
   meta: {
     name: 'generate',
     description: 'Generates TypeScript definitions from OpenAPI schemas',
@@ -57,3 +70,5 @@ export default defineCommand({
     consola.success(`Generated \`${relativePath}\` types`)
   },
 })
+
+export default command

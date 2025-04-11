@@ -1,6 +1,7 @@
+import type { UserConfig } from 'vite'
 import { defineConfig } from 'vitest/config'
 
-export default defineConfig({
+const vite: UserConfig = defineConfig({
   test: {
     poolOptions: {
       forks: {
@@ -10,3 +11,5 @@ export default defineConfig({
     },
   },
 })
+
+export default vite

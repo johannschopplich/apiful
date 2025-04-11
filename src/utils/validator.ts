@@ -3,7 +3,7 @@
 // License: Apache-2.0
 
 /* eslint-disable jsdoc/check-param-names */
-export const validatorSymbol = Symbol.for('apiful.validator')
+export const validatorSymbol: unique symbol = Symbol.for('apiful.validator')
 
 export type ValidationResult<T, E = Error> =
   | { success: true, value: T }

@@ -1,7 +1,8 @@
-import type { ApifulConfig } from '../config'
+import type { ConfigLayerMeta, ResolvedConfig } from 'c12'
+import type { ApifulConfig } from '../config.ts'
 import { loadConfig as _loadConfig } from 'c12'
 
-export function loadConfig(cwd: string) {
+export function loadConfig(cwd: string): Promise<ResolvedConfig<Partial<ApifulConfig>, ConfigLayerMeta>> {
   return _loadConfig<Partial<ApifulConfig>>({
     cwd,
     name: 'apiful',

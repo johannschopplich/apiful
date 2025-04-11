@@ -1,7 +1,7 @@
 /* eslint-disable antfu/no-top-level-await */
 import type { PetStoreRequestQuery, PetStoreResponse } from 'apiful/schema'
 import { consola } from 'consola'
-import { apiRouterBuilder, createClient, ofetchBuilder, OpenAPIBuilder } from '../src'
+import { apiRouterBuilder, createClient, ofetchBuilder, OpenAPIBuilder } from '../src/index.ts'
 
 interface JSONPlaceholderTodoResponse {
   userId: number
