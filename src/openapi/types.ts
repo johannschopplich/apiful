@@ -8,6 +8,9 @@ import type {
   SuccessResponse,
 } from 'openapi-typescript-helpers'
 
+// Import HeadersInit from DOM types
+type HeadersInit = string[][] | Record<string, string> | Headers
+
 export type FetchResponseData<T extends Record<PropertyKey, any>> = SuccessResponse<ResponseObjectMap<T>, MediaType>
 export type FetchResponseError<T extends Record<PropertyKey, any>> = FetchError<ErrorResponse<ResponseObjectMap<T>, MediaType>>
 

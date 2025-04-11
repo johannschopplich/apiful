@@ -1,3 +1,4 @@
+import type { Listener } from 'listhen'
 import { fileURLToPath } from 'node:url'
 import { getRandomPort } from 'get-port-please'
 import {
@@ -10,9 +11,9 @@ import {
 } from 'h3'
 import { listen } from 'listhen'
 
-export const currentDir = fileURLToPath(new URL('.', import.meta.url))
+export const currentDir: string = fileURLToPath(new URL('.', import.meta.url))
 
-export async function createListener() {
+export async function createListener(): Promise<Listener> {
   const app = createApp()
     .use(
       '/echo/static/constant',

@@ -1,8 +1,8 @@
 import type { Listener } from 'listhen'
-import type { ApiClient } from '../../src'
+import type { ApiClient } from '../../src/index.ts'
 import { afterAll, assertType, beforeAll, describe, expect, it } from 'vitest'
-import { apiRouterBuilder, createClient } from '../../src'
-import { createListener } from '../utils'
+import { apiRouterBuilder, createClient } from '../../src/index.ts'
+import { createListener } from '../utils.ts'
 
 interface EchoStaticConstantResponse {
   value: string

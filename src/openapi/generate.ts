@@ -1,13 +1,13 @@
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
-import type { ServiceOptions } from '../config'
+import type { ServiceOptions } from '../config.ts'
 import { defu } from 'defu'
 import { pascalCase } from 'scule'
-import { CODE_HEADER_DIRECTIVES } from '../constants'
+import { CODE_HEADER_DIRECTIVES } from '../constants.ts'
 
 export async function generateDTS(
   services: Record<string, ServiceOptions>,
   openAPITSOptions?: OpenAPITSOptions,
-) {
+): Promise<string> {
   const resolvedSchemaEntries = await Promise.all(
     Object.entries(services)
       .filter(([, service]) => Boolean(service.schema))

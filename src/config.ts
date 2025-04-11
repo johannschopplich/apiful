@@ -10,6 +10,6 @@ export interface ApifulConfig {
   services: Record<string, ServiceOptions>
 }
 
-export function defineApifulConfig(config: ApifulConfig) {
+export function defineApifulConfig(config: ApifulConfig): ApifulConfig {
   return config
 }

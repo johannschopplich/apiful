@@ -1,3 +1,3 @@
-export * from './client'
-export * from './generate'
-export * from './types'
+export * from './client.ts'
+export * from './generate.ts'
+export * from './types.ts'

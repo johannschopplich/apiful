@@ -1,5 +1,5 @@
 import type { FetchOptions, MappedResponseType, ResponseType } from 'ofetch'
-import type { ApiClient } from '../client'
+import type { ApiClient } from '../client.ts'
 import { ofetch } from 'ofetch'
 import { joinURL } from 'ufo'
 

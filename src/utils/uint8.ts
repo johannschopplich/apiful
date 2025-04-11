@@ -1,10 +1,10 @@
-export function base64ToUint8Array(base64String: string) {
+export function base64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const base64Url = base64String.replaceAll('-', '+').replaceAll('_', '/')
   const latin1String = globalThis.atob(base64Url)
   return Uint8Array.from(latin1String, byte => byte.charCodeAt(0))
 }
 
-export function uint8ArrayToBase64(array: Uint8Array) {
+export function uint8ArrayToBase64(array: Uint8Array): string {
   let latin1String = ''
 
   for (const byte of array) {

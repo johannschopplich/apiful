@@ -1,6 +1,7 @@
+import type { BuildConfig } from 'unbuild'
 import { defineBuildConfig } from 'unbuild'
 
-export default defineBuildConfig({
+const build: BuildConfig[] = defineBuildConfig({
   entries: [
     'src/cli/index',
     'src/config',
@@ -18,5 +19,7 @@ export default defineBuildConfig({
     'openapi-typescript',
   ],
   clean: true,
-  declaration: true,
+  declaration: 'node16',
 })
+
+export default build
