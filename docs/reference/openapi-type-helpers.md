@@ -54,8 +54,8 @@ Using the same `petStore` API, you can access types directly from paths:
 ```ts
 import type {
   PathParamsFromPetStore,
-  RequestBodyFromPetStore,
   QueryParamsFromPetStore,
+  RequestBodyFromPetStore,
   ResponseFromPetStore
 } from 'apiful/schema'
 
