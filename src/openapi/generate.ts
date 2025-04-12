@@ -4,6 +4,8 @@ import { defu } from 'defu'
 import { pascalCase } from 'scule'
 import { CODE_HEADER_DIRECTIVES } from '../constants'
 
+export type ParseInt<S extends string> = S extends `${infer N extends number}` ? N : never
+
 export async function generateDTS(
   services: Record<string, ServiceOptions>,
   openAPITSOptions?: OpenAPITSOptions,
@@ -19,40 +21,136 @@ export async function generateDTS(
 
   const resolvedSchemas = Object.fromEntries(resolvedSchemaEntries)
 
-  return `
-${CODE_HEADER_DIRECTIVES}
-declare module 'apiful/schema' {
-${Object.keys(resolvedSchemas)
-  .map(i => `  import { paths as ${pascalCase(i)}Paths, operations as ${pascalCase(i)}Operations } from 'apiful/__${i}__'`)
-  .join('\n')}
+  const serviceIds = Object.keys(resolvedSchemas)
 
-  interface OpenAPISchemaRepository {
-${Object.keys(resolvedSchemas)
-  .map(i => `${i}: ${pascalCase(i)}Paths`.replace(/^/gm, '    '))
-  .join('\n')}
-  }
+  // Build import statements
+  const imports = serviceIds
+    .map(id => `  import { paths as ${pascalCase(id)}Paths, operations as ${pascalCase(id)}Operations } from 'apiful/__${id}__'`)
+    .join('\n')
 
-${Object.keys(resolvedSchemas)
-  .map(i => `  export type ${pascalCase(i)}Response<
-    T extends keyof ${pascalCase(i)}Operations,
-    R extends keyof ${pascalCase(i)}Operations[T]['responses'] = 200 extends keyof ${pascalCase(i)}Operations[T]['responses'] ? 200 : never
-  > = ${pascalCase(i)}Operations[T]['responses'][R] extends { content: { 'application/json': infer U } } ? U : never
-  export type ${pascalCase(i)}RequestBody<
-    T extends keyof ${pascalCase(i)}Operations
-  > = ${pascalCase(i)}Operations[T]['requestBody'] extends { content: { 'application/json': infer U } } ? U : never
-  export type ${pascalCase(i)}RequestQuery<
-    T extends keyof ${pascalCase(i)}Operations
-  > = ${pascalCase(i)}Operations[T]['parameters'] extends { query?: infer U } ? U : never
-`)
-  .join('\n')
-  .trimEnd()}
-}
+  // Build repository interface entries
+  const repositoryEntries = serviceIds
+    .map(id => `    ${id}: ${pascalCase(id)}Paths`)
+    .join('\n')
 
-${Object.entries(resolvedSchemas)
-  .map(([id, types]) => `declare module 'apiful/__${id}__' {
+  // Build type exports
+  const typeExports = serviceIds
+    .map((id) => {
+      return [
+        `  export type ${pascalCase(id)}Response<`,
+        `    T extends keyof ${pascalCase(id)}Operations,`,
+        `    R extends keyof ${pascalCase(id)}Operations[T]['responses'] = 200 extends keyof ${pascalCase(id)}Operations[T]['responses'] ? 200 : never`,
+        `  > = ${pascalCase(id)}Operations[T]['responses'][R] extends { content: { 'application/json': infer U } } ? U : never`,
+        `  export type ${pascalCase(id)}RequestBody<`,
+        `    T extends keyof ${pascalCase(id)}Operations`,
+        `  > = ${pascalCase(id)}Operations[T]['requestBody'] extends { content: { 'application/json': infer U } } ? U : never`,
+        `  export type ${pascalCase(id)}RequestQuery<`,
+        `    T extends keyof ${pascalCase(id)}Operations`,
+        `  > = ${pascalCase(id)}Operations[T]['parameters'] extends { query?: infer U } ? U : never`,
+
+        `  // Helper type to get the operation from a path entry`,
+        `  export type GetOperation<T, M extends string> = `,
+        `    M extends 'get' ? T extends { get: infer Op } ? Op : never :`,
+        `    M extends 'post' ? T extends { post: infer Op } ? Op : never :`,
+        `    M extends 'put' ? T extends { put: infer Op } ? Op : never :`,
+        `    M extends 'delete' ? T extends { delete: infer Op } ? Op : never :`,
+        `    M extends 'patch' ? T extends { patch: infer Op } ? Op : never :`,
+        `    never;`,
+
+        `  // Direct type that allows accessing path parameters by specifying the HTTP method`,
+        `  export type PathParamsFrom${pascalCase(id)}<`,
+        `  P extends keyof ${pascalCase(id)}Paths,`,
+        `  M extends NonNeverKeysWithout<${pascalCase(id)}Paths[P]>`,
+        `  > = GetOperation<${pascalCase(id)}Paths[P], M> extends infer Op`,
+        `  ? Op extends { parameters?: any }`,
+        `    ? NonNullable<Op['parameters']>['path'] extends infer Params`,
+        `      ? Params extends object`,
+        `        ? Params`,
+        `        : Record<string, never>`,
+        `      : Record<string, never>`,
+        `    : Record<string, never>`,
+        `  : Record<string, never>;`,
+
+        `  // Direct type that allows accessing request body by specifying the HTTP method`,
+        `  export type RequestBodyFrom${pascalCase(id)}<`,
+        `  P extends keyof ${pascalCase(id)}Paths,`,
+        `  M extends NonNeverKeysWithout<${pascalCase(id)}Paths[P]>`,
+        `  > = GetOperation<${pascalCase(id)}Paths[P], M> extends infer Op`,
+        `  ? Op extends { requestBody?: any }`,
+        `    ? NonNullable<Op['requestBody']>['content']['application/json'] extends infer Body`,
+        `      ? Body extends object`,
+        `        ? Body`,
+        `        : Record<string, never>`,
+        `      : Record<string, never>`,
+        `    : Record<string, never>`,
+        `  : Record<string, never>;`,
+
+        `  // Direct type that allows accessing query parameters by specifying the HTTP method`,
+        `  export type QueryParamsFrom${pascalCase(id)}<`,
+        `  P extends keyof ${pascalCase(id)}Paths,`,
+        `  M extends NonNeverKeysWithout<${pascalCase(id)}Paths[P]>`,
+        `  > = GetOperation<${pascalCase(id)}Paths[P], M> extends infer Op`,
+        `  ? Op extends { parameters?: any }`,
+        `    ? NonNullable<Op['parameters']>['query'] extends infer Params`,
+        `      ? Params extends object`,
+        `        ? Params`,
+        `        : Record<string, never>`,
+        `      : Record<string, never>`,
+        `    : Record<string, never>`,
+        `  : Record<string, never>;`,
+
+        `  // Direct type that allows accessing response body by specifying the HTTP method`,
+        `  export type ResponseFrom${pascalCase(id)}<`,
+        `  P extends keyof ${pascalCase(id)}Paths,`,
+        `  M extends NonNeverKeysWithout<${pascalCase(id)}Paths[P]>,`,
+        `  C extends \`\${keyof NonNullable<GetOperation<${pascalCase(id)}Paths[P], M>>['responses']}\` = '200'`,
+        `  > = GetOperation<${pascalCase(id)}Paths[P], M> extends infer Op`,
+        `  ? Op extends { responses?: any }`,
+        `    ? ParseInt<C> extends keyof Op['responses']`,
+        `      ? Op['responses'][ParseInt<C>] extends { content: { 'application/json': infer Body } }`,
+        `        ? Body`,
+        `        : Record<string, never>`,
+        `      : Record<string, never>`,
+        `    : Record<string, never>`,
+        `  : Record<string, never>;`,
+      ].join('\n')
+    })
+    .join('\n\n')
+
+  // Build module declarations
+  const moduleDeclarations = Object.entries(resolvedSchemas)
+    .map(([id, types]) => `declare module 'apiful/__${id}__' {
 ${normalizeIndentation(types).trimEnd()}
 }`)
-  .join('\n\n')}
+    .join('\n\n')
+
+
+  return `
+${CODE_HEADER_DIRECTIVES}
+
+declare module 'apiful/schema' {
+${imports}
+
+  type ParseInt<S extends string> = S extends \`\${infer N extends number}\` ? N : never;
+
+  type NonNeverKeys<T> = {
+    [K in keyof T]: [T[K]] extends [never] ? never : 
+                    [undefined] extends [T[K]] ? (
+                      [never] extends [Exclude<T[K], undefined>] ? never : K
+                    ) : K
+  }[keyof T];
+
+  type NonNeverKeysWithout<T> = Exclude<NonNeverKeys<T>, 'parameters'>;
+
+
+  interface OpenAPISchemaRepository {
+${repositoryEntries}
+  }
+
+${typeExports}
+}
+
+${moduleDeclarations}
 `.trimStart()
 }
 
