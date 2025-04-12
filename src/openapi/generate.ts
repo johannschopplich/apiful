@@ -124,7 +124,6 @@ ${normalizeIndentation(types).trimEnd()}
 }`)
     .join('\n\n')
 
-
   return `
 ${CODE_HEADER_DIRECTIVES}
 
