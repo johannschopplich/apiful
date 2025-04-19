@@ -8,8 +8,6 @@ exports[`OpenAPI to TypeScript > generates OpenAPI types 1`] = `
 declare module 'apiful/schema' {
   import { paths as TestEchoPaths, operations as TestEchoOperations } from 'apiful/__testEcho__'
 
-  type ParseInt<S extends string> = S extends \`\${infer N extends number}\` ? N : never
-
   type NonNeverKeys<T> = {
     [K in keyof T]: [T[K]] extends [never]
       ? never
@@ -17,8 +15,8 @@ declare module 'apiful/schema' {
         ? [never] extends [Exclude<T[K], undefined>] ? never : K
         : K;
   }[keyof T];
-
   type NonNeverKeysWithoutParams<T> = Exclude<NonNeverKeys<T>, 'parameters'>
+  type ParseInt<S extends string> = S extends \`\${infer N extends number}\` ? N : never
 
   interface OpenAPISchemaRepository {
     testEcho: TestEchoPaths

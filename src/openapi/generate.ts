@@ -129,8 +129,6 @@ ${CODE_HEADER_DIRECTIVES}
 declare module 'apiful/schema' {
 ${imports}
 
-  type ParseInt<S extends string> = S extends \`\${infer N extends number}\` ? N : never
-
   type NonNeverKeys<T> = {
     [K in keyof T]: [T[K]] extends [never]
       ? never
@@ -138,8 +136,8 @@ ${imports}
         ? [never] extends [Exclude<T[K], undefined>] ? never : K
         : K;
   }[keyof T];
-
   type NonNeverKeysWithoutParams<T> = Exclude<NonNeverKeys<T>, 'parameters'>
+  type ParseInt<S extends string> = S extends \`\${infer N extends number}\` ? N : never
 
   interface OpenAPISchemaRepository {
 ${repositoryEntries}
