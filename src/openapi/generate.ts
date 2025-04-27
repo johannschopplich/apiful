@@ -59,7 +59,7 @@ export type GetOperation<T, M extends string> =
 // Direct type that allows accessing path parameters by specifying the HTTP method
 export type PathParamsFrom${pascalCase(id)}<
   P extends keyof ${pascalCase(id)}Paths,
-  M extends NonNeverKeysWithoutParams<${pascalCase(id)}Paths[P]>
+  M extends HttpMethodsForPath<${pascalCase(id)}Paths, P> = HttpMethodsForPath<${pascalCase(id)}Paths, P> extends string ? HttpMethodsForPath<${pascalCase(id)}Paths, P> : never
 > = GetOperation<${pascalCase(id)}Paths[P], M> extends infer Op
   ? Op extends { parameters?: any }
     ? NonNullable<Op['parameters']>['path'] extends infer Params
@@ -73,7 +73,7 @@ export type PathParamsFrom${pascalCase(id)}<
 // Direct type that allows accessing request body by specifying the HTTP method
 export type RequestBodyFrom${pascalCase(id)}<
   P extends keyof ${pascalCase(id)}Paths,
-  M extends NonNeverKeysWithoutParams<${pascalCase(id)}Paths[P]>
+  M extends HttpMethodsForPath<${pascalCase(id)}Paths, P> = HttpMethodsForPath<${pascalCase(id)}Paths, P> extends string ? HttpMethodsForPath<${pascalCase(id)}Paths, P> : never
 > = GetOperation<${pascalCase(id)}Paths[P], M> extends infer Op
   ? Op extends { requestBody?: any }
     ? NonNullable<Op['requestBody']>['content']['application/json'] extends infer Body
@@ -87,7 +87,7 @@ export type RequestBodyFrom${pascalCase(id)}<
 // Direct type that allows accessing query parameters by specifying the HTTP method
 export type QueryParamsFrom${pascalCase(id)}<
   P extends keyof ${pascalCase(id)}Paths,
-  M extends NonNeverKeysWithoutParams<${pascalCase(id)}Paths[P]>
+  M extends HttpMethodsForPath<${pascalCase(id)}Paths, P> = HttpMethodsForPath<${pascalCase(id)}Paths, P> extends string ? HttpMethodsForPath<${pascalCase(id)}Paths, P> : never
 > = GetOperation<${pascalCase(id)}Paths[P], M> extends infer Op
   ? Op extends { parameters?: any }
     ? NonNullable<Op['parameters']>['query'] extends infer Params
@@ -101,7 +101,7 @@ export type QueryParamsFrom${pascalCase(id)}<
 // Direct type that allows accessing response body by specifying the HTTP method
 export type ResponseFrom${pascalCase(id)}<
   P extends keyof ${pascalCase(id)}Paths,
-  M extends NonNeverKeysWithoutParams<${pascalCase(id)}Paths[P]>,
+  M extends HttpMethodsForPath<${pascalCase(id)}Paths, P> = HttpMethodsForPath<${pascalCase(id)}Paths, P> extends string ? HttpMethodsForPath<${pascalCase(id)}Paths, P> : never,
   C extends \`\${keyof NonNullable<GetOperation<${pascalCase(id)}Paths[P], M>>['responses']}\` = '200'
 > = GetOperation<${pascalCase(id)}Paths[P], M> extends infer Op
   ? Op extends { responses?: any }
@@ -138,6 +138,9 @@ ${imports}
   }[keyof T];
   type NonNeverKeysWithoutParams<T> = Exclude<NonNeverKeys<T>, 'parameters'>
   type ParseInt<S extends string> = S extends \`\${infer N extends number}\` ? N : never
+  
+  // Generic HttpMethodsForPath type that works with any path object
+  type HttpMethodsForPath<T, P extends keyof T> = NonNeverKeysWithoutParams<T[P]>
 
   interface OpenAPISchemaRepository {
 ${repositoryEntries}
