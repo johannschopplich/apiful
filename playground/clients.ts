@@ -1,5 +1,5 @@
 /* eslint-disable antfu/no-top-level-await */
-import type { PetStoreRequestQuery, PetStoreResponse } from 'apiful/schema'
+import type { PetStore } from 'apiful/schema'
 import { consola } from 'consola'
 import { apiRouterBuilder, createClient, ofetchBuilder, OpenAPIBuilder } from '../src/index.ts'
 
@@ -10,8 +10,8 @@ interface JSONPlaceholderTodoResponse {
   completed: boolean
 }
 
-type _Status = PetStoreRequestQuery<'findPetsByStatus'>['status']
-type _Pet = PetStoreResponse<'getPetById'>
+type _Status = PetStore<'/pet/findByStatus', 'get'>['query']['status']
+type _Pet = PetStore<'/pet/{petId}', 'get'>['response']
 
 const client = createClient({
   baseURL: 'https://jsonplaceholder.typicode.com',

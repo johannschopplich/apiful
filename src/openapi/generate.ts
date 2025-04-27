@@ -36,82 +36,110 @@ export async function generateDTS(
   const typeExports = serviceIds
     .map((id) => {
       return [`
+/**
+ * Generic response type for ${pascalCase(id)} operations
+ * @deprecated Use the more intuitive ${pascalCase(id)}<Path, Method>['response'] syntax instead
+ */
 export type ${pascalCase(id)}Response<
   T extends keyof ${pascalCase(id)}Operations,
   R extends keyof ${pascalCase(id)}Operations[T]['responses'] = 200 extends keyof ${pascalCase(id)}Operations[T]['responses'] ? 200 : never
 > = ${pascalCase(id)}Operations[T]['responses'][R] extends { content: { 'application/json': infer U } } ? U : never
+
+/**
+ * Generic request body type for ${pascalCase(id)} operations
+ * @deprecated Use the more intuitive ${pascalCase(id)}<Path, Method>['request'] syntax instead
+ */
 export type ${pascalCase(id)}RequestBody<
   T extends keyof ${pascalCase(id)}Operations
 > = ${pascalCase(id)}Operations[T]['requestBody'] extends { content: { 'application/json': infer U } } ? U : never
+
+/**
+ * Generic query parameters type for ${pascalCase(id)} operations
+ * @deprecated Use the more intuitive ${pascalCase(id)}<Path, Method>['query'] syntax instead
+ */
 export type ${pascalCase(id)}RequestQuery<
   T extends keyof ${pascalCase(id)}Operations
 > = ${pascalCase(id)}Operations[T]['parameters'] extends { query?: infer U } ? U : never
 
-// Helper type to get the operation from a path entry
-export type GetOperation<T, M extends string> =
-  M extends 'get' ? T extends { get: infer Op } ? Op : never :
-  M extends 'post' ? T extends { post: infer Op } ? Op : never :
-  M extends 'put' ? T extends { put: infer Op } ? Op : never :
-  M extends 'delete' ? T extends { delete: infer Op } ? Op : never :
-  M extends 'patch' ? T extends { patch: infer Op } ? Op : never :
-  never
+/**
+ * A complete and intuitive API for accessing OpenAPI types from ${pascalCase(id)} service
+ *
+ * @example
+ * // Get path parameters for /users/{id} path with GET method:
+ * type Params = ${pascalCase(id)}<'/users/{id}', 'get'>['path']
+ *
+ * // Get request body type for creating a user:
+ * type CreateUserBody = ${pascalCase(id)}<'/users', 'post'>['request']
+ *
+ * // Get query parameters for listing users:
+ * type ListUsersQuery = ${pascalCase(id)}<'/users', 'get'>['query']
+ *
+ * // Get success response type:
+ * type UserResponse = ${pascalCase(id)}<'/users/{id}', 'get'>['response']
+ *
+ * // Get a specific status code response:
+ * type NotFoundResponse = ${pascalCase(id)}<'/users/{id}', 'get'>['responses'][404]
+ *
+ * // Get complete endpoint type definition:
+ * type UserEndpoint = ${pascalCase(id)}<'/users/{id}', 'get'>
+ */
+export type ${pascalCase(id)}<
+  Path extends keyof ${pascalCase(id)}Paths,
+  Method extends HttpMethodsForPath<${pascalCase(id)}Paths, Path> = HttpMethodsForPath<${pascalCase(id)}Paths, Path> extends string ? HttpMethodsForPath<${pascalCase(id)}Paths, Path> : never
+> = {
+  /** Path parameters for this endpoint */
+  path: ${pascalCase(id)}Paths[Path][Method] extends { parameters?: { path?: infer P } } ? P : Record<string, never>;
 
-// Direct type that allows accessing path parameters by specifying the HTTP method
-export type PathParamsFrom${pascalCase(id)}<
-  P extends keyof ${pascalCase(id)}Paths,
-  M extends HttpMethodsForPath<${pascalCase(id)}Paths, P> = HttpMethodsForPath<${pascalCase(id)}Paths, P> extends string ? HttpMethodsForPath<${pascalCase(id)}Paths, P> : never
-> = GetOperation<${pascalCase(id)}Paths[P], M> extends infer Op
-  ? Op extends { parameters?: any }
-    ? NonNullable<Op['parameters']>['path'] extends infer Params
-      ? Params extends object
-        ? Params
-        : Record<string, never>
-      : Record<string, never>
-    : Record<string, never>
-  : Record<string, never>
+  /** Query parameters for this endpoint */
+  query: ${pascalCase(id)}Paths[Path][Method] extends { parameters?: { query?: infer Q } } ? Q : Record<string, never>;
 
-// Direct type that allows accessing request body by specifying the HTTP method
-export type RequestBodyFrom${pascalCase(id)}<
-  P extends keyof ${pascalCase(id)}Paths,
-  M extends HttpMethodsForPath<${pascalCase(id)}Paths, P> = HttpMethodsForPath<${pascalCase(id)}Paths, P> extends string ? HttpMethodsForPath<${pascalCase(id)}Paths, P> : never
-> = GetOperation<${pascalCase(id)}Paths[P], M> extends infer Op
-  ? Op extends { requestBody?: any }
-    ? NonNullable<Op['requestBody']>['content']['application/json'] extends infer Body
-      ? Body extends object
-        ? Body
-        : Record<string, never>
-      : Record<string, never>
-    : Record<string, never>
-  : Record<string, never>
+  /** Request body for this endpoint */
+  request: ${pascalCase(id)}Paths[Path][Method] extends { requestBody?: { content: { 'application/json': infer B } } } ? B : Record<string, never>;
 
-// Direct type that allows accessing query parameters by specifying the HTTP method
-export type QueryParamsFrom${pascalCase(id)}<
-  P extends keyof ${pascalCase(id)}Paths,
-  M extends HttpMethodsForPath<${pascalCase(id)}Paths, P> = HttpMethodsForPath<${pascalCase(id)}Paths, P> extends string ? HttpMethodsForPath<${pascalCase(id)}Paths, P> : never
-> = GetOperation<${pascalCase(id)}Paths[P], M> extends infer Op
-  ? Op extends { parameters?: any }
-    ? NonNullable<Op['parameters']>['query'] extends infer Params
-      ? Params extends object
-        ? Params
-        : Record<string, never>
+  /** Success response for this endpoint (defaults to 200 status code) */
+  response: ${pascalCase(id)}Paths[Path][Method] extends { responses: infer R }
+    ? 200 extends keyof R
+      ? R[200] extends { content: { 'application/json': infer S } } ? S : Record<string, never>
       : Record<string, never>
-    : Record<string, never>
-  : Record<string, never>
+    : Record<string, never>;
 
-// Direct type that allows accessing response body by specifying the HTTP method
-export type ResponseFrom${pascalCase(id)}<
-  P extends keyof ${pascalCase(id)}Paths,
-  M extends HttpMethodsForPath<${pascalCase(id)}Paths, P> = HttpMethodsForPath<${pascalCase(id)}Paths, P> extends string ? HttpMethodsForPath<${pascalCase(id)}Paths, P> : never,
-  C extends \`\${keyof NonNullable<GetOperation<${pascalCase(id)}Paths[P], M>>['responses']}\` = '200'
-> = GetOperation<${pascalCase(id)}Paths[P], M> extends infer Op
-  ? Op extends { responses?: any }
-    ? ParseInt<C> extends keyof Op['responses']
-      ? Op['responses'][ParseInt<C>] extends { content: { 'application/json': infer Body } }
-        ? Body
+  /** All possible responses for this endpoint by status code */
+  responses: {
+    [Status in keyof ${pascalCase(id)}Paths[Path][Method]['responses']]:
+      ${pascalCase(id)}Paths[Path][Method]['responses'][Status] extends { content: { 'application/json': infer R } }
+        ? R
         : Record<string, never>
-      : Record<string, never>
-    : Record<string, never>
-  : Record<string, never>
+  };
+
+  /** The full path with typed parameters (useful for route builders) */
+  fullPath: Path;
+
+  /** The HTTP method for this endpoint */
+  method: Method;
+
+  /**
+   * Full operation object from the OpenAPI spec.
+   * Useful for accessing additional metadata like tags, security, etc.
+   */
+  operation: ${pascalCase(id)}Paths[Path][Method];
+}
+
+/**
+ * Type helper to list all available paths for ${pascalCase(id)} API
+ *
+ * @example
+ * // Get all available API paths:
+ * type AvailablePaths = ${pascalCase(id)}ApiPaths // Returns literal union of all available paths
+ */
+export type ${pascalCase(id)}ApiPaths = keyof ${pascalCase(id)}Paths;
+
+/**
+ * Type helper to get available methods for a specific path in the ${pascalCase(id)} API
+ *
+ * @example
+ * type MethodsForUserPath = ${pascalCase(id)}ApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
+ */
+export type ${pascalCase(id)}ApiMethods<P extends keyof ${pascalCase(id)}Paths> = HttpMethodsForPath<${pascalCase(id)}Paths, P>;
 `.trim()].join('\n')
     })
     .join('\n\n')
