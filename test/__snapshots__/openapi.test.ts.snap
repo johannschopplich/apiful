@@ -17,6 +17,9 @@ declare module 'apiful/schema' {
   }[keyof T];
   type NonNeverKeysWithoutParams<T> = Exclude<NonNeverKeys<T>, 'parameters'>
   type ParseInt<S extends string> = S extends \`\${infer N extends number}\` ? N : never
+  
+  // Generic HttpMethodsForPath type that works with any path object
+  type HttpMethodsForPath<T, P extends keyof T> = NonNeverKeysWithoutParams<T[P]>
 
   interface OpenAPISchemaRepository {
     testEcho: TestEchoPaths
@@ -45,7 +48,7 @@ declare module 'apiful/schema' {
   // Direct type that allows accessing path parameters by specifying the HTTP method
   export type PathParamsFromTestEcho<
     P extends keyof TestEchoPaths,
-    M extends NonNeverKeysWithoutParams<TestEchoPaths[P]>
+    M extends HttpMethodsForPath<TestEchoPaths, P> = HttpMethodsForPath<TestEchoPaths, P> extends string ? HttpMethodsForPath<TestEchoPaths, P> : never
   > = GetOperation<TestEchoPaths[P], M> extends infer Op
     ? Op extends { parameters?: any }
       ? NonNullable<Op['parameters']>['path'] extends infer Params
@@ -59,7 +62,7 @@ declare module 'apiful/schema' {
   // Direct type that allows accessing request body by specifying the HTTP method
   export type RequestBodyFromTestEcho<
     P extends keyof TestEchoPaths,
-    M extends NonNeverKeysWithoutParams<TestEchoPaths[P]>
+    M extends HttpMethodsForPath<TestEchoPaths, P> = HttpMethodsForPath<TestEchoPaths, P> extends string ? HttpMethodsForPath<TestEchoPaths, P> : never
   > = GetOperation<TestEchoPaths[P], M> extends infer Op
     ? Op extends { requestBody?: any }
       ? NonNullable<Op['requestBody']>['content']['application/json'] extends infer Body
@@ -73,7 +76,7 @@ declare module 'apiful/schema' {
   // Direct type that allows accessing query parameters by specifying the HTTP method
   export type QueryParamsFromTestEcho<
     P extends keyof TestEchoPaths,
-    M extends NonNeverKeysWithoutParams<TestEchoPaths[P]>
+    M extends HttpMethodsForPath<TestEchoPaths, P> = HttpMethodsForPath<TestEchoPaths, P> extends string ? HttpMethodsForPath<TestEchoPaths, P> : never
   > = GetOperation<TestEchoPaths[P], M> extends infer Op
     ? Op extends { parameters?: any }
       ? NonNullable<Op['parameters']>['query'] extends infer Params
@@ -87,7 +90,7 @@ declare module 'apiful/schema' {
   // Direct type that allows accessing response body by specifying the HTTP method
   export type ResponseFromTestEcho<
     P extends keyof TestEchoPaths,
-    M extends NonNeverKeysWithoutParams<TestEchoPaths[P]>,
+    M extends HttpMethodsForPath<TestEchoPaths, P> = HttpMethodsForPath<TestEchoPaths, P> extends string ? HttpMethodsForPath<TestEchoPaths, P> : never,
     C extends \`\${keyof NonNullable<GetOperation<TestEchoPaths[P], M>>['responses']}\` = '200'
   > = GetOperation<TestEchoPaths[P], M> extends infer Op
     ? Op extends { responses?: any }
