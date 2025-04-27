@@ -13,10 +13,10 @@ import type { PetStore } from 'apiful/schema'
 type UserEndpoint = PetStore<'/user/{username}', 'get'>
 
 // Types are available through property access
-type PathParams = UserEndpoint['path']       // Path parameters
-type QueryParams = UserEndpoint['query']     // Query parameters
-type RequestBody = UserEndpoint['request']   // Request body
-type Response = UserEndpoint['response']     // Response (defaults to 200 status)
+type PathParams = UserEndpoint['path'] // Path parameters
+type QueryParams = UserEndpoint['query'] // Query parameters
+type RequestBody = UserEndpoint['request'] // Request body
+type Response = UserEndpoint['response'] // Response (defaults to 200 status)
 type NotFound = UserEndpoint['responses'][404] // Response for specific status code
 ```
 
@@ -52,7 +52,7 @@ type NotFoundResponse = PetStore<'/pet/{petId}', 'get'>['responses'][404]
 APIful also provides utility types to help you work with available paths and methods:
 
 ```ts
-import type { PetStoreApiPaths, PetStoreApiMethods } from 'apiful/schema'
+import type { PetStoreApiMethods, PetStoreApiPaths } from 'apiful/schema'
 
 // Get a union of all available API paths
 type AllPaths = PetStoreApiPaths
