@@ -1,7 +1,7 @@
 import type { UserConfig } from 'vite'
 import { defineConfig } from 'vitest/config'
 
-const vite: UserConfig = defineConfig({
+const config: UserConfig = defineConfig({
   test: {
     poolOptions: {
       forks: {
@@ -12,4 +12,4 @@ const vite: UserConfig = defineConfig({
   },
 })
 
-export default vite
+export default config

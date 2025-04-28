@@ -1,7 +1,7 @@
 import type { BuildConfig } from 'unbuild'
 import { defineBuildConfig } from 'unbuild'
 
-const build: BuildConfig[] = defineBuildConfig({
+const config: BuildConfig[] = defineBuildConfig({
   entries: [
     'src/cli/index',
     'src/config',
@@ -22,4 +22,4 @@ const build: BuildConfig[] = defineBuildConfig({
   declaration: 'node16',
 })
 
-export default build
+export default config
