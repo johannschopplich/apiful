@@ -4,8 +4,6 @@ import { defu } from 'defu'
 import { pascalCase } from 'scule'
 import { CODE_HEADER_DIRECTIVES } from '../constants.ts'
 
-export type ParseInt<S extends string> = S extends `${infer N extends number}` ? N : never
-
 export async function generateDTS(
   services: Record<string, ServiceOptions>,
   openAPITSOptions?: OpenAPITSOptions,
@@ -164,8 +162,8 @@ ${imports}
         ? [never] extends [Exclude<T[K], undefined>] ? never : K
         : K;
   }[keyof T];
+
   type HttpMethodsForPath<T, P extends keyof T> = Exclude<NonNeverKeys<T[P]>, 'parameters'>
-  type ParseInt<S extends string> = S extends \`\${infer N extends number}\` ? N : never
 
   interface OpenAPISchemaRepository {
 ${repositoryEntries}

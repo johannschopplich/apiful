@@ -15,11 +15,8 @@ declare module 'apiful/schema' {
         ? [never] extends [Exclude<T[K], undefined>] ? never : K
         : K;
   }[keyof T];
-  type HttpMethodsForPath<T, P extends keyof T> = Exclude<NonNeverKeys<T[P]>, 'parameters'>
-  type ParseInt<S extends string> = S extends \`\${infer N extends number}\` ? N : never
 
-  // Generic HttpMethodsForPath type that works with any path object
-  type HttpMethodsForPath<T, P extends keyof T> = NonNeverKeysWithoutParams<T[P]>
+  type HttpMethodsForPath<T, P extends keyof T> = Exclude<NonNeverKeys<T[P]>, 'parameters'>
 
   interface OpenAPISchemaRepository {
     testEcho: TestEchoPaths
@@ -33,7 +30,7 @@ declare module 'apiful/schema' {
     T extends keyof TestEchoOperations,
     R extends keyof TestEchoOperations[T]['responses'] = 200 extends keyof TestEchoOperations[T]['responses'] ? 200 : never
   > = TestEchoOperations[T]['responses'][R] extends { content: { 'application/json': infer U } } ? U : never
-
+  
   /**
    * Generic request body type for TestEcho operations
    * @deprecated Use the more intuitive TestEcho<Path, Method>['request'] syntax instead
@@ -41,7 +38,7 @@ declare module 'apiful/schema' {
   export type TestEchoRequestBody<
     T extends keyof TestEchoOperations
   > = TestEchoOperations[T]['requestBody'] extends { content: { 'application/json': infer U } } ? U : never
-
+  
   /**
    * Generic query parameters type for TestEcho operations
    * @deprecated Use the more intuitive TestEcho<Path, Method>['query'] syntax instead
@@ -49,7 +46,7 @@ declare module 'apiful/schema' {
   export type TestEchoRequestQuery<
     T extends keyof TestEchoOperations
   > = TestEchoOperations[T]['parameters'] extends { query?: infer U } ? U : never
-
+  
   /**
    * A complete and intuitive API for accessing OpenAPI types from TestEcho service
    *
@@ -78,20 +75,20 @@ declare module 'apiful/schema' {
   > = {
     /** Path parameters for this endpoint */
     path: TestEchoPaths[Path][Method] extends { parameters?: { path?: infer P } } ? P : Record<string, never>;
-
+  
     /** Query parameters for this endpoint */
     query: TestEchoPaths[Path][Method] extends { parameters?: { query?: infer Q } } ? Q : Record<string, never>;
-
+  
     /** Request body for this endpoint */
     request: TestEchoPaths[Path][Method] extends { requestBody?: { content: { 'application/json': infer B } } } ? B : Record<string, never>;
-
+  
     /** Success response for this endpoint (defaults to 200 status code) */
     response: TestEchoPaths[Path][Method] extends { responses: infer R }
       ? 200 extends keyof R
         ? R[200] extends { content: { 'application/json': infer S } } ? S : Record<string, never>
         : Record<string, never>
       : Record<string, never>;
-
+  
     /** All possible responses for this endpoint by status code */
     responses: {
       [Status in keyof TestEchoPaths[Path][Method]['responses']]:
@@ -99,20 +96,20 @@ declare module 'apiful/schema' {
           ? R
           : Record<string, never>
     };
-
+  
     /** The full path with typed parameters (useful for route builders) */
     fullPath: Path;
-
+  
     /** The HTTP method for this endpoint */
     method: Method;
-
+  
     /**
      * Full operation object from the OpenAPI spec.
      * Useful for accessing additional metadata like tags, security, etc.
      */
     operation: TestEchoPaths[Path][Method];
   }
-
+  
   /**
    * Type helper to list all available paths for TestEcho API
    *
@@ -121,7 +118,7 @@ declare module 'apiful/schema' {
    * type AvailablePaths = TestEchoApiPaths // Returns literal union of all available paths
    */
   export type TestEchoApiPaths = keyof TestEchoPaths;
-
+  
   /**
    * Type helper to get available methods for a specific path in the TestEcho API
    *
