@@ -1,6 +1,7 @@
-import { defineApifulConfig } from '../src/config'
+import type { ApifulConfig } from '../src/config.ts'
+import { defineApifulConfig } from '../src/config.ts'
 
-export default defineApifulConfig({
+const config: ApifulConfig = defineApifulConfig({
   services: {
     testEcho: {
       schema: '../test/fixtures/test-echo-api-schema.yml',
@@ -10,3 +11,5 @@ export default defineApifulConfig({
     },
   },
 })
+
+export default config

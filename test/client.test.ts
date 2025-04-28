@@ -1,8 +1,8 @@
 import type { Listener } from 'listhen'
-import type { ApiClient, HandlerExtensionBuilder, MethodsExtensionBuilder } from '../src'
+import type { ApiClient, HandlerExtensionBuilder, MethodsExtensionBuilder } from '../src/index.ts'
 import { afterAll, beforeAll, describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { createClient } from '../src'
-import { createListener } from './utils'
+import { createClient } from '../src/index.ts'
+import { createListener } from './utils.ts'
 
 describe('createClient', () => {
   let listener: Listener

@@ -1,8 +1,8 @@
 import type { Listener } from 'listhen'
-import type { ApiClient } from '../../src'
+import type { ApiClient } from '../../src/index.ts'
 import { afterAll, assertType, beforeAll, describe, expect, it } from 'vitest'
-import { createClient, ofetchBuilder } from '../../src'
-import { createListener } from '../utils'
+import { createClient, ofetchBuilder } from '../../src/index.ts'
+import { createListener } from '../utils.ts'
 
 interface FooResponse {
   foo: string

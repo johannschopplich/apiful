@@ -1,14 +1,14 @@
 import type { OpenAPISchemaRepository } from 'apiful/schema'
-import type { ApiClient } from '../client'
-import type { OpenAPIClient } from '../openapi/types'
+import type { ApiClient } from '../client.ts'
+import type { OpenAPIClient } from '../openapi/types.ts'
 import { ofetch } from 'ofetch'
-import { resolvePathParams } from '../openapi'
+import { resolvePathParams } from '../openapi/index.ts'
 
 type ExtractPaths<K> = K extends keyof OpenAPISchemaRepository
   ? OpenAPISchemaRepository[K]
   : Record<string, never>
 
-export type * from '../openapi/types'
+export type * from '../openapi/types.ts'
 
 export function OpenAPIBuilder<
   const Schema extends string,
