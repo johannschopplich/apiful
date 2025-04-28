@@ -15,11 +15,8 @@ declare module 'apiful/schema' {
         ? [never] extends [Exclude<T[K], undefined>] ? never : K
         : K;
   }[keyof T];
-  type NonNeverKeysWithoutParams<T> = Exclude<NonNeverKeys<T>, 'parameters'>
+  type HttpMethodsForPath<T, P extends keyof T> = Exclude<NonNeverKeys<T[P]>, 'parameters'>
   type ParseInt<S extends string> = S extends \`\${infer N extends number}\` ? N : never
-  
-  // Generic HttpMethodsForPath type that works with any path object
-  type HttpMethodsForPath<T, P extends keyof T> = NonNeverKeysWithoutParams<T[P]>
 
   interface OpenAPISchemaRepository {
     testEcho: TestEchoPaths
