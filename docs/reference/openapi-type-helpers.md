@@ -1,16 +1,71 @@
 # OpenAPI Type Helpers
 
-When building clients with the [`OpenAPIBuilder` extension](/extensions/openapi), you may want to access the request and response types for each operation in the OpenAPI schema. APIful provides a set of shorthand types to help you with this.
+When building clients with the [`OpenAPIBuilder` extension](/extensions/openapi), you may want to access the request and response types for each operation in the OpenAPI schema. APIful provides intuitive types to help you with this.
 
-## Basic Operation Helpers
+## Intuitive API Access
 
-Given the API service name `petStore`, APIful generates the following types:
+Given the API service name `petStore`, APIful generates a unified type interface that allows you to access all aspects of an endpoint through a single type:
 
-- `PetStoreRequestBody`
-- `PetStoreRequestQuery`
-- `PetStoreResponse`
+```ts
+import type { PetStore } from 'apiful/schema'
 
-You can use these types to access types for query parameters, response body, etc.:
+// Access everything through the unified API
+type UserEndpoint = PetStore<'/user/{username}', 'get'>
+
+// Types are available through property access
+type PathParams = UserEndpoint['path'] // Path parameters
+type QueryParams = UserEndpoint['query'] // Query parameters
+type RequestBody = UserEndpoint['request'] // Request body
+type Response = UserEndpoint['response'] // Response (defaults to 200 status)
+type NotFound = UserEndpoint['responses'][404] // Response for specific status code
+```
+
+## Examples of Type Usage
+
+Here are some practical examples of how to use these types:
+
+```ts
+import type { PetStore } from 'apiful/schema'
+
+// Get path parameters for /pet/{petId} path with GET method
+type PetParams = PetStore<'/pet/{petId}', 'get'>['path']
+//   ^? { petId: number }
+
+// Get query parameters for finding pets by status
+type StatusQuery = PetStore<'/pet/findByStatus', 'get'>['query']
+//   ^? { status?: "available" | "pending" | "sold" }
+
+// Get request body for creating a pet
+type CreatePetBody = PetStore<'/pet', 'post'>['request']
+//   ^? { id?: number; name: string; /* ... */ }
+
+// Get success response type for getting a pet
+type PetResponse = PetStore<'/pet/{petId}', 'get'>['response']
+//   ^? { id?: number; name: string; /* ... */ }
+
+// Get a specific status code response
+type NotFoundResponse = PetStore<'/pet/{petId}', 'get'>['responses'][404]
+```
+
+## Helper Types for Path and Method Information
+
+APIful also provides utility types to help you work with available paths and methods:
+
+```ts
+import type { PetStoreApiMethods, PetStoreApiPaths } from 'apiful/schema'
+
+// Get a union of all available API paths
+type AllPaths = PetStoreApiPaths
+//   ^? '/pet' | '/pet/{petId}' | '/pet/findByStatus' | /* ... */
+
+// Get all available methods for a specific path
+type PetMethods = PetStoreApiMethods<'/pet'>
+//   ^? 'get' | 'post' | 'put'
+```
+
+## Legacy Operation Helpers
+
+APIful still supports the previous operation-based helpers, though they are marked as deprecated:
 
 ```ts
 import type {
@@ -19,73 +74,22 @@ import type {
   PetStoreResponse
 } from 'apiful/schema'
 
+// These still work but are deprecated
 type Status = PetStoreRequestQuery<'findPetsByStatus'>['status']
-//   ^? "available" | "pending" | "sold" | undefined
-
 type Pet = PetStoreResponse<'getPetById'>
 ```
 
-The `Pet` shorthand will be expanded to the following type:
+We recommend using the new path-based API for a more intuitive developer experience.
 
-```ts
-interface _Pet {
-  id?: number
-  name: string
-  category?: components['schemas']['Category']
-  photoUrls: string[]
-  tags?: components['schemas']['Tag'][]
-  status?: 'available' | 'pending' | 'sold'
-}
-```
+## Benefits of the New Type System
 
-## Path-based Type Helpers
+The new type system offers several advantages:
 
-In addition to operation-based helpers, APIful also provides more direct path-based type helpers. These allow you to extract types directly from path and HTTP method combinations:
+1. **Intuitive path-based access** - Use the actual API path as you would write it in your code
+2. **Property-based access** - Get types through natural property access: `path`, `query`, `request`, etc.
+3. **HTTP method specificity** - Extract types for specific HTTP methods on the same path
+4. **Status code support** - Extract response types for specific status codes
+5. **IDE integration** - Better completion support in IDEs since paths are directly tied to your OpenAPI schema
+6. **Additional metadata** - Access to `fullPath`, `method`, and the full `operation` object
 
-- `PathParamsFrom<API>` - Extract path parameters for a specific path and method
-- `RequestBodyFrom<API>` - Extract request body type for a specific path and method
-- `QueryParamsFrom<API>` - Extract query parameters for a specific path and method
-- `ResponseFrom<API>` - Extract response body type for a specific path and method with optional status code
-
-### Examples
-
-Using the same `petStore` API, you can access types directly from paths:
-
-```ts
-import type {
-  PathParamsFromPetStore,
-  QueryParamsFromPetStore,
-  RequestBodyFromPetStore,
-  ResponseFromPetStore
-} from 'apiful/schema'
-
-// Path parameters for GET /pet/{petId}
-type PetIdParam = PathParamsFromPetStore<'/pet/{petId}', 'get'>
-//   ^? { petId: number }
-
-// Request body for POST /pet
-type CreatePetBody = RequestBodyFromPetStore<'/pet', 'post'>
-//   ^? { id?: number; name: string; /* ... */ }
-
-// Query parameters for GET /pet/findByStatus
-type StatusQueryParam = QueryParamsFromPetStore<'/pet/findByStatus', 'get'>
-//   ^? { status?: "available" | "pending" | "sold" }
-
-// Response type for GET /pet/{petId}
-type PetResponse = ResponseFromPetStore<'/pet/{petId}', 'get'>
-//   ^? { id?: number; name: string; /* ... */ }
-
-// Response type for a specific status code (e.g., 201 Created)
-type CreatedPetResponse = ResponseFromPetStore<'/pet', 'post', '201'>
-```
-
-### Benefits of Path-based Helpers
-
-The path-based helpers offer several advantages:
-
-1. **Direct access by URL path** - Use the actual API path as you would write it in your code
-2. **HTTP method specificity** - Extract types for specific HTTP methods on the same path
-3. **Status code support** - Extract response types for specific status codes
-4. **IDE integration** - Better completion support in IDEs since paths are directly tied to your OpenAPI schema
-
-These path-based helpers work particularly well when you want to type parameters or responses for specific API endpoints that you're working with in your code.
+This approach provides a streamlined developer experience while maintaining full type safety and comprehensive access to your API's type definitions.

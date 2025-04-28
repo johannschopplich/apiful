@@ -15,89 +15,117 @@ declare module 'apiful/schema' {
         ? [never] extends [Exclude<T[K], undefined>] ? never : K
         : K;
   }[keyof T];
+
   type HttpMethodsForPath<T, P extends keyof T> = Exclude<NonNeverKeys<T[P]>, 'parameters'>
-  type ParseInt<S extends string> = S extends \`\${infer N extends number}\` ? N : never
 
   interface OpenAPISchemaRepository {
     testEcho: TestEchoPaths
   }
 
+  /**
+   * Generic response type for TestEcho operations
+   * @deprecated Use the more intuitive TestEcho<Path, Method>['response'] syntax instead
+   */
   export type TestEchoResponse<
     T extends keyof TestEchoOperations,
     R extends keyof TestEchoOperations[T]['responses'] = 200 extends keyof TestEchoOperations[T]['responses'] ? 200 : never
   > = TestEchoOperations[T]['responses'][R] extends { content: { 'application/json': infer U } } ? U : never
+  
+  /**
+   * Generic request body type for TestEcho operations
+   * @deprecated Use the more intuitive TestEcho<Path, Method>['request'] syntax instead
+   */
   export type TestEchoRequestBody<
     T extends keyof TestEchoOperations
   > = TestEchoOperations[T]['requestBody'] extends { content: { 'application/json': infer U } } ? U : never
+  
+  /**
+   * Generic query parameters type for TestEcho operations
+   * @deprecated Use the more intuitive TestEcho<Path, Method>['query'] syntax instead
+   */
   export type TestEchoRequestQuery<
     T extends keyof TestEchoOperations
   > = TestEchoOperations[T]['parameters'] extends { query?: infer U } ? U : never
   
-  // Helper type to get the operation from a path entry
-  export type GetOperation<T, M extends string> =
-    M extends 'get' ? T extends { get: infer Op } ? Op : never :
-    M extends 'post' ? T extends { post: infer Op } ? Op : never :
-    M extends 'put' ? T extends { put: infer Op } ? Op : never :
-    M extends 'delete' ? T extends { delete: infer Op } ? Op : never :
-    M extends 'patch' ? T extends { patch: infer Op } ? Op : never :
-    never
+  /**
+   * A complete and intuitive API for accessing OpenAPI types from TestEcho service
+   *
+   * @example
+   * // Get path parameters for /users/{id} path with GET method:
+   * type Params = TestEcho<'/users/{id}', 'get'>['path']
+   *
+   * // Get request body type for creating a user:
+   * type CreateUserBody = TestEcho<'/users', 'post'>['request']
+   *
+   * // Get query parameters for listing users:
+   * type ListUsersQuery = TestEcho<'/users', 'get'>['query']
+   *
+   * // Get success response type:
+   * type UserResponse = TestEcho<'/users/{id}', 'get'>['response']
+   *
+   * // Get a specific status code response:
+   * type NotFoundResponse = TestEcho<'/users/{id}', 'get'>['responses'][404]
+   *
+   * // Get complete endpoint type definition:
+   * type UserEndpoint = TestEcho<'/users/{id}', 'get'>
+   */
+  export type TestEcho<
+    Path extends keyof TestEchoPaths,
+    Method extends HttpMethodsForPath<TestEchoPaths, Path> = HttpMethodsForPath<TestEchoPaths, Path> extends string ? HttpMethodsForPath<TestEchoPaths, Path> : never
+  > = {
+    /** Path parameters for this endpoint */
+    path: TestEchoPaths[Path][Method] extends { parameters?: { path?: infer P } } ? P : Record<string, never>;
   
-  // Direct type that allows accessing path parameters by specifying the HTTP method
-  export type PathParamsFromTestEcho<
-    P extends keyof TestEchoPaths,
-    M extends HttpMethodsForPath<TestEchoPaths, P> = HttpMethodsForPath<TestEchoPaths, P> extends string ? HttpMethodsForPath<TestEchoPaths, P> : never
-  > = GetOperation<TestEchoPaths[P], M> extends infer Op
-    ? Op extends { parameters?: any }
-      ? NonNullable<Op['parameters']>['path'] extends infer Params
-        ? Params extends object
-          ? Params
-          : Record<string, never>
-        : Record<string, never>
-      : Record<string, never>
-    : Record<string, never>
+    /** Query parameters for this endpoint */
+    query: TestEchoPaths[Path][Method] extends { parameters?: { query?: infer Q } } ? Q : Record<string, never>;
   
-  // Direct type that allows accessing request body by specifying the HTTP method
-  export type RequestBodyFromTestEcho<
-    P extends keyof TestEchoPaths,
-    M extends HttpMethodsForPath<TestEchoPaths, P> = HttpMethodsForPath<TestEchoPaths, P> extends string ? HttpMethodsForPath<TestEchoPaths, P> : never
-  > = GetOperation<TestEchoPaths[P], M> extends infer Op
-    ? Op extends { requestBody?: any }
-      ? NonNullable<Op['requestBody']>['content']['application/json'] extends infer Body
-        ? Body extends object
-          ? Body
-          : Record<string, never>
-        : Record<string, never>
-      : Record<string, never>
-    : Record<string, never>
+    /** Request body for this endpoint */
+    request: TestEchoPaths[Path][Method] extends { requestBody?: { content: { 'application/json': infer B } } } ? B : Record<string, never>;
   
-  // Direct type that allows accessing query parameters by specifying the HTTP method
-  export type QueryParamsFromTestEcho<
-    P extends keyof TestEchoPaths,
-    M extends HttpMethodsForPath<TestEchoPaths, P> = HttpMethodsForPath<TestEchoPaths, P> extends string ? HttpMethodsForPath<TestEchoPaths, P> : never
-  > = GetOperation<TestEchoPaths[P], M> extends infer Op
-    ? Op extends { parameters?: any }
-      ? NonNullable<Op['parameters']>['query'] extends infer Params
-        ? Params extends object
-          ? Params
-          : Record<string, never>
+    /** Success response for this endpoint (defaults to 200 status code) */
+    response: TestEchoPaths[Path][Method] extends { responses: infer R }
+      ? 200 extends keyof R
+        ? R[200] extends { content: { 'application/json': infer S } } ? S : Record<string, never>
         : Record<string, never>
-      : Record<string, never>
-    : Record<string, never>
+      : Record<string, never>;
   
-  // Direct type that allows accessing response body by specifying the HTTP method
-  export type ResponseFromTestEcho<
-    P extends keyof TestEchoPaths,
-    M extends HttpMethodsForPath<TestEchoPaths, P> = HttpMethodsForPath<TestEchoPaths, P> extends string ? HttpMethodsForPath<TestEchoPaths, P> : never,
-    C extends \`\${keyof NonNullable<GetOperation<TestEchoPaths[P], M>>['responses']}\` = '200'
-  > = GetOperation<TestEchoPaths[P], M> extends infer Op
-    ? Op extends { responses?: any }
-      ? ParseInt<C> extends keyof Op['responses']
-        ? Op['responses'][ParseInt<C>] extends { content: { 'application/json': infer Body } }
-          ? Body
+    /** All possible responses for this endpoint by status code */
+    responses: {
+      [Status in keyof TestEchoPaths[Path][Method]['responses']]:
+        TestEchoPaths[Path][Method]['responses'][Status] extends { content: { 'application/json': infer R } }
+          ? R
           : Record<string, never>
-        : Record<string, never>
-      : Record<string, never>
-    : Record<string, never>
+    };
+  
+    /** The full path with typed parameters (useful for route builders) */
+    fullPath: Path;
+  
+    /** The HTTP method for this endpoint */
+    method: Method;
+  
+    /**
+     * Full operation object from the OpenAPI spec.
+     * Useful for accessing additional metadata like tags, security, etc.
+     */
+    operation: TestEchoPaths[Path][Method];
+  }
+  
+  /**
+   * Type helper to list all available paths for TestEcho API
+   *
+   * @example
+   * // Get all available API paths:
+   * type AvailablePaths = TestEchoApiPaths // Returns literal union of all available paths
+   */
+  export type TestEchoApiPaths = keyof TestEchoPaths;
+  
+  /**
+   * Type helper to get available methods for a specific path in the TestEcho API
+   *
+   * @example
+   * type MethodsForUserPath = TestEchoApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
+   */
+  export type TestEchoApiMethods<P extends keyof TestEchoPaths> = HttpMethodsForPath<TestEchoPaths, P>;
 }
 
 declare module 'apiful/__testEcho__' {
