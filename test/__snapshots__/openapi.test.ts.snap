@@ -4,7 +4,6 @@ exports[`OpenAPI to TypeScript > generates OpenAPI types 1`] = `
 "/* eslint-disable */
 /* prettier-ignore */
 
-
 declare module 'apiful/schema' {
   import { paths as TestEchoPaths, operations as TestEchoOperations } from 'apiful/__testEcho__'
 
@@ -23,32 +22,7 @@ declare module 'apiful/schema' {
   }
 
   /**
-   * Generic response type for TestEcho operations
-   * @deprecated Use the more intuitive TestEcho<Path, Method>['response'] syntax instead
-   */
-  export type TestEchoResponse<
-    T extends keyof TestEchoOperations,
-    R extends keyof TestEchoOperations[T]['responses'] = 200 extends keyof TestEchoOperations[T]['responses'] ? 200 : never
-  > = TestEchoOperations[T]['responses'][R] extends { content: { 'application/json': infer U } } ? U : never
-  
-  /**
-   * Generic request body type for TestEcho operations
-   * @deprecated Use the more intuitive TestEcho<Path, Method>['request'] syntax instead
-   */
-  export type TestEchoRequestBody<
-    T extends keyof TestEchoOperations
-  > = TestEchoOperations[T]['requestBody'] extends { content: { 'application/json': infer U } } ? U : never
-  
-  /**
-   * Generic query parameters type for TestEcho operations
-   * @deprecated Use the more intuitive TestEcho<Path, Method>['query'] syntax instead
-   */
-  export type TestEchoRequestQuery<
-    T extends keyof TestEchoOperations
-  > = TestEchoOperations[T]['parameters'] extends { query?: infer U } ? U : never
-  
-  /**
-   * A complete and intuitive API for accessing OpenAPI types from TestEcho service
+   * API for accessing OpenAPI types from TestEcho service
    *
    * @example
    * // Get path parameters for /users/{id} path with GET method:
