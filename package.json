@@ -41,6 +41,10 @@
       "types": "./dist/openapi/index.d.ts",
       "default": "./dist/openapi/index.js"
     },
+    "./openapi/client": {
+      "types": "./dist/openapi/client.d.ts",
+      "default": "./dist/openapi/client.js"
+    },
     "./schema": {
       "types": "./schema.d.ts",
       "default": "./schema.js"
@@ -109,7 +113,7 @@
     "listhen": "^1.9.0",
     "openapi-typescript": "^7.8.0",
     "tinyexec": "^1.0.1",
-    "ts-morph": "^25.0.1",
+    "ts-morph": "^26.0.0",
     "tsdown": "^0.12.3",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",

@@ -8,6 +8,7 @@ const config: UserConfig | UserConfigFn = defineConfig({
     'src/extensions/index.ts',
     'src/index.ts',
     'src/openapi/index.ts',
+    'src/openapi/client.ts',
     'src/generated/http-status-codes.ts',
     'src/generated/http-status-phrases.ts',
     'src/utils/index.ts',
