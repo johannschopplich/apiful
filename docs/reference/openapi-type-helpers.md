@@ -1,6 +1,16 @@
 # OpenAPI Type Helpers
 
-When building clients with the [`OpenAPIBuilder` extension](/extensions/openapi), you may want to access the request and response types for each operation in the OpenAPI schema. APIful provides intuitive types to help you with this.
+When building clients with the [`OpenAPIBuilder` extension](/extensions/openapi), you may want to access the request and response types for each operation in the OpenAPI schema. APIful provides intuitive types to allow you to do this easily, without needing to manually define types for each endpoint.
+
+## Feature Overview
+
+The unified type interface allows you to access all aspects of an OpenAPI endpoint in a type-safe manner. This includes:
+
+- **Intuitive path-based access** - Use the actual API path as you would write it in your code
+- **Property-based access** - Get types through natural property access: `path`, `query`, `request`, etc.
+- **HTTP method specificity** - Extract types for specific HTTP methods on the same path
+- **Status code support** - Extract response types for specific status codes
+- **Additional metadata** - Access to `fullPath`, `method`, and the full `operation` object
 
 ## Intuitive API Access
 
@@ -62,34 +72,3 @@ type AllPaths = PetStoreApiPaths
 type PetMethods = PetStoreApiMethods<'/pet'>
 //   ^? 'get' | 'post' | 'put'
 ```
-
-## Legacy Operation Helpers
-
-APIful still supports the previous operation-based helpers, though they are marked as deprecated:
-
-```ts
-import type {
-  PetStoreRequestBody,
-  PetStoreRequestQuery,
-  PetStoreResponse
-} from 'apiful/schema'
-
-// These still work but are deprecated
-type Status = PetStoreRequestQuery<'findPetsByStatus'>['status']
-type Pet = PetStoreResponse<'getPetById'>
-```
-
-We recommend using the new path-based API for a more intuitive developer experience.
-
-## Benefits of the New Type System
-
-The new type system offers several advantages:
-
-1. **Intuitive path-based access** - Use the actual API path as you would write it in your code
-2. **Property-based access** - Get types through natural property access: `path`, `query`, `request`, etc.
-3. **HTTP method specificity** - Extract types for specific HTTP methods on the same path
-4. **Status code support** - Extract response types for specific status codes
-5. **IDE integration** - Better completion support in IDEs since paths are directly tied to your OpenAPI schema
-6. **Additional metadata** - Access to `fullPath`, `method`, and the full `operation` object
-
-This approach provides a streamlined developer experience while maintaining full type safety and comprehensive access to your API's type definitions.

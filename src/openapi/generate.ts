@@ -35,32 +35,7 @@ export async function generateDTS(
     .map((id) => {
       return [`
 /**
- * Generic response type for ${pascalCase(id)} operations
- * @deprecated Use the more intuitive ${pascalCase(id)}<Path, Method>['response'] syntax instead
- */
-export type ${pascalCase(id)}Response<
-  T extends keyof ${pascalCase(id)}Operations,
-  R extends keyof ${pascalCase(id)}Operations[T]['responses'] = 200 extends keyof ${pascalCase(id)}Operations[T]['responses'] ? 200 : never
-> = ${pascalCase(id)}Operations[T]['responses'][R] extends { content: { 'application/json': infer U } } ? U : never
-
-/**
- * Generic request body type for ${pascalCase(id)} operations
- * @deprecated Use the more intuitive ${pascalCase(id)}<Path, Method>['request'] syntax instead
- */
-export type ${pascalCase(id)}RequestBody<
-  T extends keyof ${pascalCase(id)}Operations
-> = ${pascalCase(id)}Operations[T]['requestBody'] extends { content: { 'application/json': infer U } } ? U : never
-
-/**
- * Generic query parameters type for ${pascalCase(id)} operations
- * @deprecated Use the more intuitive ${pascalCase(id)}<Path, Method>['query'] syntax instead
- */
-export type ${pascalCase(id)}RequestQuery<
-  T extends keyof ${pascalCase(id)}Operations
-> = ${pascalCase(id)}Operations[T]['parameters'] extends { query?: infer U } ? U : never
-
-/**
- * A complete and intuitive API for accessing OpenAPI types from ${pascalCase(id)} service
+ * API for accessing OpenAPI types from ${pascalCase(id)} service
  *
  * @example
  * // Get path parameters for /users/{id} path with GET method:
@@ -151,7 +126,6 @@ ${normalizeIndentation(types).trimEnd()}
 
   return `
 ${CODE_HEADER_DIRECTIVES}
-
 declare module 'apiful/schema' {
 ${imports}
 
