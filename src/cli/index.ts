@@ -1,7 +1,5 @@
 import { defineCommand, runMain } from 'citty'
-import packageJson from '../../package.json' with { type: 'json' }
-
-const { name, version } = packageJson
+import { name, version } from '../../package.json' with { type: 'json' }
 
 const command = defineCommand({
   meta: {
