@@ -2,7 +2,7 @@
   "name": "apiful",
   "type": "module",
   "version": "2.2.0",
-  "packageManager": "pnpm@10.8.0",
+  "packageManager": "pnpm@10.11.0",
   "description": "Extensible, typed API tooling",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
   "license": "MIT",
@@ -26,39 +26,39 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./dist/index.d.mts",
-      "default": "./dist/index.mjs"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./config": {
-      "types": "./dist/config.d.mts",
-      "default": "./dist/config.mjs"
+      "types": "./dist/config.d.ts",
+      "default": "./dist/config.js"
     },
     "./extensions": {
-      "types": "./dist/extensions/index.d.mts",
-      "default": "./dist/extensions/index.mjs"
+      "types": "./dist/extensions/index.d.ts",
+      "default": "./dist/extensions/index.js"
     },
     "./openapi": {
-      "types": "./dist/openapi/index.d.mts",
-      "default": "./dist/openapi/index.mjs"
+      "types": "./dist/openapi/index.d.ts",
+      "default": "./dist/openapi/index.js"
     },
     "./schema": {
-      "types": "./schema.d.mts",
-      "default": "./schema.mjs"
+      "types": "./schema.d.ts",
+      "default": "./schema.js"
     },
     "./http-status-codes": {
-      "types": "./dist/generated/http-status-codes.d.mts",
-      "default": "./dist/generated/http-status-codes.mjs"
+      "types": "./dist/generated/http-status-codes.d.ts",
+      "default": "./dist/generated/http-status-codes.js"
     },
     "./http-status-phrases": {
-      "types": "./dist/generated/http-status-phrases.d.mts",
-      "default": "./dist/generated/http-status-phrases.mjs"
+      "types": "./dist/generated/http-status-phrases.d.ts",
+      "default": "./dist/generated/http-status-phrases.js"
     },
     "./utils": {
-      "types": "./dist/utils/index.d.mts",
-      "default": "./dist/utils/index.mjs"
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
     }
   },
-  "types": "dist/index.d.mts",
+  "types": "dist/index.d.ts",
   "bin": {
     "apiful": "bin/apiful.mjs"
   },
@@ -68,7 +68,7 @@
     "schema.*"
   ],
   "scripts": {
-    "build": "unbuild",
+    "build": "tsdown",
     "dev": "tsx playground/clients.ts",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
@@ -83,7 +83,7 @@
   },
   "dependencies": {
     "@types/json-schema": "^7.0.15",
-    "c12": "^3.0.3",
+    "c12": "^3.0.4",
     "citty": "^0.1.6",
     "consola": "^3.4.2",
     "defu": "^6.1.4",
@@ -94,28 +94,28 @@
   },
   "optionalDependencies": {
     "json-schema-to-typescript-lite": "^14.1.0",
-    "openapi-typescript": "^7.6.1"
+    "openapi-typescript": "^7.8.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.12.0",
+    "@antfu/eslint-config": "^4.13.2",
     "@iconify-json/carbon": "^1.2.8",
-    "@iconify-json/devicon-plain": "^1.2.22",
-    "@types/node": "^22.14.0",
-    "bumpp": "^10.1.0",
-    "eslint": "^9.24.0",
+    "@iconify-json/devicon-plain": "^1.2.23",
+    "@types/node": "^22.15.21",
+    "bumpp": "^10.1.1",
+    "eslint": "^9.27.0",
     "get-port-please": "^3.1.2",
-    "h3": "^1.15.1",
+    "h3": "^1.15.3",
     "json-schema-to-typescript-lite": "^14.1.0",
     "listhen": "^1.9.0",
-    "openapi-typescript": "^7.6.1",
+    "openapi-typescript": "^7.8.0",
     "tinyexec": "^1.0.1",
     "ts-morph": "^25.0.1",
-    "tsx": "^4.19.3",
+    "tsdown": "^0.12.3",
+    "tsx": "^4.19.4",
     "typescript": "^5.8.3",
-    "unbuild": "^3.5.0",
-    "unocss": "^66.0.0",
+    "unocss": "^66.1.2",
     "vitepress": "^1.6.3",
-    "vitest": "^3.1.1"
+    "vitest": "^3.1.4"
   },
   "pnpm": {
     "overrides": {
@@ -127,7 +127,8 @@
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
-      "esbuild"
+      "esbuild",
+      "unrs-resolver"
     ]
   }
 }
