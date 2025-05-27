@@ -127,7 +127,7 @@ export function isValidator(value: unknown): value is Validator {
 
 function getErrorMessage(error?: unknown) {
   if (error == null) {
-    return 'unknown error'
+    return 'Unknown error'
   }
 
   if (typeof error === 'string') {
