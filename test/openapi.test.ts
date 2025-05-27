@@ -9,7 +9,7 @@ describe('OpenAPI to TypeScript', () => {
   const config = defineApifulConfig({
     services: {
       testEcho: {
-        schema: path.join(currentDir, 'fixtures/test-echi-api-schema.yml'),
+        schema: path.join(currentDir, 'fixtures/test-echo-api-schema.yml'),
       },
     },
   })
