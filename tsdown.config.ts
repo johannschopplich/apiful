@@ -20,6 +20,7 @@ const config: UserConfig | UserConfigFn = defineConfig({
     'openapi-typescript',
   ],
   dts: true,
+  unbundle: true,
 })
 
 export default config
