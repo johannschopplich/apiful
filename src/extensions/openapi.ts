@@ -4,7 +4,7 @@ import type { OpenAPIClient } from '../openapi/types.ts'
 import { ofetch } from 'ofetch'
 import { resolvePathParams } from '../openapi/index.ts'
 
-type ExtractPaths<K> = K extends keyof OpenAPISchemaRepository
+export type ExtractPaths<K> = K extends keyof OpenAPISchemaRepository
   ? OpenAPISchemaRepository[K]
   : Record<string, never>
 
