@@ -40,6 +40,7 @@ function createJsonSchema(data: unknown, options: ResolvedTypeDefinitionOptions)
     }
 
     const itemSchemas = data.map(item => createJsonSchema(item, options))
+
     return {
       type: 'array',
       items: mergeSchemas(itemSchemas, options),
@@ -69,8 +70,8 @@ function createJsonSchema(data: unknown, options: ResolvedTypeDefinitionOptions)
     }
   }
   else {
-    // Handle primitive types
     const primitiveType = typeof data
+
     if (primitiveType === 'string' || primitiveType === 'number' || primitiveType === 'boolean') {
       return {
         type: primitiveType,
@@ -107,6 +108,7 @@ function mergeSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOpt
   // Create a union for mixed types or if there are null schemas
   if (types.size !== 1 || hasNullSchemas) {
     const unionSchemas = [...definedSchemas]
+
     if (hasNullSchemas) {
       unionSchemas.push({}) // Add null schema
     }
