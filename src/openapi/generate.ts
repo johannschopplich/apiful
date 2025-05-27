@@ -91,7 +91,7 @@ export type ${pascalCase(id)}<
   method: Method;
 
   /**
-   * Full operation object from the OpenAPI spec.
+   * Full operation object from the OpenAPI specification.
    * Useful for accessing additional metadata like tags, security, etc.
    */
   operation: ${pascalCase(id)}Paths[Path][Method];

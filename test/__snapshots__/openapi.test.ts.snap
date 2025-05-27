@@ -78,7 +78,7 @@ declare module 'apiful/schema' {
     method: Method;
   
     /**
-     * Full operation object from the OpenAPI spec.
+     * Full operation object from the OpenAPI specification.
      * Useful for accessing additional metadata like tags, security, etc.
      */
     operation: TestEchoPaths[Path][Method];
