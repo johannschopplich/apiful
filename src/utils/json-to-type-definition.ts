@@ -35,6 +35,7 @@ function createJsonSchema(data: unknown, options: ResolvedTypeDefinitionOptions)
     if (data.length === 0) {
       return {
         type: 'array',
+        items: {},
       }
     }
 
@@ -52,22 +53,32 @@ function createJsonSchema(data: unknown, options: ResolvedTypeDefinitionOptions)
       ]),
     )
 
+    const isEmptyObject = Object.keys(data).length === 0
+
     return {
       type: 'object',
-      properties,
-      required: options.strictProperties ? Object.keys(properties) : false,
-      additionalProperties: Object.keys(data).length === 0,
+      properties: isEmptyObject ? undefined : properties,
+      required: options.strictProperties && !isEmptyObject ? Object.keys(properties) : undefined,
+      additionalProperties: isEmptyObject ? {} : false,
     }
   }
-  else if (data == null) {
+  else if (data === null) {
+    // Handle null as unknown type in TypeScript
     return {
-      type: 'any',
+      type: 'null',
     }
   }
   else {
-    return {
-      type: typeof data as JSONSchema4['type'],
+    // Handle primitive types
+    const primitiveType = typeof data
+    if (primitiveType === 'string' || primitiveType === 'number' || primitiveType === 'boolean') {
+      return {
+        type: primitiveType,
+      }
     }
+
+    // Fallback for any other primitive types
+    return {}
   }
 }
 
@@ -78,11 +89,30 @@ function mergeSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOpt
   if (schemas.length === 1)
     return schemas[0]!
 
-  const types = new Set(schemas.map(schema => schema.type))
+  // Filter out empty schemas (representing null/any types)
+  const definedSchemas = schemas.filter(schema => schema.type !== undefined || Object.keys(schema).length > 0)
+  const hasNullSchemas = schemas.length > definedSchemas.length
 
-  if (types.size !== 1) {
+  if (definedSchemas.length === 0) {
+    // All schemas were null/empty
+    return {}
+  }
+
+  if (definedSchemas.length === 1 && !hasNullSchemas) {
+    return definedSchemas[0]!
+  }
+
+  const types = new Set(definedSchemas.map(schema => schema.type).filter(Boolean))
+
+  // Create a union for mixed types or if there are null schemas
+  if (types.size !== 1 || hasNullSchemas) {
+    const unionSchemas = [...definedSchemas]
+    if (hasNullSchemas) {
+      unionSchemas.push({}) // Add null schema
+    }
+
     return {
-      anyOf: schemas.map(schema => ({
+      anyOf: unionSchemas.map(schema => ({
         ...schema,
         additionalProperties: schema.type === 'object'
           ? schema.additionalProperties
@@ -91,13 +121,13 @@ function mergeSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOpt
     }
   }
 
-  const type = schemas[0]!.type
+  const type = definedSchemas[0]!.type
 
   if (type === 'object') {
     const propertySchemas = new Map<string, JSONSchema4[]>()
     const requiredProperties = new Set<string>()
 
-    for (const schema of schemas) {
+    for (const schema of definedSchemas) {
       if (!schema.properties)
         continue
 
@@ -123,11 +153,11 @@ function mergeSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOpt
         ]),
       ),
       required: requiredProperties.size > 0 ? Array.from(requiredProperties) : undefined,
-      additionalProperties: propertySchemas.size === 0,
+      additionalProperties: propertySchemas.size === 0 ? {} : false,
     }
   }
   else if (type === 'array') {
-    const itemSchemas = schemas
+    const itemSchemas = definedSchemas
       .map(schema => schema.items)
       .filter((items): items is JSONSchema4 => Boolean(items))
 
@@ -137,7 +167,7 @@ function mergeSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOpt
     }
   }
   else {
-    return schemas[0]!
+    return definedSchemas[0]!
   }
 }
 
