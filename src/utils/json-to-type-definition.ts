@@ -1,6 +1,6 @@
 import type { JSONSchema4 } from 'json-schema'
-import type { JsonValue } from './types.ts'
-import { CODE_HEADER_DIRECTIVES } from '../constants.ts'
+import type { JsonValue } from './types'
+import { CODE_HEADER_DIRECTIVES } from '../constants'
 
 export interface TypeDefinitionOptions {
   /** @default 'Root' */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { defineApifulConfig } from '../src/config.ts'
+import { defineApifulConfig } from '../src/config'
 
 describe('defineApifulConfig', () => {
   it('accepts valid configuration', () => {

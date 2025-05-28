@@ -1,5 +1,5 @@
-import type { ApifulConfig } from '../src/config.ts'
-import { defineApifulConfig } from '../src/config.ts'
+import type { ApifulConfig } from '../src/config'
+import { defineApifulConfig } from '../src/config'
 
 const config: ApifulConfig = defineApifulConfig({
   services: {

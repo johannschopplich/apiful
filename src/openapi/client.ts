@@ -1,5 +1,5 @@
 import type { FetchContext, FetchOptions } from 'ofetch'
-import type { OpenAPIClient } from './types.ts'
+import type { OpenAPIClient } from './types'
 import { ofetch } from 'ofetch'
 
 export function createOpenAPIClient<Paths>(

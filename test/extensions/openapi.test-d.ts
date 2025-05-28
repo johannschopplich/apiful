@@ -1,8 +1,8 @@
 import type { OpenAPISchemaRepository } from 'apiful/schema'
-import type { ApiClient } from '../../src/client.ts'
-import type { OpenAPIClient, SchemaPaths } from '../../src/extensions/openapi.ts'
+import type { ApiClient } from '../../src/client'
+import type { OpenAPIClient, SchemaPaths } from '../../src/extensions/openapi'
 import { describe, expectTypeOf, it } from 'vitest'
-import { OpenAPIBuilder } from '../../src/extensions/openapi.ts'
+import { OpenAPIBuilder } from '../../src/extensions/openapi'
 
 describe('OpenAPI adapter types', () => {
   it('SchemaPaths type utility', () => {

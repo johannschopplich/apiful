@@ -1,6 +1,6 @@
-import type { Schema } from '../../src/utils/schema.ts'
+import type { Schema } from '../../src/utils/schema'
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { isSchema, jsonSchema } from '../../src/utils/schema.ts'
+import { isSchema, jsonSchema } from '../../src/utils/schema'
 
 describe('schema', () => {
   describe('jsonSchema', () => {

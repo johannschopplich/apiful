@@ -1,9 +1,9 @@
 /* eslint-disable test/prefer-lowercase-title */
 import type { Listener } from 'listhen'
-import type { ApiClient } from '../../src/index.ts'
+import type { ApiClient } from '../../src/index'
 import { assertType, beforeAll, describe, expect, it } from 'vitest'
-import { createClient, OpenAPIBuilder } from '../../src/index.ts'
-import { createListener } from '../utils.ts'
+import { createClient, OpenAPIBuilder } from '../../src/index'
+import { createListener } from '../utils'
 
 describe('OpenAPI adapter', () => {
   let _listener: Listener

@@ -1,2 +1,2 @@
-export * from './client.ts'
-export * from './extensions/index.ts'
+export * from './client'
+export * from './extensions/index'

@@ -1,8 +1,8 @@
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
-import type { ServiceOptions } from '../config.ts'
+import type { ServiceOptions } from '../config'
 import { defu } from 'defu'
 import { pascalCase } from 'scule'
-import { CODE_HEADER_DIRECTIVES } from '../constants.ts'
+import { CODE_HEADER_DIRECTIVES } from '../constants'
 
 export async function generateDTS(
   services: Record<string, ServiceOptions>,

@@ -4,8 +4,8 @@ import * as path from 'node:path'
 import process from 'node:process'
 import { defineCommand } from 'citty'
 import { consola } from 'consola'
-import { generateDTS } from '../../openapi/generate.ts'
-import { loadConfig } from '../utils.ts'
+import { generateDTS } from '../../openapi/generate'
+import { loadConfig } from '../utils'
 
 const command: CommandDef<{
   outfile: {

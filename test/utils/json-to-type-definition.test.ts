@@ -1,6 +1,6 @@
-import type { JsonValue } from '../../src/utils/index.ts'
+import type { JsonValue } from '../../src/utils/index'
 import { describe, expect, it } from 'vitest'
-import { jsonToTypeDefinition } from '../../src/utils/json-to-type-definition.ts'
+import { jsonToTypeDefinition } from '../../src/utils/json-to-type-definition'
 
 describe('jsonToTypeDefinition', () => {
   it('infers types from comprehensive JSON data', async () => {

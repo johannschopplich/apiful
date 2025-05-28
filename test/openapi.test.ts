@@ -1,8 +1,8 @@
 import * as path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { defineApifulConfig } from '../src/config.ts'
-import { generateDTS } from '../src/openapi/index.ts'
-import { currentDir } from './utils.ts'
+import { defineApifulConfig } from '../src/config'
+import { generateDTS } from '../src/openapi/index'
+import { currentDir } from './utils'
 
 // eslint-disable-next-line test/prefer-lowercase-title
 describe('OpenAPI to TypeScript', () => {

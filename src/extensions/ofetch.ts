@@ -1,5 +1,5 @@
 import type { $Fetch } from 'ofetch'
-import type { ApiClient } from '../client.ts'
+import type { ApiClient } from '../client'
 import { ofetch } from 'ofetch'
 
 export interface OFetchClient extends $Fetch {}
