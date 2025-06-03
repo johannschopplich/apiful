@@ -6,7 +6,7 @@
   "description": "Extensible, typed API tooling",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
   "license": "MIT",
-  "homepage": "https://github.com/johannschopplich/apiful#readme",
+  "homepage": "https://apiful.byjohann.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/johannschopplich/apiful.git"
