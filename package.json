@@ -117,6 +117,7 @@
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "unocss": "^66.1.2",
+    "utilful": "^2.1.1",
     "vitepress": "^1.6.3",
     "vitest": "^3.1.4"
   },

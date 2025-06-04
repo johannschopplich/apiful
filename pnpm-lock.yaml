@@ -85,6 +85,9 @@ importers:
       unocss:
         specifier: ^66.1.2
         version: 66.1.2(postcss@8.5.3)(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(tsx@4.19.4)(yaml@2.8.0))(vue@3.5.14(typescript@5.8.3))
+      utilful:
+        specifier: ^2.1.1
+        version: 2.1.1
       vitepress:
         specifier: ^1.6.3
         version: 1.6.3(@algolia/client-search@5.25.0)(@types/node@22.15.21)(change-case@5.4.4)(postcss@8.5.3)(search-insights@2.17.3)(typescript@5.8.3)
@@ -3025,6 +3028,9 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  utilful@2.1.1:
+    resolution: {integrity: sha512-RA0l7Xi+OMwgdaWK3kaSEun8ZDOzhqWxds0pyjtrnqLGLOQCFBcSSrbmYi83a1N5FKHs8C9SZC7O1yK6puqw+w==}
 
   vfile-message@4.0.2:
     resolution: {integrity: sha512-jRDZ1IMLttGj41KcZvlrYAaI3CfqpLpfpf+Mfig13viT6NKvRzWZ+lXz0Y5D60w6uJIBAOGq9mSHf0gktF0duw==}
@@ -6427,6 +6433,8 @@ snapshots:
       punycode: 2.3.1
 
   util-deprecate@1.0.2: {}
+
+  utilful@2.1.1: {}
 
   vfile-message@4.0.2:
     dependencies:
