@@ -2,7 +2,7 @@
   "name": "apiful",
   "type": "module",
   "version": "3.1.2",
-  "packageManager": "pnpm@10.11.0",
+  "packageManager": "pnpm@10.11.1",
   "description": "Extensible, typed API tooling",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
   "license": "MIT",
@@ -85,6 +85,18 @@
     "prepack": "pnpm run build",
     "prepare": "tsx src/cli generate --root=\"playground\""
   },
+  "peerDependencies": {
+    "json-schema-to-typescript-lite": "^14.1.0",
+    "openapi-typescript": "^7.8.0"
+  },
+  "peerDependenciesMeta": {
+    "json-schema-to-typescript-lite": {
+      "optional": true
+    },
+    "openapi-typescript": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "@types/json-schema": "^7.0.15",
     "c12": "^3.0.4",
@@ -93,10 +105,6 @@
     "ofetch": "^1.4.1",
     "openapi-typescript-helpers": "0.0.13",
     "ufo": "^1.6.1"
-  },
-  "optionalDependencies": {
-    "json-schema-to-typescript-lite": "^14.1.0",
-    "openapi-typescript": "^7.8.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.13.2",
