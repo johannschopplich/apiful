@@ -1,8 +1,8 @@
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
 import type { ServiceOptions } from '../config'
-import { defu } from 'defu'
 import { pascalCase } from 'scule'
 import { CODE_HEADER_DIRECTIVES } from '../constants'
+import { defu } from './utils'
 
 export async function generateDTS(
   services: Record<string, ServiceOptions>,
@@ -161,7 +161,7 @@ async function generateSchemaTypes(options: {
     })
 
   const schema = await resolveSchema(options.service)
-  const resolvedOpenAPITSOptions = defu(options.service.openAPITS, options.openAPITSOptions || {})
+  const resolvedOpenAPITSOptions = defu(options.service.openAPITS || {}, options.openAPITSOptions || {})
 
   try {
     const ast = await openAPITS(schema, resolvedOpenAPITSOptions)

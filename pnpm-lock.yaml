@@ -27,18 +27,12 @@ importers:
       consola:
         specifier: ^3.4.2
         version: 3.4.2
-      defu:
-        specifier: ^6.1.4
-        version: 6.1.4
       ofetch:
         specifier: ^1.4.1
         version: 1.4.1
       openapi-typescript-helpers:
         specifier: 0.0.13
         version: 0.0.13
-      scule:
-        specifier: ^1.3.0
-        version: 1.3.0
       ufo:
         specifier: ^1.6.1
         version: 1.6.1
@@ -70,6 +64,9 @@ importers:
       listhen:
         specifier: ^1.9.0
         version: 1.9.0
+      scule:
+        specifier: ^1.3.0
+        version: 1.3.0
       tinyexec:
         specifier: ^1.0.1
         version: 1.0.1
