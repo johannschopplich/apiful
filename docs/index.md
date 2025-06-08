@@ -44,8 +44,8 @@ features:
     link: /guide/cli
     linkText: CLI Reference
   - icon: <span class="i-devicon-plain:openapi"></span>
-    title: Generate TS Definitions From OpenAPI Schemas
-    details: Create fully typed API clients from OpenAPI specifications.
+    title: Typed API clients From OpenAPI Schemas
+    details: Runtime-free types instead of runtime-generated code.
     link: /extensions/openapi
     linkText: OpenAPI Integration
   - icon: <span class="i-carbon:chart-network"></span>
