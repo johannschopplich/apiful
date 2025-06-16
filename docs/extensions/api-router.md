@@ -73,7 +73,7 @@ If you need to override the default options set in `createClient`, you can pass 
 ```ts
 const response = await api.users.get({
   headers: {
-    'Cache-Control': 'no-cache',
+    Authorization: 'Bearer <token>',
   },
 })
 ```
