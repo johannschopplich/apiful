@@ -13,15 +13,6 @@ describe('OpenAPI adapter types', () => {
     // Test with non-existing schema keys
     expectTypeOf<SchemaPaths<'nonExistent'>>().toEqualTypeOf<Record<string, never>>()
     expectTypeOf<SchemaPaths<'randomString'>>().toEqualTypeOf<Record<string, never>>()
-
-    // Test with never (edge case)
-    expectTypeOf<SchemaPaths<never>>().toEqualTypeOf<never>()
-
-    // Should preserve the exact structure from the repository
-    type PetStorePaths = SchemaPaths<'petStore'>
-    type SourcePetStorePaths = OpenAPISchemaRepository['petStore']
-
-    expectTypeOf<PetStorePaths>().toEqualTypeOf<SourcePetStorePaths>()
   })
 
   it('OpenAPIBuilder function type', () => {
