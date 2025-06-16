@@ -35,7 +35,7 @@ interface Schema<T = unknown> extends Validator<T> {
 
 ## Creating Schemas
 
-Schemas are created using the `jsonSchema` utility function.
+Create schemas using the `jsonSchema` utility function:
 
 ```ts
 import { jsonSchema } from 'apiful/utils'
@@ -52,6 +52,9 @@ const userSchema = jsonSchema<{
   required: ['id', 'name']
 })
 ```
+
+> [!TIP]
+> Always provide the TypeScript type as a generic parameter to ensure type safety between your JSON Schema and TypeScript definitions.
 
 ### Custom Validation Logic
 
@@ -103,7 +106,7 @@ catch (error) {
 
 ### Safe Validation
 
-For graceful error handling, use `safeValidateTypes` for handling validation results without throwing:
+For graceful error handling, use `safeValidateTypes` to handle validation results without throwing:
 
 ```ts
 import { safeValidateTypes } from 'apiful/utils'
@@ -123,9 +126,12 @@ else {
 }
 ```
 
+> [!NOTE]
+> Safe validation is particularly useful in API endpoints where you want to return validation errors to the client instead of crashing the server.
+
 ## Custom Validators
 
-You can create standalone validators without JSON Schema using the `validator` function:
+Create standalone validators without JSON Schema using the `validator` function:
 
 ```ts
 import { validator } from 'apiful/utils'
@@ -137,6 +143,9 @@ const emailValidator = validator<string>((value) => {
   return { success: true, value }
 })
 ```
+
+> [!TIP]
+> Custom validators are perfect for business logic validation that goes beyond JSON Schema capabilities, such as checking database constraints or complex business rules.
 
 ## Type Guards
 

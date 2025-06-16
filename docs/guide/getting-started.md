@@ -8,7 +8,7 @@ You can use one of the [built-in extensions](/guide/using-extensions#built-in-ex
 
 ## Installation
 
-Get started by installing `apiful` in your project. Choose your package manager:
+Get started by installing `apiful` in your project:
 
 ::: code-group
   ```bash [pnpm]
@@ -22,16 +22,18 @@ Get started by installing `apiful` in your project. Choose your package manager:
   ```
 :::
 
+> [!TIP]
+> APIful is designed as a development dependency since it is primarily used for generating types and building API clients during your build process.
+
 ## Your First API Client
 
-Create your first API client by initialising it with a base URL and a sample bearer token for authorization:
+Start by creating your first API client with a base URL and authorization headers:
 
 ```ts
 import { createClient } from 'apiful'
 
-const baseURL = '<your-api-base-url>'
 const client = createClient({
-  baseURL,
+  baseURL: 'https://api.example.com',
   headers: {
     Authorization: `Bearer ${process.env.API_KEY}`,
   },
@@ -39,51 +41,51 @@ const client = createClient({
 ```
 
 > [!NOTE]
-> The `createClient` function returns an [`ApiClient`](/reference/api-client) instance that does not yet have a call signature. You will need to add a base extension to the client in order to make API requests. Read on to learn how to do this.
+> The `createClient` function returns an [`ApiClient`](/reference/api-client) instance that cannot yet make requests. You will need to add a handler extension to enable HTTP functionality.
 
 ## Choose a Built-in Extension
 
-For most use cases, one of the included base extensions should be sufficient. The following adapters are available:
+APIful includes several extensions to handle different API interaction patterns:
 
-- [ofetch](/extensions/ofetch)
-- [OpenAPI](/extensions/openapi)
-- [API Router](/extensions/api-router)
+- **[ofetch](/extensions/ofetch)** - Simple fetch-style requests, perfect for getting started
+- **[OpenAPI](/extensions/openapi)** - Type-safe requests from OpenAPI schemas
+- **[API Router](/extensions/api-router)** - jQuery-style chaining for intuitive API calls
 
-For example, The `ofetchBuilder` wraps [ofetch](https://github.com/unjs/ofetch) to handle API requests. It is the easiest way to get started with APIful.
+The `ofetchBuilder` extension wraps [ofetch](https://github.com/unjs/ofetch) and provides the most straightforward way to make HTTP requests.
 
-Continuing from the previous example, add the `ofetchBuilder` to your client by chaining the `with` method. This will extend the client with the ofetch extension:
+Add the `ofetchBuilder` to your client using the `with` method:
 
 ```ts
 import { createClient, ofetchBuilder } from 'apiful'
 
-const baseURL = '<your-base-url>'
-
-// Initialise the ofetch adapter
-const adapter = ofetchBuilder()
 const client = createClient({
-  baseURL,
+  baseURL: 'https://api.example.com',
   headers: {
     Authorization: `Bearer ${process.env.API_KEY}`,
   },
 })
-  .with(adapter)
+  .with(ofetchBuilder())
 ```
 
-Now that you have a client with ofetch as the base extension, you can make API requests:
+Your client can now make HTTP requests:
 
 ```ts
-// GET request to <baseURL>/users/1
-await client('users/1', { method: 'GET' })
+// GET request to https://api.example.com/users/1
+const user = await client('users/1', { method: 'GET' })
+
+// POST request with JSON body
+const newUser = await client('users', {
+  method: 'POST',
+  body: { name: 'John Doe', email: 'john@example.com' }
+})
 ```
 
 > [!TIP]
 > If your API provides an OpenAPI schema, follow the [OpenAPI extension documentation](/extensions/openapi) to learn more about how to generate TypeScript definitions from your OpenAPI schema files and create fully typed API clients.
 
-## Writing Extensions
+## Chaining Extensions
 
-Each client can have more than one extension. This means that you can chain `with` methods to add multiple extensions to your client.
-
-For example, you can add a custom extension to log the default fetch options:
+Each client can have more than one extension. You can chain `with` methods to add multiple extensions to your client:
 
 ```ts
 import type { MethodsExtensionBuilder } from 'apiful'
@@ -100,4 +102,8 @@ const extendedClient = client
 extendedClient.logDefaults() // { baseURL: '<your-base-url>', headers: { Authorization: 'Bearer <your-bearer-token>' } }
 ```
 
-If you have specific requirements that are not covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](/guide/custom-extensions) guide to learn more.
+> [!IMPORTANT]
+> When chaining multiple extensions, later extensions override methods from earlier ones. This gives you fine-grained control over the final client behavior.
+
+> [!TIP]
+> If you have specific requirements that are not covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](/guide/custom-extensions) guide to learn more.

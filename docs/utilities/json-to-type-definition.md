@@ -21,13 +21,19 @@ To keep the package size small, APIful does not include `json-schema-to-typescri
   ```
 :::
 
+> [!NOTE]
+> This dependency is only needed when you want to generate TypeScript definitions from JSON. It will not be included in your production bundle.
+
 ## Usage
 
-Import the `jsonToTypeDefinition` function from `apiful/utils`. Pass it your JSON data and define the interface name you want to generate. The function returns a promise that resolves to a string containing the TypeScript interface definition.
+Import the `jsonToTypeDefinition` function from `apiful/utils`. Pass your JSON data and specify the interface name you want to generate. The function returns a promise that resolves to a string containing the TypeScript interface definition.
 
-All objects, arrays, and primitive values in the JSON data are converted to TypeScript interfaces, types, and literals. The generated interfaces are named based on the `typeName` option or default to `Root`. The `strictProperties` option can be used to mark all properties as required.
+All objects, arrays, and primitive values in the JSON data are converted to TypeScript interfaces, types, and literals. Generated interfaces are named based on the `typeName` option or default to `Root`. Use the `strictProperties` option to mark all properties as required.
 
-Here's an example of how to generate a type definition for a JSON response:
+Here is an example of generating a type definition for a JSON response:
+
+> [!TIP]
+> This is particularly useful for creating types from API responses during development, then manually refining them for production use.
 
 ```ts
 import { jsonToTypeDefinition } from 'apiful/utils'
@@ -91,7 +97,7 @@ declare function jsonToTypeDefinition(
 ): Promise<string>
 ```
 
-The input parameter `data` is a JSON object or any other valid JSON value. For reference, here's the definition of the `JsonValue` type:
+The input parameter `data` is a JSON object or any other valid JSON value. For reference, here is the definition of the `JsonValue` type:
 
 ```ts
 type JsonObject = { [Key in string]: JsonValue } & { [Key in string]?: JsonValue | undefined }

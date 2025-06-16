@@ -1,70 +1,99 @@
 # OpenAPI Type Helpers
 
-When building clients with the [`OpenAPIBuilder` extension](/extensions/openapi), you may want to access the request and response types for each operation in the OpenAPI schema. APIful provides intuitive types to allow you to do this easily, without needing to manually define types for each endpoint.
+When building clients with the [`OpenAPIBuilder` extension](/extensions/openapi), you may want to extract TypeScript types from your OpenAPI schema. APIful generates a comprehensive type system that lets you access request and response types for any endpoint without manually defining them.
 
-## Feature Overview
+## Why Use Type Helpers?
 
-The unified type interface allows you to access all aspects of an OpenAPI endpoint in a type-safe manner. This includes:
-
-- **Intuitive path-based access** - Use the actual API path as you would write it in your code
-- **Property-based access** - Get types through natural property access: `path`, `query`, `request`, etc.
-- **HTTP method specificity** - Extract types for specific HTTP methods on the same path
-- **Status code support** - Extract response types for specific status codes
-- **Additional metadata** - Access to `fullPath`, `method`, and the full `operation` object
-
-## Intuitive API Access
-
-Given the API service name `petStore`, APIful generates a unified type interface that allows you to access all aspects of an endpoint through a single type:
+Instead of writing types manually for each API endpoint, you can extract them directly from your OpenAPI schema:
 
 ```ts
-import type { PetStore } from 'apiful/schema'
+// ❌ Manual type definition (error-prone, out of sync)
+interface CreateUserRequest {
+  name: string
+  email: string
+}
 
-// Access everything through the unified API
-type UserEndpoint = PetStore<'/user/{username}', 'get'>
-
-// Types are available through property access
-type PathParams = UserEndpoint['path'] // Path parameters
-type QueryParams = UserEndpoint['query'] // Query parameters
-type RequestBody = UserEndpoint['request'] // Request body
-type Response = UserEndpoint['response'] // Response (defaults to 200 status)
-type NotFound = UserEndpoint['responses'][404] // Response for specific status code
+// ✅ Extract from OpenAPI schema (always up-to-date)
+type CreateUserRequest = PetStore<'/user', 'post'>['request']
 ```
 
-## Examples of Type Usage
+## The Unified Type Interface
 
-Here are some practical examples of how to use these types:
+APIful generates a unified type interface for each service that gives you access to all endpoint information:
 
 ```ts
 import type { PetStore } from 'apiful/schema'
 
-// Get path parameters for /pet/{petId} path with GET method
+// The unified interface: Service<Path, Method>
+type UserEndpoint = PetStore<'/user/{username}', 'get'>
+
+// Extract any part of the endpoint
+type PathParams = UserEndpoint['path'] // { username: string }
+type QueryParams = UserEndpoint['query'] // Query parameters
+type RequestBody = UserEndpoint['request'] // Request body type
+type Response = UserEndpoint['response'] // Success response (200)
+type ErrorResponse = UserEndpoint['responses'][404] // Specific status code
+```
+
+## Core Type Properties
+
+Every endpoint type provides these properties:
+
+| Property | Description | Example |
+|----------|-------------|---------|
+| `path` | Path parameters | `{ petId: number }` |
+| `query` | Query parameters | `{ status: 'available' \| 'pending' }` |
+| `request` | Request body type | `{ name: string; category: Category }` |
+| `response` | Default response (200) | `{ id: number; name: string }` |
+| `responses` | All status responses | `{ 200: Pet; 404: Error; 400: ValidationError }` |
+| `fullPath` | Complete path string | `'/pet/{petId}'` |
+| `method` | HTTP method | `'get'` |
+| `operation` | Full OpenAPI operation | Complete operation object |
+
+## Practical Examples
+
+### Basic Type Extraction
+
+```ts
+import type { PetStore } from 'apiful/schema'
+
+// Extract path parameters
 type PetParams = PetStore<'/pet/{petId}', 'get'>['path']
 //   ^? { petId: number }
 
-// Get query parameters for finding pets by status
+// Extract query parameters
 type StatusQuery = PetStore<'/pet/findByStatus', 'get'>['query']
 //   ^? { status?: "available" | "pending" | "sold" }
 
-// Get request body for creating a pet
+// Extract request body
 type CreatePetBody = PetStore<'/pet', 'post'>['request']
-//   ^? { id?: number; name: string; /* ... */ }
+//   ^? { id?: number; name: string; category: Category }
 
-// Get success response type for getting a pet
+// Extract response type
 type PetResponse = PetStore<'/pet/{petId}', 'get'>['response']
-//   ^? { id?: number; name: string; /* ... */ }
-
-// Get a specific status code response
-type NotFoundResponse = PetStore<'/pet/{petId}', 'get'>['responses'][404]
+//   ^? { id?: number; name: string; status: string }
 ```
 
-## Helper Types for Path and Method Information
+### Error Handling Types
 
-APIful also provides utility types to help you work with available paths and methods:
+```ts
+// Extract specific error response types
+type NotFoundError = PetStore<'/pet/{petId}', 'get'>['responses'][404]
+type ValidationError = PetStore<'/pet', 'post'>['responses'][400]
+
+// All possible responses for an endpoint
+type AllPetResponses = PetStore<'/pet/{petId}', 'get'>['responses']
+//   ^? { 200: Pet; 404: NotFoundError; 400: ValidationError }
+```
+
+## Schema Discovery
+
+APIful generates helper types for exploring your API:
 
 ```ts
 import type { PetStoreApiMethods, PetStoreApiPaths } from 'apiful/schema'
 
-// Get a union of all available API paths
+// Get all available paths
 type AllPaths = PetStoreApiPaths
 //   ^? '/pet' | '/pet/{petId}' | '/pet/findByStatus' | /* ... */
 

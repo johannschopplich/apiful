@@ -1,11 +1,11 @@
 # `OpenAPIBuilder`
 
 > [!NOTE]
-> This is a [handler extension](/guide/custom-extensions#handler-extension) and wraps [ofetch](https://github.com/unjs/ofetch) under the hood.
+> This is a [handler extension](/guide/custom-extensions#handler-extension) that wraps [ofetch](https://github.com/unjs/ofetch) under the hood.
 
-This built-in APIful extension adds type-safety for API calls based on an OpenAPI schema. This includes path names, supported HTTP methods, request body, response body, query parameters, and headers.
+This built-in extension provides complete type safety for API calls based on OpenAPI schemas. You get full TypeScript support for paths, HTTP methods, request bodies, response types, query parameters, and headers.
 
-In order to use this extension, APIful needs to generate TypeScript definitions from your OpenAPI schema files beforehand.
+To use this extension, APIful must first generate TypeScript definitions from your OpenAPI schema files.
 
 ## Prerequisites
 
@@ -23,11 +23,14 @@ To keep the package size small, APIful does not include `openapi-typescript` as 
   ```
 :::
 
+> [!NOTE]
+> `openapi-typescript` is only needed during development for type generation. It will not be included in your production bundle.
+
 ## TypeScript Definitions Generation
 
-Before initiating the type-safe API client, you need to generate TypeScript definitions from your OpenAPI schema files. You can do this by defining API services with OpenAPI schemas in the `apiful.config.ts` file and running the [`generate`](/guide/cli) command of the APIful CLI.
+Before creating your type-safe API client, generate TypeScript definitions from your OpenAPI schema files. This involves creating an `apiful.config.ts` file with your API services and running the APIful CLI.
 
-Create an `apiful.config.ts` file and define your API services. For example, let's define a `petStore` service using the OpenAPI schema from the [Swagger Petstore](https://petstore.swagger.io) API:
+Create an `apiful.config.ts` file and define your API services. Here is an example using the [Swagger Petstore](https://petstore.swagger.io) API:
 
 ```ts
 import { defineApifulConfig } from 'apiful/config'
@@ -49,12 +52,15 @@ npx apiful generate
 
 Done! You can now use the `OpenAPIBuilder` extension to create a type-safe API client. Make sure you pass the **service name** to it as a generic parameter, such as `OpenAPIBuilder<'petStore'>()`. Follow the next chapter for more details.
 
-> [!NOTE]
-> Make sure the generated `apiful.d.ts` is not excluded by your `tsconfig.json` configuration.
+> [!IMPORTANT]
+> Make sure the generated `apiful.d.ts` file is not excluded by your `tsconfig.json` configuration. TypeScript needs to find this file to provide typed definitions for your OpenAPI schema.
+
+> [!TIP]
+> Run the generate command whenever your OpenAPI schema changes to keep your types up-to-date. Consider adding it to your build process or a pre-commit hook.
 
 ## Using the `OpenAPIBuilder` Extension
 
-After you have generated the TypeScript definitions file, you can use the `OpenAPIBuilder` extension to create a type-safe API client:
+Once you have generated the TypeScript definitions, create a type-safe API client using the `OpenAPIBuilder` extension:
 
 ```ts
 import { createClient, OpenAPIBuilder } from 'apiful'
@@ -64,7 +70,7 @@ const adapter = OpenAPIBuilder<'petStore'>()
 const petStore = createClient({ baseURL }).with(adapter)
 ```
 
-Now, the responses are typed based on the OpenAPI specification. For example, the following code snippet fetches a user by username:
+Your client now provides full type safety based on the OpenAPI specification. Here is how to fetch a user by username:
 
 ```ts
 const userResponse = await petStore('/user/{username}', {

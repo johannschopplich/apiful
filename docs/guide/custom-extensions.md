@@ -1,26 +1,29 @@
 # Custom Extensions
 
-Each client can have more than one extension. This means that you can chain `with` methods to add multiple extensions to your client.
+APIful's true power lies in its extensibility. You can chain multiple extensions using the `with` method to build exactly the API client you need.
 
 ## Extension Types
 
-Before writing your first extension, you need to understand the different types of extensions that you can create.
+Before creating your first extension, it is important to understand the two types of extensions available.
 
 APIful provides two types of extensions:
 
-- **Handler Extension**: This type of extension adds the callable signature to a client instance. This should be the first extension you extend your client with. It is recommended not to use more than one handler extension.
-- **Methods Extension**: This type of extension adds methods to the client instance. You can chain multiple method extensions to add as much functionality as you need.
+- **Handler Extension**: Adds the callable signature to a client instance (e.g., `client('/path')`). This provides the core HTTP functionality.
+- **Methods Extension**: Adds methods to the client instance (e.g., `client.login()`, `client.cache.get()`). You can chain multiple method extensions.
 
 Both extension types are created using a builder function that receives the client instance and returns the extension function (handler) or object (methods).
 
-> [!TIP]
-> Make sure that the extension builder satisfies either `HandlerExtensionBuilder` or `MethodsExtensionBuilder`. Do no declare extension variables directly to one of the types.
+> [!IMPORTANT]
+> Use `satisfies HandlerExtensionBuilder` or `satisfies MethodsExtensionBuilder` instead of declaring extension variables directly with these types. This preserves better type inference.
+
+> [!WARNING]
+> Only use one handler extension per client. Multiple handler extensions will override each other, with the last one taking precedence.
 
 ## Handler Extension
 
-Handler extensions are the foundation of any [`ApiClient`](/reference/api-client), as they provide the call signature. Although you can add multiple handler extensions, only one is required and it is recommended to have only one.
+Handler extensions form the foundation of any [`ApiClient`](/reference/api-client) by providing the callable interface. While you can technically add multiple handler extensions, you should use only one per client.
 
-[ofetch](https://github.com/unjs/ofetch) is a fetch wrapper suits well as a handler extension. Actually, the [`ofetchBuilder`](/extensions/ofetch) included by APIful just creates an ofetch instance with the default options of the client. It is a good example for the most basic handler extension:
+[ofetch](https://github.com/unjs/ofetch) works perfectly as a handler extension. The built-in [`ofetchBuilder`](/extensions/ofetch) is essentially just an ofetch instance configured with your client's default options:
 
 ```ts
 import type { HandlerExtensionBuilder } from 'apiful'
@@ -31,13 +34,16 @@ const callableExtension = (
 ) satisfies HandlerExtensionBuilder
 ```
 
-Now, you can extend your client with your custom handler extension:
+Use your custom handler extension by adding it to a client:
 
 ```ts
 import { createClient } from 'apiful'
 
-const client = createClient()
+const client = createClient({ baseURL: 'https://api.example.com' })
   .with(callableExtension)
+
+// Now you can make requests
+const response = await client('/users')
 ```
 
 > [!TIP]
@@ -45,7 +51,7 @@ const client = createClient()
 
 ## Methods Extension
 
-While handler extensions are recommended to be used only once, you can add as many method extensions as you need. hey allow you to add your own methods to the client and provide full type safety to the client.
+While handler extensions are recommended to be used only once, you can add as many method extensions as you need. They allow you to add your own methods to the client and provide full type safety.
 
 For example, let's add a `logDefaults` function to the client that logs the default fetch options:
 
@@ -65,4 +71,38 @@ extendedClient.logDefaults() // { baseURL: '<your-base-url>', headers: { Authori
 ```
 
 > [!TIP]
-> Use the [`MethodsExtensionBuilder`](/reference/methods-extension-builder) type.
+> Use the [`MethodsExtensionBuilder`](/reference/methods-extension-builder) type for better type checking and IntelliSense support.
+
+> [!NOTE]
+> Method extensions can access the client's `defaultOptions`, `_handler`, and any previously added extensions, making them powerful for building layered functionality.
+
+## Extension Priority and Resolution
+
+When you chain multiple extensions, later extensions override earlier ones. This allows you to compose functionality in a predictable way:
+
+```ts
+import type { MethodsExtensionBuilder } from 'apiful'
+import { createClient } from 'apiful'
+
+const firstExtension = (client => ({
+  greet: () => 'Hello from first!'
+})) satisfies MethodsExtensionBuilder
+
+const secondExtension = (client => ({
+  greet: () => 'Hello from second!'
+})) satisfies MethodsExtensionBuilder
+
+const api = createClient({ baseURL: 'https://api.example.com' })
+  .with(firstExtension)
+  .with(secondExtension)
+
+console.log(api.greet()) // "Hello from second!"
+```
+
+## Best Practices
+
+1. **Keep it Simple**: Start with basic extensions and add complexity only when needed
+2. **Use TypeScript**: Always use `satisfies` to ensure type safety
+3. **Single Purpose**: Each extension should have one clear responsibility
+
+These patterns help you build maintainable API clients that grow with your needs while keeping the code clean and understandable.

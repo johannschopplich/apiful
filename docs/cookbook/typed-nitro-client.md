@@ -1,11 +1,8 @@
 # Typed Client for Nitro Servers
 
-[Nitro](https://nitro.unjs.io) is great for building web servers with everything you need and deploying them wherever you want. This guide will show you how to setup a typed client for your Nitro server quickly.
+[Nitro](https://nitro.unjs.io) is excellent for building web servers with everything you need and deploying them wherever you want. This guide shows you how to set up a fully typed client for your Nitro server quickly.
 
-For this guide, we will use the [APIful CLI](/guide/cli) to transform the OpenAPI schema into type definitions and [`createClient`](/reference/create-client) with [`OpenAPIBuilder`](/extensions/openapi) to instantiate a typed client.
-
-> [!NOTE]
-> This requires [Nitro](https://nitro.unjs.io) v2.10+, which supports a public `/_openapi.json` route to expose the OpenAPI schema.
+We will use the [APIful CLI](/guide/cli) to transform the OpenAPI schema into type definitions and [`createClient`](/reference/create-client) with [`OpenAPIBuilder`](/extensions/openapi) to instantiate a typed client.
 
 ## 1️⃣ Enable OpenAPI Schema in Nitro
 
@@ -28,7 +25,7 @@ export default defineNitroConfig({
 
 ## 2️⃣ Generate Type Definitions for the OpenAPI Schema
 
-Create an `apiful.config.ts` file and define your API service with the OpenAPI Schema URL. For this example, we will set up the `myApi` service with the OpenAPI schema from `https://myapi.dev/_openapi.json`:
+Create an `apiful.config.ts` file and define your API service with the OpenAPI schema URL. For this example, we will set up the `myApi` service with the OpenAPI schema from `https://api.example.com/_openapi.json`:
 
 ```ts
 import { defineApifulConfig } from 'apiful/config'
@@ -36,8 +33,7 @@ import { defineApifulConfig } from 'apiful/config'
 export default defineApifulConfig({
   services: {
     myApi: {
-      // Public OpenAPI schema in Nitro v2.10+
-      schema: 'https://myapi.dev/_openapi.json',
+      schema: 'https://api.example.com/_openapi.json',
     },
   },
 })
@@ -49,7 +45,10 @@ Next, run the following command to generate the type definitions, saved as `apif
 npx apiful generate
 ```
 
-Type definitions for the `myApi` service will augment the global `apiful/schema`, so that they can be used by the `OpenAPIBuilder` extension.
+Type definitions for the `myApi` service will augment the global `apiful/schema`, making them available to the `OpenAPIBuilder` extension.
+
+> [!IMPORTANT]
+> Make sure your Nitro server is running when generating types from a URL, or use a local schema file path instead.
 
 ## 3️⃣ Create the Typed Client
 
@@ -58,7 +57,7 @@ Finally, create an API client using the `OpenAPIBuilder` extension. Pass `myApi`
 ```ts
 import { createClient, OpenAPIBuilder } from 'apiful'
 
-const client = createClient({ baseURL: 'https://myapi.dev' })
+const client = createClient({ baseURL: 'https://api.example.com' })
   .with(OpenAPIBuilder<'myApi'>())
 ```
 
@@ -67,5 +66,24 @@ const client = createClient({ baseURL: 'https://myapi.dev' })
 Now you can use the typed client to make requests to your Nitro server. Return types and parameters are automatically inferred from the OpenAPI schema:
 
 ```ts
-const response = await client('/users')
+// GET request with full type safety
+const users = await client('/users', { method: 'GET' })
+
+// POST request with typed body and response
+const newUser = await client('/users', {
+  method: 'POST',
+  body: {
+    name: 'John Doe',
+    email: 'john@example.com'
+  }
+})
+
+// Path parameters are type-checked
+const user = await client('/users/{id}', {
+  method: 'GET',
+  path: { id: 123 }
+})
 ```
+
+> [!TIP]
+> Your editor will provide full IntelliSense support, including autocomplete for paths, methods, and request/response shapes.

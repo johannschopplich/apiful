@@ -1,29 +1,39 @@
 # `ofetchBuilder`
 
 > [!NOTE]
-> This is a [handler extension](/guide/custom-extensions#handler-extension).
+> This is a [handler extension](/guide/custom-extensions#handler-extension) that wraps [ofetch](https://github.com/unjs/ofetch) under the hood.
 
-This built-in extension wraps [ofetch](https://github.com/unjs/ofetch) to handle API requests. It is the most basic adapter and inherits all default options from the client.
+This built-in extension provides the most straightforward way to make HTTP requests with APIful. It is the simplest adapter and inherits all default options from the client, making it perfect for developers familiar with fetch or Axios.
 
-Import the `ofetchBuilder` extension and add it to your client to get started:
+Import the `ofetchBuilder` extension and add it to your client:
 
 ```ts
 import { createClient, ofetchBuilder } from 'apiful'
 
-// Set the base URL for your API calls
-const baseURL = 'https://jsonplaceholder.typicode.com'
-
-const client = createClient({ baseURL })
-  // Add the ofetch extension
+const client = createClient({
+  baseURL: 'https://jsonplaceholder.typicode.com',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
   .with(ofetchBuilder())
 ```
 
-The `client` now has the type signature of the [ofetch](https://github.com/unjs/ofetch) library. It accepts all options that the library provides.
+The `client` now has the same API as [ofetch](https://github.com/unjs/ofetch), accepting all options that ofetch provides:
 
 ```ts
-// POST request to <baseURL>/users with payload
-const response = await client('users', {
+// GET request with query parameters
+const users = await client('users', {
+  method: 'GET',
+  query: { page: 1, limit: 10 }
+})
+
+// POST request with JSON body
+const newUser = await client('users', {
   method: 'POST',
-  body: { foo: 'bar' },
+  body: { name: 'John Doe', email: 'john@example.com' }
 })
 ```
+
+> [!TIP]
+> The ofetch extension automatically handles JSON serialization, response parsing, and error handling, making it ideal for REST APIs.

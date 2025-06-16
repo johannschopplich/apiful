@@ -33,9 +33,8 @@ Create your first API client by initialising it with a base URL and a sample bea
 ```ts
 import { createClient } from 'apiful'
 
-const baseURL = '<your-api-base-url>'
 const client = createClient({
-  baseURL,
+  baseURL: 'https://api.example.com',
   headers: {
     Authorization: `Bearer ${process.env.API_KEY}`,
   },
@@ -54,7 +53,7 @@ const client = createClient({
 ```ts
 import { createClient, ofetchBuilder } from 'apiful'
 
-const baseURL = '<your-api-base-url>'
+const baseURL = 'https://api.example.com'
 const adapter = ofetchBuilder()
 const api = createClient({ baseURL }).with(adapter)
 
@@ -75,7 +74,7 @@ The `ofetchBuilder` wraps [ofetch](https://github.com/unjs/ofetch) to handle API
 ```ts
 import { apiRouterBuilder, createClient } from 'apiful'
 
-const baseURL = '<your-api-base-url>'
+const baseURL = 'https://api.example.com'
 const adapter = apiRouterBuilder()
 const api = createClient({ baseURL }).with(adapter)
 
