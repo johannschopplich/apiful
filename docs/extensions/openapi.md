@@ -44,11 +44,13 @@ export default defineApifulConfig({
 })
 ```
 
-Then, run the [`generate`](/guide/cli) command in your terminal to generate the TypeScript definitions, saved as `apiful.d.ts`. It augments the `apiful/schema` module with the generated types, so that this extension and you can access the globally defined types.
+Then, run the [`generate`](/guide/cli) command in your terminal to generate the TypeScript definitions, saved as `apiful.d.ts`.
 
 ```sh
 npx apiful generate
 ```
+
+The type generation process uses `openapi-typescript` to parse your OpenAPI schema and generates TypeScript definitions that are then augmented into APIful's type system through module declaration merging. This approach provides compile-time type safety without any runtime overhead – your generated types exist only at build time and are completely tree-shaken from production bundles. For large schemas with hundreds of endpoints, generation typically takes 2-5 seconds and produces highly optimized TypeScript definitions with template literal types for path parameters and conditional types for optional fields.
 
 Done! You can now use the `OpenAPIBuilder` extension to create a type-safe API client. Make sure you pass the **service name** to it as a generic parameter, such as `OpenAPIBuilder<'petStore'>()`. Follow the next chapter for more details.
 
@@ -113,7 +115,7 @@ const response = await petStore('/foo/{id}', {
 
 ## Request Headers
 
-Add headers to the request using the `headers`field. All headers defined in the OpenAPI schema will be type checked. You can still add additional headers that are not defined in the schema, which will not be type checked.
+Add headers to the request using the `headers` field. All headers defined in the OpenAPI schema will be type checked. You can still add additional headers that are not defined in the schema, which will not be type checked.
 
 ```ts
 const response = await petStore('/some/endpoint', {

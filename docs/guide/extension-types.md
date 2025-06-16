@@ -18,7 +18,7 @@ const extendedClient = client
 To create a custom extension, you need to define an extension builder. An extension builder is a function that takes an `ApiClient` instance and returns either a handler extension or a methods extension.
 
 > [!TIP]
-> Make sure that the extension builder satisfies either `HandlerExtensionBuilder` or `MethodsExtensionBuilder`. Do no declare extension variables directly to one of the types.
+> Make sure that the extension builder satisfies either `HandlerExtensionBuilder` or `MethodsExtensionBuilder`. Do not declare extension variables directly to one of the types.
 
 **Type Definitions**
 
@@ -43,7 +43,7 @@ import { createClient } from 'apiful'
 import { ofetch } from 'ofetch'
 
 const ofetchBuilder = ((client: ApiClient) => {
-  return _ofetch.create(client.defaultOptions)
+  return ofetch.create(client.defaultOptions)
 }) satisfies HandlerExtensionBuilder
 
 const extendedClient = createClient()

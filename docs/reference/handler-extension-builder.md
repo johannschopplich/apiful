@@ -3,7 +3,7 @@
 Extensions that add a callable signature to the client.
 
 > [!IMPORTANT]
-> Always use the `satifies` operator to validate your extension, which preserves the resulting extension type.
+> Always use the `satisfies` operator to validate your extension, which preserves the resulting extension type.
 
 ## Type Definition
 

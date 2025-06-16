@@ -7,7 +7,7 @@ APIful provides all common HTTP status reason phrases as constants. These are in
 
 ## Usage
 
-Import all named exports from `apiful/http-status-phrases` as a local names, and use them as needed.
+Import all named exports from `apiful/http-status-phrases` as local names, and use them as needed.
 
 ```ts
 import * as HttpStatusPhrases from 'apiful/http-status-phrases'

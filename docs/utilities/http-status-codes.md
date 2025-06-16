@@ -9,7 +9,7 @@ All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1), RFC2518 (Web
 
 ## Usage
 
-Import all named exports from `apiful/http-status-codes` as a local names, and use them as needed.
+Import all named exports from `apiful/http-status-codes` as local names, and use them as needed.
 
 ```ts
 import * as HttpStatusCodes from 'apiful/http-status-codes'

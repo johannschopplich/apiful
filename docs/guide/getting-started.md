@@ -2,7 +2,7 @@
 
 ## What Is This?
 
-APIful provides a unified interface to manage all your API interactions by setting up a client with default fetch options, such as the base API URL and headers. Extensions add a variety of features to the client to match your favorite flavor of API management.
+APIful provides a unified interface to manage all your API interactions by setting up a client with default fetch options, such as the base API URL and headers. Extensions add a variety of features to the client through a sophisticated proxy-based architecture that maintains full TypeScript type safety while allowing runtime composition. This approach ensures that each extension can enhance or override behavior without breaking the client contract, while keeping bundle sizes minimal through intelligent tree-shaking.
 
 You can use one of the [built-in extensions](/guide/using-extensions#built-in-extensions) to get started right away, or create your own [custom extension](/guide/custom-extensions) to meet your specific needs.
 
@@ -80,6 +80,9 @@ const newUser = await client('users', {
 })
 ```
 
+> [!NOTE]
+> Each request automatically inherits your client's default options (base URL, headers, etc.) while allowing you to override them per request. The ofetch extension handles JSON serialization, response parsing, and error handling automatically, making API interactions feel natural and predictable.
+
 > [!TIP]
 > If your API provides an OpenAPI schema, follow the [OpenAPI extension documentation](/extensions/openapi) to learn more about how to generate TypeScript definitions from your OpenAPI schema files and create fully typed API clients.
 
@@ -99,8 +102,12 @@ const logExtension = (client => ({
 const extendedClient = client
   .with(logExtension)
 
-extendedClient.logDefaults() // { baseURL: '<your-base-url>', headers: { Authorization: 'Bearer <your-bearer-token>' } }
+extendedClient.logDefaults() // { baseURL: 'https://api.example.com', headers: { Authorization: 'Bearer <your-bearer-token>' } }
 ```
+
+## Error Handling Across Extensions
+
+Each extension can implement its own error handling strategy, and errors propagate through the extension chain in a predictable manner. The ofetch extension automatically throws detailed errors with status codes and response bodies, while custom extensions can implement retry logic, circuit breakers, or custom error transformation. This layered approach allows higher-level extensions to catch and transform errors from lower-level ones, giving you complete control over how your application handles API failures.
 
 > [!IMPORTANT]
 > When chaining multiple extensions, later extensions override methods from earlier ones. This gives you fine-grained control over the final client behavior.

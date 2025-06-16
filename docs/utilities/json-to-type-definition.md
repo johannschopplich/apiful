@@ -54,7 +54,7 @@ const response = {
 }
 
 const responseTypeDefinition = await jsonToTypeDefinition(
-  apiReponse,
+  response,
   { typeName: 'Response' },
 )
 ```

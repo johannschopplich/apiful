@@ -147,7 +147,7 @@ const logExtension = (client => ({
 const extendedClient = client
   .with(logExtension)
 
-extendedClient.logDefaults() // { baseURL: '<your-base-url>', headers: { Authorization: 'Bearer <your-bearer-token>' } }
+extendedClient.logDefaults() // { baseURL: 'https://api.example.com', headers: { Authorization: 'Bearer <your-bearer-token>' } }
 ```
 
 If you have specific requirements that are not covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](https://apiful.byjohann.dev/guide/custom-extensions) guide to learn more.
