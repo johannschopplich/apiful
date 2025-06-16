@@ -3,9 +3,9 @@
  * -------------------------------------------------------------------------- */
 
 :root {
-  --vp-c-brand-1: #AB2E4F;
-  --vp-c-brand-2: #C3345A;
-  --vp-c-brand-3: #CE486C;
+  --vp-c-brand-1: #DA5D81;
+  --vp-c-brand-2: #D4446E;
+  --vp-c-brand-3: #CB2E5C;
 }
 
 /**
@@ -16,13 +16,13 @@
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: -webkit-linear-gradient(
     120deg,
-    #9D96B8 15%,
-    #AB2E4F
+    #EB99B0 15%,
+    #DA5D81
   );
   --vp-home-hero-image-background-image: linear-gradient(
     -45deg,
-    #AB2E4F60 30%,
-    #9D96B860
+    #DA5D8160 30%,
+    #EB99B060
   );
   --vp-home-hero-image-filter: blur(30px);
 }
