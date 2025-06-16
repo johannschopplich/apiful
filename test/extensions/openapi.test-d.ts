@@ -5,7 +5,7 @@ import { describe, expectTypeOf, it } from 'vitest'
 import { OpenAPIBuilder } from '../../src/extensions/openapi'
 
 describe('OpenAPI adapter types', () => {
-  it('SchemaPaths type utility', () => {
+  it('schema repository interface', () => {
     // Test with existing schema keys
     expectTypeOf<SchemaPaths<'petStore'>>().toEqualTypeOf<OpenAPISchemaRepository['petStore']>()
     expectTypeOf<SchemaPaths<'testEcho'>>().toEqualTypeOf<OpenAPISchemaRepository['testEcho']>()
