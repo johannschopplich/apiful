@@ -1,6 +1,7 @@
 import type { OpenAPISchemaRepository } from 'apiful/schema'
 import type { ApiClient } from '../../src/client'
-import type { OpenAPIClient, SchemaPaths } from '../../src/extensions/openapi'
+import type { OpenAPIClient } from '../../src/extensions/openapi'
+import type { SchemaPaths } from '../../src/openapi/client'
 import { describe, expectTypeOf, it } from 'vitest'
 import { OpenAPIBuilder } from '../../src/extensions/openapi'
 
