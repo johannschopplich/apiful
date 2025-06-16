@@ -22,7 +22,7 @@ export async function generateDTS(
 
   // Build import statements
   const imports = serviceIds
-    .map(id => `  import { paths as ${pascalCase(id)}Paths, operations as ${pascalCase(id)}Operations } from 'apiful/__${id}__'`)
+    .map(id => `  import { paths as ${pascalCase(id)}Paths } from 'apiful/__${id}__'`)
     .join('\n')
 
   // Build repository interface entries
@@ -35,7 +35,7 @@ export async function generateDTS(
     .map((id) => {
       return [`
 /**
- * API for accessing OpenAPI types from ${pascalCase(id)} service
+ * API for accessing OpenAPI types of the ${pascalCase(id)} service
  *
  * @example
  * // Get path parameters for /users/{id} path with GET method:
@@ -58,7 +58,7 @@ export async function generateDTS(
  */
 export type ${pascalCase(id)}<
   Path extends keyof ${pascalCase(id)}Paths,
-  Method extends HttpMethodsForPath<${pascalCase(id)}Paths, Path> = HttpMethodsForPath<${pascalCase(id)}Paths, Path> extends string ? HttpMethodsForPath<${pascalCase(id)}Paths, Path> : never
+  Method extends PathMethods<${pascalCase(id)}Paths, Path> = PathMethods<${pascalCase(id)}Paths, Path> extends string ? PathMethods<${pascalCase(id)}Paths, Path> : never
 > = {
   /** Path parameters for this endpoint */
   path: ${pascalCase(id)}Paths[Path][Method] extends { parameters?: { path?: infer P } } ? P : Record<string, never>;
@@ -78,8 +78,8 @@ export type ${pascalCase(id)}<
 
   /** All possible responses for this endpoint by status code */
   responses: {
-    [Status in keyof ${pascalCase(id)}Paths[Path][Method]['responses']]:
-      ${pascalCase(id)}Paths[Path][Method]['responses'][Status] extends { content: { 'application/json': infer R } }
+    [Status in keyof ExtractResponses<OperationObject<${pascalCase(id)}Paths, Path, Method>>]:
+      ExtractResponses<OperationObject<${pascalCase(id)}Paths, Path, Method>>[Status] extends { content: { 'application/json': infer R } }
         ? R
         : Record<string, never>
   };
@@ -94,7 +94,7 @@ export type ${pascalCase(id)}<
    * Full operation object from the OpenAPI specification.
    * Useful for accessing additional metadata like tags, security, etc.
    */
-  operation: ${pascalCase(id)}Paths[Path][Method];
+  operation: OperationObject<${pascalCase(id)}Paths, Path, Method>
 }
 
 /**
@@ -112,7 +112,7 @@ export type ${pascalCase(id)}ApiPaths = keyof ${pascalCase(id)}Paths;
  * @example
  * type MethodsForUserPath = ${pascalCase(id)}ApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
  */
-export type ${pascalCase(id)}ApiMethods<P extends keyof ${pascalCase(id)}Paths> = HttpMethodsForPath<${pascalCase(id)}Paths, P>;
+export type ${pascalCase(id)}ApiMethods<P extends keyof ${pascalCase(id)}Paths> = PathMethods<${pascalCase(id)}Paths, P>;
 `.trim()].join('\n')
     })
     .join('\n\n')
@@ -129,7 +129,11 @@ ${CODE_HEADER_DIRECTIVES}
 declare module 'apiful/schema' {
 ${imports}
 
-  type NonNeverKeys<T> = {
+  interface OpenAPISchemaRepository {
+${repositoryEntries}
+  }
+
+  type ValidKeys<T> = {
     [K in keyof T]: [T[K]] extends [never]
       ? never
       : [undefined] extends [T[K]]
@@ -137,11 +141,9 @@ ${imports}
         : K;
   }[keyof T];
 
-  type HttpMethodsForPath<T, P extends keyof T> = Exclude<NonNeverKeys<T[P]>, 'parameters'>
-
-  interface OpenAPISchemaRepository {
-${repositoryEntries}
-  }
+  type PathMethods<T, P extends keyof T> = Exclude<ValidKeys<T[P]>, 'parameters'>
+  type OperationObject<T, P extends keyof T, M extends PathMethods<T, P>> = T[P][M]
+  type ExtractResponses<T> = T extends { responses: infer R } ? R : Record<string, never>
 
 ${applyLineIndent(typeExports)}
 }

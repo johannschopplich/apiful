@@ -5,9 +5,13 @@ exports[`OpenAPI to TypeScript > generates OpenAPI types 1`] = `
 /* prettier-ignore */
 
 declare module 'apiful/schema' {
-  import { paths as TestEchoPaths, operations as TestEchoOperations } from 'apiful/__testEcho__'
+  import { paths as TestEchoPaths } from 'apiful/__testEcho__'
 
-  type NonNeverKeys<T> = {
+  interface OpenAPISchemaRepository {
+    testEcho: TestEchoPaths
+  }
+
+  type ValidKeys<T> = {
     [K in keyof T]: [T[K]] extends [never]
       ? never
       : [undefined] extends [T[K]]
@@ -15,14 +19,12 @@ declare module 'apiful/schema' {
         : K;
   }[keyof T];
 
-  type HttpMethodsForPath<T, P extends keyof T> = Exclude<NonNeverKeys<T[P]>, 'parameters'>
-
-  interface OpenAPISchemaRepository {
-    testEcho: TestEchoPaths
-  }
+  type PathMethods<T, P extends keyof T> = Exclude<ValidKeys<T[P]>, 'parameters'>
+  type OperationObject<T, P extends keyof T, M extends PathMethods<T, P>> = T[P][M]
+  type ExtractResponses<T> = T extends { responses: infer R } ? R : Record<string, never>
 
   /**
-   * API for accessing OpenAPI types from TestEcho service
+   * API for accessing OpenAPI types of the TestEcho service
    *
    * @example
    * // Get path parameters for /users/{id} path with GET method:
@@ -45,7 +47,7 @@ declare module 'apiful/schema' {
    */
   export type TestEcho<
     Path extends keyof TestEchoPaths,
-    Method extends HttpMethodsForPath<TestEchoPaths, Path> = HttpMethodsForPath<TestEchoPaths, Path> extends string ? HttpMethodsForPath<TestEchoPaths, Path> : never
+    Method extends PathMethods<TestEchoPaths, Path> = PathMethods<TestEchoPaths, Path> extends string ? PathMethods<TestEchoPaths, Path> : never
   > = {
     /** Path parameters for this endpoint */
     path: TestEchoPaths[Path][Method] extends { parameters?: { path?: infer P } } ? P : Record<string, never>;
@@ -65,8 +67,8 @@ declare module 'apiful/schema' {
   
     /** All possible responses for this endpoint by status code */
     responses: {
-      [Status in keyof TestEchoPaths[Path][Method]['responses']]:
-        TestEchoPaths[Path][Method]['responses'][Status] extends { content: { 'application/json': infer R } }
+      [Status in keyof ExtractResponses<OperationObject<TestEchoPaths, Path, Method>>]:
+        ExtractResponses<OperationObject<TestEchoPaths, Path, Method>>[Status] extends { content: { 'application/json': infer R } }
           ? R
           : Record<string, never>
     };
@@ -81,7 +83,7 @@ declare module 'apiful/schema' {
      * Full operation object from the OpenAPI specification.
      * Useful for accessing additional metadata like tags, security, etc.
      */
-    operation: TestEchoPaths[Path][Method];
+    operation: OperationObject<TestEchoPaths, Path, Method>
   }
   
   /**
@@ -99,7 +101,7 @@ declare module 'apiful/schema' {
    * @example
    * type MethodsForUserPath = TestEchoApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
    */
-  export type TestEchoApiMethods<P extends keyof TestEchoPaths> = HttpMethodsForPath<TestEchoPaths, P>;
+  export type TestEchoApiMethods<P extends keyof TestEchoPaths> = PathMethods<TestEchoPaths, P>;
 }
 
 declare module 'apiful/__testEcho__' {
