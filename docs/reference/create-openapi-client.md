@@ -64,7 +64,7 @@ const userResponse = await petStore('/user/{username}', {
 ```ts
 import { createOpenAPIClient } from 'apiful'
 
-const petStore = createOpenAPIClient({
+const petStore = createOpenAPIClient<'petStore'>({
   baseURL: 'https://petstore3.swagger.io/api/v3',
 })
 
@@ -77,7 +77,10 @@ const userResponse = await petStore('/user/{username}', {
 ## Type Definition
 
 ```ts
-declare function createOpenAPIClient<Paths>(
+declare function createOpenAPIClient<
+  const Schema extends string,
+  Paths = SchemaPaths<Schema>,
+>(
   defaultOptions?: FetchOptions | (() => FetchOptions)
 ): OpenAPIClient<Paths>
 ```

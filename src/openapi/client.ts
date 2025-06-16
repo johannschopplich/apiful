@@ -1,8 +1,16 @@
+import type { OpenAPISchemaRepository } from 'apiful/schema'
 import type { FetchContext, FetchOptions } from 'ofetch'
 import type { OpenAPIClient } from './types'
 import { ofetch } from 'ofetch'
 
-export function createOpenAPIClient<Paths>(
+export type SchemaPaths<K> = K extends keyof OpenAPISchemaRepository
+  ? OpenAPISchemaRepository[K]
+  : Record<string, never>
+
+export function createOpenAPIClient<
+  const Schema extends string,
+  Paths = SchemaPaths<Schema>,
+>(
   defaultOptions: FetchOptions | (() => FetchOptions) = {},
 ): OpenAPIClient<Paths> {
   const client = ofetch.create(typeof defaultOptions === 'function' ? defaultOptions() : defaultOptions)
