@@ -35,10 +35,8 @@ export function createClient<const BaseURL extends string = '/'>(
       this._handler = extension
     }
     else {
-      for (const key in extension) {
-        if (Object.prototype.hasOwnProperty.call(extension, key)) {
-          this._extensions[key] = extension[key]
-        }
+      for (const key of Object.keys(extension)) {
+        this._extensions[key] = extension[key]
       }
     }
 
