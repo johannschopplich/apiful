@@ -5,9 +5,9 @@
 /* eslint-disable jsdoc/check-param-names */
 export const validatorSymbol: unique symbol = Symbol.for('apiful.validator')
 
-export type ValidationResult<T, E = Error> =
-  | { success: true, value: T }
-  | { success: false, error: E }
+export type ValidationResult<T, E = Error>
+  = | { success: true, value: T }
+    | { success: false, error: E }
 
 export interface Validator<T = unknown> {
   [validatorSymbol]: true

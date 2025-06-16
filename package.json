@@ -2,7 +2,7 @@
   "name": "apiful",
   "type": "module",
   "version": "3.1.3",
-  "packageManager": "pnpm@10.11.1",
+  "packageManager": "pnpm@10.12.1",
   "description": "Extensible, typed API tooling",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
   "license": "MIT",
@@ -107,12 +107,12 @@
     "ufo": "^1.6.1"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.13.2",
-    "@iconify-json/carbon": "^1.2.8",
-    "@iconify-json/devicon-plain": "^1.2.23",
-    "@types/node": "^22.15.21",
+    "@antfu/eslint-config": "^4.14.1",
+    "@iconify-json/carbon": "^1.2.9",
+    "@iconify-json/devicon-plain": "^1.2.28",
+    "@types/node": "^22.15.32",
     "bumpp": "^10.1.1",
-    "eslint": "^9.27.0",
+    "eslint": "^9.29.0",
     "get-port-please": "^3.1.2",
     "h3": "^1.15.3",
     "json-schema-to-typescript-lite": "^14.1.0",
@@ -121,21 +121,21 @@
     "scule": "^1.3.0",
     "tinyexec": "^1.0.1",
     "ts-morph": "^26.0.0",
-    "tsdown": "^0.12.3",
-    "tsx": "^4.19.4",
+    "tsdown": "^0.12.7",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3",
-    "unocss": "^66.1.2",
+    "unocss": "^66.2.1",
     "utilful": "^2.1.1",
     "vitepress": "^1.6.3",
-    "vitest": "^3.1.4"
+    "vitest": "^3.2.3"
   },
   "pnpm": {
     "overrides": {
-      "function-bind": "npm:@socketregistry/function-bind@^1.0.6",
-      "hasown": "npm:@socketregistry/hasown@^1.0.6",
-      "indent-string": "npm:@socketregistry/indent-string@^1.0.12",
-      "is-core-module": "npm:@socketregistry/is-core-module@^1.0.8",
-      "path-parse": "npm:@socketregistry/path-parse@^1.0.6"
+      "function-bind": "npm:@socketregistry/function-bind@^1.0.7",
+      "hasown": "npm:@socketregistry/hasown@^1.0.7",
+      "indent-string": "npm:@socketregistry/indent-string@^1.0.13",
+      "is-core-module": "npm:@socketregistry/is-core-module@^1.0.9",
+      "path-parse": "npm:@socketregistry/path-parse@^1.0.7"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
