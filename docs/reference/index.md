@@ -3,6 +3,7 @@
 ## Methods
 
 - [`createClient`](/reference/create-client)
+- [`createOpenAPIClient`](/reference/create-openapi-client)
 
 ## Types
 

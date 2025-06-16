@@ -55,6 +55,7 @@ export default defineConfig({
             text: 'Methods',
             items: [
               { text: 'createClient', link: '/reference/create-client' },
+              { text: 'createOpenAPIClient', link: '/reference/create-openapi-client' },
               { text: 'defineApifulConfig', link: '/reference/define-apiful-config' },
             ],
           },
@@ -153,6 +154,7 @@ function referenceGuide(): DefaultTheme.SidebarItem[] {
       text: 'Methods',
       items: [
         { text: 'createClient', link: '/reference/create-client' },
+        { text: 'createOpenAPIClient', link: '/reference/create-openapi-client' },
         { text: 'defineApifulConfig', link: '/reference/define-apiful-config' },
       ],
     },
