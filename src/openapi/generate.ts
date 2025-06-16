@@ -134,13 +134,8 @@ ${repositoryEntries}
   }
 
   type ValidKeys<T> = {
-    [K in keyof T]: [T[K]] extends [never]
-      ? never
-      : [undefined] extends [T[K]]
-        ? [never] extends [Exclude<T[K], undefined>] ? never : K
-        : K;
+    [K in keyof T]: [T[K]] extends [never] ? never : [undefined] extends [T[K]] ? [never] extends [Exclude<T[K], undefined>] ? never : K : K;
   }[keyof T];
-
   type PathMethods<T, P extends keyof T> = Exclude<ValidKeys<T[P]>, 'parameters'>
   type OperationObject<T, P extends keyof T, M extends PathMethods<T, P>> = T[P][M]
   type ExtractResponses<T> = T extends { responses: infer R } ? R : Record<string, never>
