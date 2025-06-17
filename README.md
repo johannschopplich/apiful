@@ -1,4 +1,4 @@
-[![APIful library](./docs/public/og.png)](https://apiful.byjohann.dev)
+[![APIful library](./docs/public/og.png)](https://apiful.land)
 
 # APIful
 
@@ -6,12 +6,12 @@
 
 APIful provides a unified interface to manage all your API interactions by setting up a client with default fetch options, such as the base API URL and headers. Extensions add a variety of features to the client to match your favorite flavor of API management.
 
-You can use one of the [built-in extensions](https://apiful.byjohann.dev/guide/using-extensions#built-in-extensions) to get started right away, or create your own [custom extension](https://apiful.byjohann.dev/guide/custom-extensions) to meet your specific needs.
+You can use one of the [built-in extensions](https://apiful.land/guide/using-extensions#built-in-extensions) to get started right away, or create your own [custom extension](https://apiful.land/guide/custom-extensions) to meet your specific needs.
 
 ## Setup
 
 > [!TIP]
-> [📖 Read the documentation](https://apiful.byjohann.dev)
+> [📖 Read the documentation](https://apiful.land)
 
 ```bash
 # pnpm
@@ -24,7 +24,7 @@ npm i -D apiful
 ## Usage
 
 > [!TIP]
-> [📖 Read the documentation](https://apiful.byjohann.dev)
+> [📖 Read the documentation](https://apiful.land)
 
 ### Your First API Client
 
@@ -42,7 +42,7 @@ const client = createClient({
 ```
 
 > [!NOTE]
-> The `createClient` function returns an [`ApiClient`](https://apiful.byjohann.dev/reference/api-client) instance that does not yet have a call signature. You will need to add a base extension to the client in order to make API requests. Read on to learn how to do this.
+> The `createClient` function returns an [`ApiClient`](https://apiful.land/reference/api-client) instance that does not yet have a call signature. You will need to add a base extension to the client in order to make API requests. Read on to learn how to do this.
 
 ### Built-in Extensions
 
@@ -125,7 +125,7 @@ const response: {
 }
 ```
 
-Follow the [OpenAPI extension documentation](https://apiful.byjohann.dev/extensions/openapi) to learn more about how to generate TypeScript definitions from your OpenAPI schema files.
+Follow the [OpenAPI extension documentation](https://apiful.land/extensions/openapi) to learn more about how to generate TypeScript definitions from your OpenAPI schema files.
 
 </td></tr></table>
 
@@ -150,7 +150,7 @@ const extendedClient = client
 extendedClient.logDefaults() // { baseURL: 'https://api.example.com', headers: { Authorization: 'Bearer <your-bearer-token>' } }
 ```
 
-If you have specific requirements that are not covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](https://apiful.byjohann.dev/guide/custom-extensions) guide to learn more.
+If you have specific requirements that are not covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](https://apiful.land/guide/custom-extensions) guide to learn more.
 
 ## Development
 

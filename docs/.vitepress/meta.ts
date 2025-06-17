@@ -2,7 +2,7 @@ export { description, version } from '../../package.json'
 
 /* VitePress head */
 export const name = 'APIful'
-export const ogUrl = 'https://apiful.byjohann.dev/'
+export const ogUrl = 'https://apiful.land/'
 export const ogImage = `${ogUrl}og.png`
 export const twitterImage = `${ogUrl}twitter.png`
 
