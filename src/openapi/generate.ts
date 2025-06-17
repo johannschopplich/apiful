@@ -67,7 +67,7 @@ export type ${pascalCase(id)}<
   query: ${pascalCase(id)}Paths[Path][Method] extends { parameters?: { query?: infer Q } } ? Q : Record<string, never>;
 
   /** Request body for this endpoint */
-  request: ${pascalCase(id)}Paths[Path][Method] extends { requestBody?: { content: { 'application/json': infer B } } } ? B : Record<string, never>;
+  request: ${pascalCase(id)}Paths[Path][Method] extends { requestBody?: { content: { 'application/json': infer R } } } ? R : Record<string, never>;
 
   /** Success response for this endpoint (defaults to 200 status code) */
   response: ${pascalCase(id)}Paths[Path][Method] extends { responses: infer R }
@@ -78,8 +78,8 @@ export type ${pascalCase(id)}<
 
   /** All possible responses for this endpoint by status code */
   responses: {
-    [Status in keyof ExtractResponses<OperationObject<${pascalCase(id)}Paths, Path, Method>>]:
-      ExtractResponses<OperationObject<${pascalCase(id)}Paths, Path, Method>>[Status] extends { content: { 'application/json': infer R } }
+    [Status in keyof ExtractResponses<${pascalCase(id)}Paths[Path][Method]>]:
+      ExtractResponses<${pascalCase(id)}Paths[Path][Method]>[Status] extends { content: { 'application/json': infer R } }
         ? R
         : Record<string, never>
   };
@@ -94,7 +94,7 @@ export type ${pascalCase(id)}<
    * Full operation object from the OpenAPI specification.
    * Useful for accessing additional metadata like tags, security, etc.
    */
-  operation: OperationObject<${pascalCase(id)}Paths, Path, Method>
+  operation: ${pascalCase(id)}Paths[Path][Method]
 }
 
 /**
@@ -137,7 +137,6 @@ ${repositoryEntries}
     [K in keyof T]: [T[K]] extends [never] ? never : [undefined] extends [T[K]] ? [never] extends [Exclude<T[K], undefined>] ? never : K : K;
   }[keyof T];
   type PathMethods<T, P extends keyof T> = Exclude<ValidKeys<T[P]>, 'parameters'>
-  type OperationObject<T, P extends keyof T, M extends PathMethods<T, P>> = T[P][M]
   type ExtractResponses<T> = T extends { responses: infer R } ? R : Record<string, never>
 
 ${applyLineIndent(typeExports)}
