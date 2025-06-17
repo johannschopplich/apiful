@@ -34,7 +34,7 @@ type MethodsExtensionBuilder = (client: ApiClient) => MethodsExtension
 
 ### `HandlerExtensionBuilder`
 
-Handler extensions are the foundation of any `ApiClient`, as they provide the call signature. 
+Handler extensions are the foundation of any `ApiClient`, as they provide the call signature.
 
 > [!IMPORTANT]
 > Only one handler extension (callable extension) is allowed per client. If you add multiple handler extensions, the last one will override the previous ones.
