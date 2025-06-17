@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { defineApifulConfig } from '../src/config'
 
 describe('defineApifulConfig', () => {
-  it('accepts valid configuration', () => {
+  it('allows defining a single service', () => {
     const config = defineApifulConfig({
       services: {
         api: {
@@ -22,15 +22,7 @@ describe('defineApifulConfig', () => {
     })
   })
 
-  it('allows empty services', () => {
-    const config = defineApifulConfig({
-      services: {},
-    })
-
-    expect(config).toEqual({ services: {} })
-  })
-
-  it('supports multiple services', () => {
+  it('allows defining multiple services', () => {
     const config = defineApifulConfig({
       services: {
         main: {
@@ -47,5 +39,13 @@ describe('defineApifulConfig', () => {
     expect(Object.keys(config.services)).toHaveLength(2)
     expect(config.services.main).toBeDefined()
     expect(config.services.secondary).toBeDefined()
+  })
+
+  it('supports empty services object', () => {
+    const config = defineApifulConfig({
+      services: {},
+    })
+
+    expect(config).toEqual({ services: {} })
   })
 })

@@ -5,7 +5,6 @@ const config: UserConfig = defineConfig({
   test: {
     poolOptions: {
       forks: {
-        isolate: false,
         singleFork: true,
       },
     },

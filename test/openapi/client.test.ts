@@ -1,3 +1,4 @@
+import type { components } from 'apiful/__petStore__'
 import type { FetchContext } from 'ofetch'
 import { ofetch } from 'ofetch'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -127,77 +128,119 @@ describe('createOpenAPIClient', () => {
   })
 
   it('calls ofetch.create with default options object', () => {
-    const options = { baseURL: 'https://api.example.com' }
-    createOpenAPIClient<'testEcho'>(options)
+    const options = { baseURL: 'https://petstore3.swagger.io/api/v3' }
+    createOpenAPIClient<'petStore'>(options)
 
     expect(mockCreate).toHaveBeenCalledWith(options)
   })
 
   it('calls ofetch.create with options from function', () => {
-    const options = { baseURL: 'https://api.example.com' }
+    const options = { baseURL: 'https://petstore3.swagger.io/api/v3' }
     const optionsFn = vi.fn().mockReturnValue(options)
-    createOpenAPIClient<'testEcho'>(optionsFn)
+    createOpenAPIClient<'petStore'>(optionsFn)
 
     expect(optionsFn).toHaveBeenCalledOnce()
     expect(mockCreate).toHaveBeenCalledWith(options)
   })
 
-  it('resolves path parameters when making requests', async () => {
-    mockFetch.mockResolvedValue({ value: 'test' })
-    const client = createOpenAPIClient<'testEcho'>({ baseURL: 'https://api.example.com' })
-    await client('/echo/query', { query: { value: 'test' } })
+  it('resolves path parameters when making requests for pet by ID', async () => {
+    const mockPet: components['schemas']['Pet'] = {
+      id: 123,
+      name: 'Fluffy',
+      status: 'available',
+      photoUrls: [],
+    }
+    mockFetch.mockResolvedValue(mockPet)
 
-    expect(mockFetch).toHaveBeenCalledWith('/echo/query', {
-      query: { value: 'test' },
+    const client = createOpenAPIClient<'petStore'>({ baseURL: 'https://petstore3.swagger.io/api/v3' })
+    await client('/pet/{petId}', { path: { petId: 123 } })
+
+    expect(mockFetch).toHaveBeenCalledWith('/pet/123', {
+      path: { petId: 123 },
     })
   })
 
-  it('passes through options without path parameters', async () => {
-    mockFetch.mockResolvedValue({ method: 'POST', body: { name: 'test' } })
+  it('passes through options for creating pets', async () => {
+    const newPet: components['schemas']['Pet'] = {
+      name: 'Buddy',
+      status: 'available',
+      photoUrls: ['photo1.jpg'],
+    }
+    mockFetch.mockResolvedValue(newPet)
 
-    const client = createOpenAPIClient<'testEcho'>({ baseURL: 'https://api.example.com' })
-
-    await client('/echo/request', {
+    const client = createOpenAPIClient<'petStore'>({ baseURL: 'https://petstore3.swagger.io/api/v3' })
+    await client('/pet', {
       method: 'POST',
-      body: { name: 'test' },
+      body: newPet,
     })
 
-    expect(mockFetch).toHaveBeenCalledWith('/echo/request', {
+    expect(mockFetch).toHaveBeenCalledWith('/pet', {
       method: 'POST',
-      body: { name: 'test' },
+      body: newPet,
     })
   })
 
-  it('handles requests without options', async () => {
-    mockFetch.mockResolvedValue({ value: 'foo' })
-    const client = createOpenAPIClient<'testEcho'>({ baseURL: 'https://api.example.com' })
-    await client('/echo/static/constant')
+  it('handles requests without options for inventory', async () => {
+    const inventory: { [key: string]: number } = { available: 5, pending: 2, sold: 10 }
+    mockFetch.mockResolvedValue(inventory)
 
-    expect(mockFetch).toHaveBeenCalledWith('/echo/static/constant', undefined)
+    const client = createOpenAPIClient<'petStore'>({ baseURL: 'https://petstore3.swagger.io/api/v3' })
+    await client('/store/inventory')
+
+    expect(mockFetch).toHaveBeenCalledWith('/store/inventory', undefined)
   })
 
-  it('returns the result from ofetch', async () => {
-    const expectedResult = { value: 'test' }
-    mockFetch.mockResolvedValue(expectedResult)
+  it('returns the result from ofetch for pet lookup', async () => {
+    const expectedPet: components['schemas']['Pet'] = {
+      id: 456,
+      name: 'Max',
+      status: 'sold',
+      photoUrls: [],
+    }
+    mockFetch.mockResolvedValue(expectedPet)
 
-    const client = createOpenAPIClient<'testEcho'>({ baseURL: 'https://api.example.com' })
-    const result = await client('/echo/static/constant')
-    expect(result).toBe(expectedResult)
+    const client = createOpenAPIClient<'petStore'>({ baseURL: 'https://petstore3.swagger.io/api/v3' })
+    const result = await client('/pet/{petId}', { path: { petId: 456 } })
+
+    expect(result).toBe(expectedPet)
   })
 
-  it('resolves path parameters in URLs', async () => {
-    mockFetch.mockResolvedValue({ data: 'test' })
-    const client = createOpenAPIClient({ baseURL: 'https://api.example.com' })
+  it('resolves path parameters for user operations', async () => {
+    const userData: components['schemas']['User'] = {
+      id: 1,
+      username: 'johndoe',
+      email: 'john@example.com',
+    }
+    mockFetch.mockResolvedValue(userData)
 
-    // @ts-expect-error: Path parameters for test purposes
-    await client('/users/{id}/posts/{postId}', {
-      path: { id: '123', postId: '456' },
+    const client = createOpenAPIClient<'petStore'>({ baseURL: 'https://petstore3.swagger.io/api/v3' })
+    await client('/user/{username}', {
+      path: { username: 'johndoe' },
       method: 'GET',
     })
 
-    expect(mockFetch).toHaveBeenCalledWith('/users/123/posts/456', {
-      path: { id: '123', postId: '456' },
+    expect(mockFetch).toHaveBeenCalledWith('/user/johndoe', {
+      path: { username: 'johndoe' },
       method: 'GET',
+    })
+  })
+
+  it('handles query parameters for finding pets by status', async () => {
+    const pets: components['schemas']['Pet'][] = [{
+      id: 1,
+      name: 'Fluffy',
+      status: 'available',
+      photoUrls: [],
+    }]
+    mockFetch.mockResolvedValue(pets)
+
+    const client = createOpenAPIClient<'petStore'>({ baseURL: 'https://petstore3.swagger.io/api/v3' })
+    await client('/pet/findByStatus', {
+      query: { status: 'available' },
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith('/pet/findByStatus', {
+      query: { status: 'available' },
     })
   })
 })

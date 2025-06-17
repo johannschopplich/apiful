@@ -7,7 +7,7 @@ Defines the configuration for all services in the APIful application.
 
 ## Example
 
-Import the `defineApifulConfig` function from `apiful/config` and define a `petStore` service using the OpenAPI schema from the [Swagger Petstore](https://petstore.swagger.io) API:
+Import the `defineApifulConfig` function from `apiful/config` and define a `petStore` service using the OpenAPI schema from the [Swagger Petstore](https://petstore3.swagger.io) API:
 
 ```ts
 import { defineApifulConfig } from 'apiful/config'

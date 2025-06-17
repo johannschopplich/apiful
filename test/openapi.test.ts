@@ -5,7 +5,7 @@ import { generateDTS } from '../src/openapi/index'
 import { currentDir } from './utils'
 
 // eslint-disable-next-line test/prefer-lowercase-title
-describe('OpenAPI to TypeScript', () => {
+describe('OpenAPI types generation', () => {
   const config = defineApifulConfig({
     services: {
       testEcho: {
@@ -14,7 +14,7 @@ describe('OpenAPI to TypeScript', () => {
     },
   })
 
-  it('generates OpenAPI types', async () => {
+  it('generates types for OpenAPI schema', async () => {
     const types = await generateDTS(config.services)
     expect(types).toMatchSnapshot()
   })

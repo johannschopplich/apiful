@@ -1,5 +1,5 @@
 import type { Listener } from 'listhen'
-import type { ApiClient } from '../../src/index'
+import type { ApiClient } from '../../src/client'
 import { afterAll, assertType, beforeAll, describe, expect, it } from 'vitest'
 import { apiRouterBuilder, createClient } from '../../src/index'
 import { createListener } from '../utils'

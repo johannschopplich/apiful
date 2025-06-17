@@ -30,7 +30,7 @@ To keep the package size small, APIful does not include `openapi-typescript` as 
 
 Before creating your type-safe API client, generate TypeScript definitions from your OpenAPI schema files. This involves creating an `apiful.config.ts` file with your API services and running the APIful CLI.
 
-Create an `apiful.config.ts` file and define your API services. Here is an example using the [Swagger Petstore](https://petstore.swagger.io) API:
+Create an `apiful.config.ts` file and define your API services. Here is an example using the [Swagger Petstore](https://petstore3.swagger.io) API:
 
 ```ts
 import { defineApifulConfig } from 'apiful/config'

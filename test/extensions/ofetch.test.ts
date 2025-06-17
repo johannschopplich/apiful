@@ -1,5 +1,5 @@
 import type { Listener } from 'listhen'
-import type { ApiClient } from '../../src/index'
+import type { ApiClient } from '../../src/client'
 import { afterAll, assertType, beforeAll, describe, expect, it } from 'vitest'
 import { createClient, ofetchBuilder } from '../../src/index'
 import { createListener } from '../utils'
@@ -8,7 +8,7 @@ interface FooResponse {
   foo: string
 }
 
-describe('ofetch adapter', () => {
+describe('ofetchBuilder adapter', () => {
   let _listener: Listener
   let _client: ApiClient
 
