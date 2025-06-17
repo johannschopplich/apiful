@@ -26,7 +26,10 @@ const client = createClient({
 
 Under the hood, APIful uses JavaScript's Proxy API to seamlessly merge extensions without runtime overhead. When you call `.with()`, a new proxy is created that intercepts property access and method calls, routing them to the appropriate extension. This architecture means you can chain as many extensions as needed without performance degradation, while TypeScript maintains full type inference throughout the entire chain.
 
-Extensions come in two flavors: **handler extensions** that provide the core HTTP functionality (like making requests), and **methods extensions** that add utility functions to your client. The proxy system ensures that all extensions work together harmoniously, with later extensions able to override or enhance behavior from earlier ones.
+Extensions come in two flavors: [handler extensions](/guide/custom-extensions.html#handler-extension) that provide the core HTTP functionality (like making requests), and [methods extensions](/guide/custom-extensions.html#methods-extension) that add utility functions to your client. The proxy system ensures that all extensions work together harmoniously, with later extensions able to override or enhance behavior from earlier ones.
+
+> [!IMPORTANT]
+> You can only have one active handler extension (callable extension) per client. If you add multiple handler extensions, the last one will replace the previous ones. Methods extensions, however, can be combined freely.
 
 ## Built-in Extensions
 

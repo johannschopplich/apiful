@@ -34,7 +34,10 @@ type MethodsExtensionBuilder = (client: ApiClient) => MethodsExtension
 
 ### `HandlerExtensionBuilder`
 
-Handler extensions are the foundation of any `ApiClient`, as they provide the call signature. Although you can add multiple handler extensions, only one is required and it is recommended to have only one.
+Handler extensions are the foundation of any `ApiClient`, as they provide the call signature. 
+
+> [!IMPORTANT]
+> Only one handler extension (callable extension) is allowed per client. If you add multiple handler extensions, the last one will override the previous ones.
 
 Let's write a simple handler extension that uses [ofetch](https://github.com/unjs/ofetch) to make requests. This is basically the same code as the `ofetchBuilder` provided by APIful.
 
