@@ -5,35 +5,37 @@ exports[`OpenAPI types generation > generates TypeScript types from OpenAPI sche
 /* prettier-ignore */
 
 declare module 'apiful/schema' {
-  import { paths as TestEchoPaths } from 'apiful/__testEcho__'
+  import { paths as TestEchoPaths } from 'apiful/services/testEcho'
 
+  // Augment the schema repository interface with all service schemas
   interface OpenAPISchemaRepository {
     testEcho: TestEchoPaths
   }
 
+  // Type helpers for OpenAPI paths
   type ValidKeys<T> = {
     [K in keyof T]: [T[K]] extends [never] ? never : [undefined] extends [T[K]] ? [never] extends [Exclude<T[K], undefined>] ? never : K : K;
   }[keyof T];
   type PathMethods<T, P extends keyof T> = Exclude<ValidKeys<T[P]>, 'parameters'>
 
   /**
-   * API for accessing OpenAPI types of the TestEcho service
+   * OpenAPI endpoint type helper for the TestEcho API
    *
    * @example
-   * // Get path parameters for /users/{id} path with GET method:
-   * type Params = TestEcho<'/users/{id}', 'get'>['path']
+   * // Get path parameters for retrieving a user by ID:
+   * type UserParams = TestEcho<'/users/{id}', 'get'>['path']
+   *
+   * // Get query parameters for listing users:
+   * type UsersQuery = TestEcho<'/users', 'get'>['query']
    *
    * // Get request body type for creating a user:
    * type CreateUserBody = TestEcho<'/users', 'post'>['request']
    *
-   * // Get query parameters for listing users:
-   * type ListUsersQuery = TestEcho<'/users', 'get'>['query']
-   *
-   * // Get success response type:
+   * // Get success response for retrieving a user:
    * type UserResponse = TestEcho<'/users/{id}', 'get'>['response']
    *
    * // Get a specific status code response:
-   * type NotFoundResponse = TestEcho<'/users/{id}', 'get'>['responses'][404]
+   * type UserNotFoundResponse = TestEcho<'/users/{id}', 'get'>['responses'][404]
    *
    * // Get complete endpoint type definition:
    * type UserEndpoint = TestEcho<'/users/{id}', 'get'>
@@ -66,38 +68,39 @@ declare module 'apiful/schema' {
           : Record<string, never>
     };
   
-    /** The full path with typed parameters (useful for route builders) */
+    /** Full path with typed parameters for this endpoint (useful for route builders) */
     fullPath: Path;
   
-    /** The HTTP method for this endpoint */
+    /** HTTP method for this endpoint */
     method: Method;
   
     /**
-     * Full operation object from the OpenAPI specification.
-     * Useful for accessing additional metadata like tags, security, etc.
+     * Full operation object for this endpoint
+     *
+     * @remarks
+     * Useful for accessing additional metadata, such as tags or security requirements.
      */
     operation: TestEchoPaths[Path][Method]
   }
   
   /**
-   * Type helper to list all available paths for TestEcho API
+   * Type helper to list all available paths of the TestEcho API
    *
    * @example
-   * // Get all available API paths:
    * type AvailablePaths = TestEchoApiPaths // Returns literal union of all available paths
    */
   export type TestEchoApiPaths = keyof TestEchoPaths;
   
   /**
-   * Type helper to get available methods for a specific path in the TestEcho API
+   * Type helper to get available methods for a specific path of the TestEcho API
    *
    * @example
-   * type MethodsForUserPath = TestEchoApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
+   * type UserMethods = TestEchoApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
    */
   export type TestEchoApiMethods<P extends keyof TestEchoPaths> = PathMethods<TestEchoPaths, P>;
 }
 
-declare module 'apiful/__testEcho__' {
+declare module 'apiful/services/testEcho' {
   export interface paths {
     "/echo/static/constant": {
       parameters: {
@@ -429,6 +432,10 @@ declare module 'apiful/__testEcho__' {
       };
     };
   }
+}
+
+declare module 'apiful/__testEcho__' {
+  export * from 'apiful/services/testEcho'
 }
 "
 `;

@@ -21,12 +21,12 @@ export async function generateDTS(
   const serviceIds = Object.keys(resolvedSchemas)
 
   // Build import statements
-  const imports = serviceIds
-    .map(id => `  import { paths as ${pascalCase(id)}Paths } from 'apiful/__${id}__'`)
+  const servicePathImports = serviceIds
+    .map(id => `  import { paths as ${pascalCase(id)}Paths } from 'apiful/services/${id}'`)
     .join('\n')
 
   // Build repository interface entries
-  const repositoryEntries = serviceIds
+  const schemaRepositoryEntries = serviceIds
     .map(id => `    ${id}: ${pascalCase(id)}Paths`)
     .join('\n')
 
@@ -35,23 +35,23 @@ export async function generateDTS(
     .map((id) => {
       return [`
 /**
- * API for accessing OpenAPI types of the ${pascalCase(id)} service
+ * OpenAPI endpoint type helper for the ${pascalCase(id)} API
  *
  * @example
- * // Get path parameters for /users/{id} path with GET method:
- * type Params = ${pascalCase(id)}<'/users/{id}', 'get'>['path']
+ * // Get path parameters for retrieving a user by ID:
+ * type UserParams = ${pascalCase(id)}<'/users/{id}', 'get'>['path']
+ *
+ * // Get query parameters for listing users:
+ * type UsersQuery = ${pascalCase(id)}<'/users', 'get'>['query']
  *
  * // Get request body type for creating a user:
  * type CreateUserBody = ${pascalCase(id)}<'/users', 'post'>['request']
  *
- * // Get query parameters for listing users:
- * type ListUsersQuery = ${pascalCase(id)}<'/users', 'get'>['query']
- *
- * // Get success response type:
+ * // Get success response for retrieving a user:
  * type UserResponse = ${pascalCase(id)}<'/users/{id}', 'get'>['response']
  *
  * // Get a specific status code response:
- * type NotFoundResponse = ${pascalCase(id)}<'/users/{id}', 'get'>['responses'][404]
+ * type UserNotFoundResponse = ${pascalCase(id)}<'/users/{id}', 'get'>['responses'][404]
  *
  * // Get complete endpoint type definition:
  * type UserEndpoint = ${pascalCase(id)}<'/users/{id}', 'get'>
@@ -84,33 +84,34 @@ export type ${pascalCase(id)}<
         : Record<string, never>
   };
 
-  /** The full path with typed parameters (useful for route builders) */
+  /** Full path with typed parameters for this endpoint (useful for route builders) */
   fullPath: Path;
 
-  /** The HTTP method for this endpoint */
+  /** HTTP method for this endpoint */
   method: Method;
 
   /**
-   * Full operation object from the OpenAPI specification.
-   * Useful for accessing additional metadata like tags, security, etc.
+   * Full operation object for this endpoint
+   *
+   * @remarks
+   * Useful for accessing additional metadata, such as tags or security requirements.
    */
   operation: ${pascalCase(id)}Paths[Path][Method]
 }
 
 /**
- * Type helper to list all available paths for ${pascalCase(id)} API
+ * Type helper to list all available paths of the ${pascalCase(id)} API
  *
  * @example
- * // Get all available API paths:
  * type AvailablePaths = ${pascalCase(id)}ApiPaths // Returns literal union of all available paths
  */
 export type ${pascalCase(id)}ApiPaths = keyof ${pascalCase(id)}Paths;
 
 /**
- * Type helper to get available methods for a specific path in the ${pascalCase(id)} API
+ * Type helper to get available methods for a specific path of the ${pascalCase(id)} API
  *
  * @example
- * type MethodsForUserPath = ${pascalCase(id)}ApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
+ * type UserMethods = ${pascalCase(id)}ApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
  */
 export type ${pascalCase(id)}ApiMethods<P extends keyof ${pascalCase(id)}Paths> = PathMethods<${pascalCase(id)}Paths, P>;
 `.trim()].join('\n')
@@ -119,20 +120,33 @@ export type ${pascalCase(id)}ApiMethods<P extends keyof ${pascalCase(id)}Paths> 
 
   // Build module declarations
   const moduleDeclarations = Object.entries(resolvedSchemas)
-    .map(([id, types]) => `declare module 'apiful/__${id}__' {
+    .map(([id, types]) => {
+      // Primary module path (new semantic path)
+      const primaryModule = `declare module 'apiful/services/${id}' {
 ${normalizeIndentation(types).trimEnd()}
-}`)
+}`
+
+      // Legacy module path for backward compatibility (re-exports from new path)
+      // TODO: Remove this in apiful v4
+      const legacyModule = `declare module 'apiful/__${id}__' {
+  export * from 'apiful/services/${id}'
+}`
+
+      return `${primaryModule}\n\n${legacyModule}`
+    })
     .join('\n\n')
 
   return `
 ${CODE_HEADER_DIRECTIVES}
 declare module 'apiful/schema' {
-${imports}
+${servicePathImports}
 
+  // Augment the schema repository interface with all service schemas
   interface OpenAPISchemaRepository {
-${repositoryEntries}
+${schemaRepositoryEntries}
   }
 
+  // Type helpers for OpenAPI paths
   type ValidKeys<T> = {
     [K in keyof T]: [T[K]] extends [never] ? never : [undefined] extends [T[K]] ? [never] extends [Exclude<T[K], undefined>] ? never : K : K;
   }[keyof T];
