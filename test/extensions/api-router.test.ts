@@ -4,10 +4,6 @@ import { afterAll, assertType, beforeAll, describe, expect, it } from 'vitest'
 import { apiRouterBuilder, createClient } from '../../src/index'
 import { createListener } from '../utils'
 
-interface EchoStaticConstantResponse {
-  value: string
-}
-
 describe('apiRouterBuilder adapter', () => {
   let _listener: Listener
   let _client: ApiClient
@@ -28,7 +24,7 @@ describe('apiRouterBuilder adapter', () => {
 
   it('handles GET request for static constant endpoint', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.echo!.static!.constant!.get<EchoStaticConstantResponse>()
+    const response = await client.echo!.static!.constant!.get<{ value: string }>()
     expect(response).toEqual({ value: 'foo' })
     assertType<{ value: string }>(response)
   })
@@ -90,21 +86,21 @@ describe('apiRouterBuilder adapter', () => {
   it('supports bracket notation for path segments', async () => {
     const client = _client.with(apiRouterBuilder())
     // eslint-disable-next-line dot-notation
-    const response = await client.echo!.static!['constant']!.get<EchoStaticConstantResponse>()
+    const response = await client.echo!.static!['constant']!.get<{ value: string }>()
     expect(response).toEqual({ value: 'foo' })
     assertType<{ value: string }>(response)
   })
 
   it('supports function call syntax for path segments', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.echo!.static!('constant').get<EchoStaticConstantResponse>()
+    const response = await client.echo!.static!('constant').get<{ value: string }>()
     expect(response).toEqual({ value: 'foo' })
     assertType<{ value: string }>(response)
   })
 
   it('supports multiple path segments in single call', async () => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client('echo', 'static', 'constant').get<EchoStaticConstantResponse>()
+    const response = await client('echo', 'static', 'constant').get<{ value: string }>()
     expect(response).toEqual({ value: 'foo' })
     assertType<{ value: string }>(response)
   })
@@ -112,7 +108,7 @@ describe('apiRouterBuilder adapter', () => {
   it('throws error for non-existent endpoints', async () => {
     const client = _client.with(apiRouterBuilder())
     await expect(async () => {
-      await client.baz!.get<EchoStaticConstantResponse>()
+      await client.baz!.get<{ value: string }>()
     }).rejects.toThrow(/404/)
   })
 })

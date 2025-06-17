@@ -29,7 +29,7 @@ paths:
               examples:
                 default:
                   value:
-                    value: "foo"
+                    value: foo
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -51,7 +51,7 @@ paths:
               simple:
                 summary: Simple request body
                 value:
-                  foo: "bar"
+                  foo: bar
                   number: 42
       responses:
         '200':
@@ -63,12 +63,12 @@ paths:
               examples:
                 default:
                   value:
-                    path: "/echo/request"
-                    method: "POST"
+                    path: /echo/request
+                    method: POST
                     body:
-                      foo: "bar"
+                      foo: bar
                     headers:
-                      content-type: "application/json"
+                      content-type: application/json
         '400':
           $ref: '#/components/responses/BadRequest'
 
@@ -148,7 +148,7 @@ paths:
           required: false
           schema:
             type: string
-            example: "test-value"
+            example: test-value
         - name: number
           in: query
           description: A numeric query parameter to be echoed back
@@ -174,9 +174,9 @@ paths:
                 with_params:
                   summary: Response with query parameters
                   value:
-                    value: "test-value"
-                    number: "42"
-                    boolean: "true"
+                    value: test-value
+                    number: '42'
+                    boolean: 'true'
                 empty:
                   summary: Response with no query parameters
                   value: {}
@@ -192,17 +192,17 @@ components:
         value:
           type: string
           description: The constant static value returned by the endpoint
-          example: "foo"
+          example: foo
 
     EchoRequest:
       type: object
       description: Flexible request body that accepts any JSON structure for echo testing
       additionalProperties: true
       example:
-        foo: "bar"
+        foo: bar
         number: 42
         nested:
-          key: "value"
+          key: value
 
     EchoResponse:
       type: object
@@ -214,7 +214,7 @@ components:
         path:
           type: string
           description: The request path that was called
-          example: "/echo/request"
+          example: /echo/request
         body:
           type: object
           description: The request body that was sent (if any)
@@ -226,13 +226,13 @@ components:
           additionalProperties:
             type: string
           example:
-            content-type: "application/json"
-            x-foo: "bar"
+            content-type: application/json
+            x-foo: bar
         method:
           type: string
           description: The HTTP method that was used
           enum: [GET, POST, PUT, DELETE, PATCH]
-          example: "POST"
+          example: POST
 
     QueryResponse:
       type: object
@@ -240,9 +240,9 @@ components:
       additionalProperties:
         type: string
       example:
-        value: "test-value"
-        number: "42"
-        boolean: "true"
+        value: test-value
+        number: '42'
+        boolean: 'true'
 
     Error:
       type: object
@@ -258,11 +258,11 @@ components:
         statusMessage:
           type: string
           description: Human-readable error message
-          example: "Not Found"
+          example: Not Found
         details:
           type: string
           description: Additional error details (optional)
-          example: "The requested resource could not be found"
+          example: The requested resource could not be found
 
   responses:
     NotFound:
@@ -275,8 +275,8 @@ components:
             default:
               value:
                 statusCode: 404
-                statusMessage: "Not Found"
-                details: "The requested resource could not be found"
+                statusMessage: Not Found
+                details: The requested resource could not be found
 
     BadRequest:
       description: The request was malformed or invalid
@@ -288,8 +288,8 @@ components:
             default:
               value:
                 statusCode: 400
-                statusMessage: "Bad Request"
-                details: "The request body is malformed or missing required fields"
+                statusMessage: Bad Request
+                details: The request body is malformed or missing required fields
 
   tags:
     - name: Static Response

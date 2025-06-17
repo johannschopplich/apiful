@@ -1,4 +1,3 @@
-/* eslint-disable test/prefer-lowercase-title */
 import type { components } from 'apiful/__petStore__'
 import type { OpenAPISchemaRepository } from 'apiful/schema'
 import type { PetStore } from 'apiful/schema'
@@ -15,6 +14,7 @@ vi.mock('ofetch', () => ({
   },
 }))
 
+// eslint-disable-next-line test/prefer-lowercase-title
 describe('OpenAPIBuilder adapter', () => {
   const mockFetch = vi.fn()
   const mockCreate = vi.fn()

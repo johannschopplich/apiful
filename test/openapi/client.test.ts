@@ -181,7 +181,7 @@ describe('createOpenAPIClient', () => {
   })
 
   it('handles requests without options for inventory lookup', async () => {
-    const inventory: { [key: string]: number } = { available: 5, pending: 2, sold: 10 }
+    const inventory: Record<string, number> = { available: 5, pending: 2, sold: 10 }
     mockFetch.mockResolvedValue(inventory)
 
     const client = createOpenAPIClient<'petStore'>({ baseURL: 'https://petstore3.swagger.io/api/v3' })
