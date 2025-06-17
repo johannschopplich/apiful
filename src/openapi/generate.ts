@@ -122,15 +122,19 @@ export type ${pascalCase(id)}ApiMethods<P extends keyof ${pascalCase(id)}Paths> 
   const moduleDeclarations = Object.entries(resolvedSchemas)
     .map(([id, types]) => {
       // Primary module path (new semantic path)
-      const primaryModule = `declare module 'apiful/services/${id}' {
+      const primaryModule = `
+declare module 'apiful/services/${id}' {
 ${normalizeIndentation(types).trimEnd()}
-}`
+}`.trimStart()
 
       // Legacy module path for backward compatibility (re-exports from new path)
       // TODO: Remove this in apiful v4
-      const legacyModule = `declare module 'apiful/__${id}__' {
+      const legacyModule = `
+// Legacy module path for backward compatibility
+// Please import from \`apiful/services/${id}\` instead
+declare module 'apiful/__${id}__' {
   export * from 'apiful/services/${id}'
-}`
+}`.trimStart()
 
       return `${primaryModule}\n\n${legacyModule}`
     })
