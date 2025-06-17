@@ -47,7 +47,7 @@ const response = await client('/users')
 ```
 
 > [!TIP]
-> Use the [`HandlerExtensionBuilder`](/reference/handler-extension-builder) type.
+> Use the [`HandlerExtensionBuilder`](/reference/handler-extension-builder) type for better type checking and IntelliSense support.
 
 ## Methods Extension
 
