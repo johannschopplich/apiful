@@ -15,7 +15,6 @@ declare module 'apiful/schema' {
     [K in keyof T]: [T[K]] extends [never] ? never : [undefined] extends [T[K]] ? [never] extends [Exclude<T[K], undefined>] ? never : K : K;
   }[keyof T];
   type PathMethods<T, P extends keyof T> = Exclude<ValidKeys<T[P]>, 'parameters'>
-  type OperationObject<T, P extends keyof T, M extends PathMethods<T, P>> = T[P][M]
   type ExtractResponses<T> = T extends { responses: infer R } ? R : Record<string, never>
 
   /**
@@ -51,7 +50,7 @@ declare module 'apiful/schema' {
     query: TestEchoPaths[Path][Method] extends { parameters?: { query?: infer Q } } ? Q : Record<string, never>;
   
     /** Request body for this endpoint */
-    request: TestEchoPaths[Path][Method] extends { requestBody?: { content: { 'application/json': infer B } } } ? B : Record<string, never>;
+    request: TestEchoPaths[Path][Method] extends { requestBody?: { content: { 'application/json': infer R } } } ? R : Record<string, never>;
   
     /** Success response for this endpoint (defaults to 200 status code) */
     response: TestEchoPaths[Path][Method] extends { responses: infer R }
@@ -62,8 +61,8 @@ declare module 'apiful/schema' {
   
     /** All possible responses for this endpoint by status code */
     responses: {
-      [Status in keyof ExtractResponses<OperationObject<TestEchoPaths, Path, Method>>]:
-        ExtractResponses<OperationObject<TestEchoPaths, Path, Method>>[Status] extends { content: { 'application/json': infer R } }
+      [Status in keyof ExtractResponses<TestEchoPaths[Path][Method]>]:
+        ExtractResponses<TestEchoPaths[Path][Method]>[Status] extends { content: { 'application/json': infer R } }
           ? R
           : Record<string, never>
     };
@@ -78,7 +77,7 @@ declare module 'apiful/schema' {
      * Full operation object from the OpenAPI specification.
      * Useful for accessing additional metadata like tags, security, etc.
      */
-    operation: OperationObject<TestEchoPaths, Path, Method>
+    operation: TestEchoPaths[Path][Method]
   }
   
   /**
