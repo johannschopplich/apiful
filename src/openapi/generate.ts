@@ -78,8 +78,8 @@ export type ${pascalCase(id)}<
 
   /** All possible responses for this endpoint by status code */
   responses: {
-    [Status in keyof ExtractResponses<${pascalCase(id)}Paths[Path][Method]>]:
-      ExtractResponses<${pascalCase(id)}Paths[Path][Method]>[Status] extends { content: { 'application/json': infer R } }
+    [Status in keyof ${pascalCase(id)}Paths[Path][Method]['responses']]:
+      ${pascalCase(id)}Paths[Path][Method]['responses'][Status] extends { content: { 'application/json': infer R } }
         ? R
         : Record<string, never>
   };
@@ -137,7 +137,6 @@ ${repositoryEntries}
     [K in keyof T]: [T[K]] extends [never] ? never : [undefined] extends [T[K]] ? [never] extends [Exclude<T[K], undefined>] ? never : K : K;
   }[keyof T];
   type PathMethods<T, P extends keyof T> = Exclude<ValidKeys<T[P]>, 'parameters'>
-  type ExtractResponses<T> = T extends { responses: infer R } ? R : Record<string, never>
 
 ${applyLineIndent(typeExports)}
 }
