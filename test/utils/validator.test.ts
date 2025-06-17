@@ -17,12 +17,12 @@ describe('validator', () => {
   })
 
   describe('validator', () => {
-    it('creates a valid validator', () => {
+    it('creates validator instance with default behavior', () => {
       const testValidator = validator<string>()
       expectTypeOf(testValidator).toEqualTypeOf<Validator<string>>()
     })
 
-    it('creates a validator with custom validation function', () => {
+    it('creates validator with custom validation logic', () => {
       const customValidator = validator<number>((value) => {
         if (typeof value === 'number') {
           return { success: true, value }
@@ -37,17 +37,17 @@ describe('validator', () => {
   })
 
   describe('validateTypes', () => {
-    it('validates successfully when schema matches', () => {
+    it('validates and returns value when schema matches', () => {
       const result = validateTypes({ value: 42, schema })
       expect(result).toBe(42)
     })
 
-    it('throws TypeValidationError when validation fails', () => {
+    it('throws TypeValidationError on validation failure', () => {
       expect(() => validateTypes({ value: 'not a number', schema }))
         .toThrow(TypeValidationError)
     })
 
-    it('passes through value when no validate function is provided', () => {
+    it('passes through value without validation function', () => {
       const schema = validator<string>()
       const result = validateTypes({ value: 'test', schema })
       expect(result).toBe('test')
@@ -55,7 +55,7 @@ describe('validator', () => {
   })
 
   describe('safeValidateTypes', () => {
-    it('returns success result when validation passes', () => {
+    it('returns success result on validation pass', () => {
       const result = safeValidateTypes({ value: 42, schema })
       expect(result.success).toBe(true)
       if (result.success) {
@@ -63,7 +63,7 @@ describe('validator', () => {
       }
     })
 
-    it('returns failure result when validation fails', () => {
+    it('returns failure result on validation error', () => {
       const result = safeValidateTypes({ value: 'not a number', schema })
       expect(result.success).toBe(false)
       if (!result.success) {
@@ -73,12 +73,12 @@ describe('validator', () => {
   })
 
   describe('isValidator', () => {
-    it('returns true for valid validators', () => {
+    it('identifies valid validator objects', () => {
       const testValidator = validator<string>()
       expect(isValidator(testValidator)).toBe(true)
     })
 
-    it('returns false for non-validators', () => {
+    it('rejects non-validator objects', () => {
       expect(isValidator({})).toBe(false)
       expect(isValidator(null)).toBe(false)
       expect(isValidator(undefined)).toBe(false)

@@ -40,12 +40,12 @@ describe('createClient', () => {
     }
   }) satisfies MethodsExtensionBuilder
 
-  it('can call the client without any adapter', () => {
+  it('returns undefined when called without extensions', () => {
     const response = client()
     expect(response).toBe(undefined)
   })
 
-  it('creates a client with default options', () => {
+  it('stores default options in client instance', () => {
     const options = {
       baseURL: 'http://example.com',
     }
@@ -53,7 +53,7 @@ describe('createClient', () => {
     expect(client.defaultOptions).toEqual(options)
   })
 
-  it('allows extensions using the "with" method', () => {
+  it('extends client functionality with extension methods', () => {
     const client = createClient()
     const mockedExtension = vi.fn(extension)
     const extendedClient = client.with(mockedExtension)
@@ -61,14 +61,14 @@ describe('createClient', () => {
     expect(extendedClient()).toBeInstanceOf(Response)
   })
 
-  it('includes extension methods in the returned client', () => {
+  it('adds extension properties to extended client', () => {
     const client = createClient()
     const extendedClient = client.with(extension)
     expect(extendedClient()).toBeInstanceOf(Response)
     expect(extendedClient.foo).toBe('bar')
   })
 
-  it('keeps the default options after extending', () => {
+  it('preserves default options after extension', () => {
     const options = {
       baseURL: 'http://example.com',
     }
@@ -77,7 +77,7 @@ describe('createClient', () => {
     expect(extendedClient.defaultOptions).toEqual(options)
   })
 
-  it('allows more than one extension', () => {
+  it('supports multiple extensions with callable extension first', () => {
     const client = createClient()
     const mockedExtension = vi.fn(extension)
     const extendedClient = client
@@ -90,7 +90,7 @@ describe('createClient', () => {
     expect(extendedClient.response()).toEqual({ foo: 'bar' })
   })
 
-  it('allows more than one extension with callable extension last', () => {
+  it('supports multiple extensions with callable extension last', () => {
     const client = createClient()
     const extendedClient = client
       .with(extensionWithRequestMethod)
@@ -101,7 +101,7 @@ describe('createClient', () => {
     expect(extendedClient.response()).toEqual({ foo: 'bar' })
   })
 
-  it('prioritizes later extensions when method names conflict', () => {
+  it('resolves method name conflicts by prioritizing later extensions', () => {
     const client = createClient()
     const extendedClient = client
       .with(() => ({ method: () => 'first' }))
@@ -109,7 +109,7 @@ describe('createClient', () => {
     expect(extendedClient.method()).toBe('second')
   })
 
-  it('maintains type safety with extensions', () => {
+  it('preserves TypeScript type safety with extensions', () => {
     const client = createClient()
     const extendedClient = client.with(() => ({
       typedMethod: (arg: number) => arg.toString(),

@@ -14,7 +14,7 @@ describe('OpenAPI types generation', () => {
     },
   })
 
-  it('generates types for OpenAPI schema', async () => {
+  it('generates TypeScript types from OpenAPI schema', async () => {
     const types = await generateDTS(config.services)
     expect(types).toMatchSnapshot()
   })

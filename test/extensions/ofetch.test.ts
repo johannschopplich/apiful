@@ -26,14 +26,14 @@ describe('ofetchBuilder adapter', () => {
     await _listener.close()
   })
 
-  it('extends client with "ofetch" adapter', async () => {
+  it('handles GET request with ofetch adapter', async () => {
     const client = _client.with(ofetchBuilder())
     const response = await client<FooResponse>('echo/static/constant')
     expect(response).toEqual({ value: 'foo' })
     assertType<{ foo: string }>(response)
   })
 
-  it('allows fetch options for ofetch method', async () => {
+  it('handles POST request with fetch options', async () => {
     const client = _client.with(ofetchBuilder())
     const response = await client('echo/request', {
       method: 'POST',

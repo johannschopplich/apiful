@@ -11,24 +11,24 @@ vi.mock('ofetch', () => ({
 }))
 
 describe('resolvePathParams', () => {
-  it('returns path unchanged when no params provided', () => {
+  it('returns unchanged path when no parameters provided', () => {
     expect(resolvePathParams('/users')).toBe('/users')
     expect(resolvePathParams('/users/{id}', undefined)).toBe('/users/{id}')
     expect(resolvePathParams('/users/{id}', {})).toBe('/users/{id}')
   })
 
-  it('replaces single path parameter', () => {
+  it('replaces single path parameter with provided value', () => {
     expect(resolvePathParams('/users/{id}', { id: '123' })).toBe('/users/123')
   })
 
-  it('replaces multiple path parameters', () => {
+  it('replaces multiple path parameters with provided values', () => {
     expect(resolvePathParams('/users/{userId}/posts/{postId}', {
       userId: '123',
       postId: '456',
     })).toBe('/users/123/posts/456')
   })
 
-  it('encodes URI components properly', () => {
+  it('encodes special characters in path parameters', () => {
     expect(resolvePathParams('/users/{id}', { id: 'user@example.com' }))
       .toBe('/users/user%40example.com')
     expect(resolvePathParams('/search/{query}', { query: 'hello world' }))
@@ -37,37 +37,37 @@ describe('resolvePathParams', () => {
       .toBe('/files/folder%2Ffile.txt')
   })
 
-  it('handles special characters in parameters', () => {
+  it('encodes complex special characters in parameters', () => {
     expect(resolvePathParams('/items/{id}', { id: '!@#$%^&*()' }))
       .toBe('/items/!%40%23%24%25%5E%26*()')
   })
 
-  it('converts non-string values to strings', () => {
+  it('converts non-string parameter values to strings', () => {
     expect(resolvePathParams('/users/{id}', { id: 123 as unknown as string })).toBe('/users/123')
     expect(resolvePathParams('/items/{active}', { active: true as unknown as string })).toBe('/items/true')
     expect(resolvePathParams('/data/{value}', { value: null as unknown as string })).toBe('/data/null')
   })
 
-  it('ignores parameters not present in path', () => {
+  it('ignores extra parameters not used in path template', () => {
     expect(resolvePathParams('/users/{id}', {
       id: '123',
       extra: 'ignored',
     })).toBe('/users/123')
   })
 
-  it('handles repeated parameter names', () => {
+  it('replaces repeated parameter names in path template', () => {
     expect(resolvePathParams('/api/{version}/users/{version}', {
       version: 'v1',
     })).toBe('/api/v1/users/v1')
   })
 
-  it('handles empty string parameters', () => {
+  it('handles empty string parameter values', () => {
     expect(resolvePathParams('/users/{id}', { id: '' })).toBe('/users/')
   })
 })
 
 describe('fetchRequestInterceptor', () => {
-  it('modifies context request with resolved path params', () => {
+  it('resolves path parameters in request context', () => {
     const ctx = {
       request: '/users/{id}',
       options: {
@@ -79,7 +79,7 @@ describe('fetchRequestInterceptor', () => {
     expect(ctx.request).toBe('/users/123')
   })
 
-  it('handles context without path params', () => {
+  it('handles request context without path parameters', () => {
     const ctx = {
       request: '/users',
       options: {},
@@ -89,7 +89,7 @@ describe('fetchRequestInterceptor', () => {
     expect(ctx.request).toBe('/users')
   })
 
-  it('handles context with empty path params', () => {
+  it('handles request context with empty path parameters', () => {
     const ctx = {
       request: '/users/{id}',
       options: {
@@ -101,7 +101,7 @@ describe('fetchRequestInterceptor', () => {
     expect(ctx.request).toBe('/users/{id}')
   })
 
-  it('encodes path parameters in context', () => {
+  it('encodes path parameters in request context', () => {
     const ctx = {
       request: '/users/{email}',
       options: {
@@ -127,14 +127,14 @@ describe('createOpenAPIClient', () => {
     vi.clearAllMocks()
   })
 
-  it('calls ofetch.create with default options object', () => {
+  it('creates ofetch instance with default options object', () => {
     const options = { baseURL: 'https://petstore3.swagger.io/api/v3' }
     createOpenAPIClient<'petStore'>(options)
 
     expect(mockCreate).toHaveBeenCalledWith(options)
   })
 
-  it('calls ofetch.create with options from function', () => {
+  it('creates ofetch instance with options from function', () => {
     const options = { baseURL: 'https://petstore3.swagger.io/api/v3' }
     const optionsFn = vi.fn().mockReturnValue(options)
     createOpenAPIClient<'petStore'>(optionsFn)
@@ -143,7 +143,7 @@ describe('createOpenAPIClient', () => {
     expect(mockCreate).toHaveBeenCalledWith(options)
   })
 
-  it('resolves path parameters when making requests for pet by ID', async () => {
+  it('resolves path parameters in pet lookup requests', async () => {
     const mockPet: components['schemas']['Pet'] = {
       id: 123,
       name: 'Fluffy',
@@ -160,7 +160,7 @@ describe('createOpenAPIClient', () => {
     })
   })
 
-  it('passes through options for creating pets', async () => {
+  it('passes request options for pet creation', async () => {
     const newPet: components['schemas']['Pet'] = {
       name: 'Buddy',
       status: 'available',
@@ -180,7 +180,7 @@ describe('createOpenAPIClient', () => {
     })
   })
 
-  it('handles requests without options for inventory', async () => {
+  it('handles requests without options for inventory lookup', async () => {
     const inventory: { [key: string]: number } = { available: 5, pending: 2, sold: 10 }
     mockFetch.mockResolvedValue(inventory)
 
@@ -190,7 +190,7 @@ describe('createOpenAPIClient', () => {
     expect(mockFetch).toHaveBeenCalledWith('/store/inventory', undefined)
   })
 
-  it('returns the result from ofetch for pet lookup', async () => {
+  it('returns ofetch result for pet lookup requests', async () => {
     const expectedPet: components['schemas']['Pet'] = {
       id: 456,
       name: 'Max',
@@ -205,7 +205,7 @@ describe('createOpenAPIClient', () => {
     expect(result).toBe(expectedPet)
   })
 
-  it('resolves path parameters for user operations', async () => {
+  it('resolves path parameters in user operations', async () => {
     const userData: components['schemas']['User'] = {
       id: 1,
       username: 'johndoe',
@@ -225,7 +225,7 @@ describe('createOpenAPIClient', () => {
     })
   })
 
-  it('handles query parameters for finding pets by status', async () => {
+  it('handles query parameters in pet status lookup', async () => {
     const pets: components['schemas']['Pet'][] = [{
       id: 1,
       name: 'Fluffy',

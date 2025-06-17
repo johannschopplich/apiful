@@ -4,7 +4,7 @@ import { isSchema, jsonSchema } from '../../src/utils/schema'
 
 describe('schema', () => {
   describe('jsonSchema', () => {
-    it('creates a valid schema', () => {
+    it('creates schema with JSON schema definition', () => {
       const schema = jsonSchema<string>({
         type: 'string',
       })
@@ -16,7 +16,7 @@ describe('schema', () => {
       `)
     })
 
-    it('creates a schema with custom validation', () => {
+    it('creates schema with custom validation function', () => {
       const schema = jsonSchema<number>(
         {
           type: 'number',
@@ -37,12 +37,12 @@ describe('schema', () => {
   })
 
   describe('isSchema', () => {
-    it('returns true for valid schemas', () => {
+    it('identifies valid schema objects', () => {
       const schema = jsonSchema<string>({ type: 'string' })
       expect(isSchema(schema)).toBe(true)
     })
 
-    it('returns false for non-schemas', () => {
+    it('rejects non-schema objects', () => {
       expect(isSchema({})).toBe(false)
       expect(isSchema(null)).toBe(false)
       expect(isSchema(undefined)).toBe(false)

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { jsonToTypeDefinition } from '../../src/utils/json-to-type-definition'
 
 describe('jsonToTypeDefinition', () => {
-  it('infers types from comprehensive JSON data', async () => {
+  it('generates TypeScript types from comprehensive JSON data', async () => {
     const input: JsonValue = {
       // Basic primitive types
       stringValue: 'test-string',
@@ -88,7 +88,7 @@ describe('jsonToTypeDefinition', () => {
     `)
   })
 
-  it('handles primitive values as root types', async () => {
+  it('generates types for primitive root values', async () => {
     expect(await jsonToTypeDefinition('string', { typeName: 'StringRoot' }))
       .toContain('export type StringRoot = string')
 
@@ -106,7 +106,7 @@ describe('jsonToTypeDefinition', () => {
     expect(result).toContain('export type StringArray = string[]')
   })
 
-  it('handles strictProperties option', async () => {
+  it('respects strictProperties option for required fields', async () => {
     const input = {
       stringField: 'test-value',
       numberField: 123,
@@ -131,7 +131,7 @@ describe('jsonToTypeDefinition', () => {
     expect(nonStrict).toContain('numberField?: number')
   })
 
-  it('handles complex recursive and deeply nested structures', async () => {
+  it('generates types for complex nested and recursive structures', async () => {
     const input = {
       treeStructure: {
         nodeValue: 1,
