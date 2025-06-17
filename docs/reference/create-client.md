@@ -7,18 +7,22 @@ Heart of APIful. Creates an [`ApiClient`](/reference/api-client) instance with t
 ```ts
 import { createClient, ofetchBuilder } from 'apiful'
 
-interface JSONPlaceholderTodoResponse {
-  userId: number
-  id: number
-  title: string
-  completed: boolean
-}
-
 const client = createClient({
-  baseURL: 'https://jsonplaceholder.typicode.com',
-}).with(ofetchBuilder())
+  baseURL: 'https://api.example.com',
+  headers: {
+    Authorization: `Bearer ${process.env.API_KEY}`,
+  },
+})
+  .with(ofetchBuilder())
 
-const response = await client<JSONPlaceholderTodoResponse>('todos/1')
+// GET request to https://api.example.com/users/1
+const user = await client('users/1', { method: 'GET' })
+
+// POST request with JSON body
+const newUser = await client('users', {
+  method: 'POST',
+  body: { name: 'John Doe', email: 'john@example.com' }
+})
 ```
 
 ## Type Definition
