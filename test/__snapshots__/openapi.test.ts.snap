@@ -12,11 +12,9 @@ declare module 'apiful/schema' {
     testEcho: TestEchoPaths
   }
 
-  // Type helpers for OpenAPI paths
-  type ValidKeys<T> = {
-    [K in keyof T]: [T[K]] extends [never] ? never : [undefined] extends [T[K]] ? [never] extends [Exclude<T[K], undefined>] ? never : K : K;
-  }[keyof T];
-  type PathMethods<T, P extends keyof T> = Exclude<ValidKeys<T[P]>, 'parameters'>
+  // Type helpers for schema paths and methods
+  type NonNeverKeys<T> = { [K in keyof T]: T[K] extends never ? never : K }[keyof T]
+  type PathMethods<T, P extends keyof T> = Exclude<NonNeverKeys<T[P]>, 'parameters'>
 
   /**
    * OpenAPI endpoint type helper for the TestEcho API
@@ -45,20 +43,20 @@ declare module 'apiful/schema' {
     Method extends PathMethods<TestEchoPaths, Path> = PathMethods<TestEchoPaths, Path> extends string ? PathMethods<TestEchoPaths, Path> : never
   > = {
     /** Path parameters for this endpoint */
-    path: TestEchoPaths[Path][Method] extends { parameters?: { path?: infer P } } ? P : Record<string, never>;
+    path: TestEchoPaths[Path][Method] extends { parameters?: { path?: infer P } } ? P : Record<string, never>
   
     /** Query parameters for this endpoint */
-    query: TestEchoPaths[Path][Method] extends { parameters?: { query?: infer Q } } ? Q : Record<string, never>;
+    query: TestEchoPaths[Path][Method] extends { parameters?: { query?: infer Q } } ? Q : Record<string, never>
   
     /** Request body for this endpoint */
-    request: TestEchoPaths[Path][Method] extends { requestBody?: { content: { 'application/json': infer R } } } ? R : Record<string, never>;
+    request: TestEchoPaths[Path][Method] extends { requestBody?: { content: { 'application/json': infer R } } } ? R : Record<string, never>
   
     /** Success response for this endpoint (defaults to 200 status code) */
     response: TestEchoPaths[Path][Method] extends { responses: infer R }
       ? 200 extends keyof R
         ? R[200] extends { content: { 'application/json': infer S } } ? S : Record<string, never>
         : Record<string, never>
-      : Record<string, never>;
+      : Record<string, never>
   
     /** All possible responses for this endpoint by status code */
     responses: {
@@ -66,13 +64,13 @@ declare module 'apiful/schema' {
         TestEchoPaths[Path][Method]['responses'][Status] extends { content: { 'application/json': infer R } }
           ? R
           : Record<string, never>
-    };
+    }
   
     /** Full path with typed parameters for this endpoint (useful for route builders) */
-    fullPath: Path;
+    fullPath: Path
   
     /** HTTP method for this endpoint */
-    method: Method;
+    method: Method
   
     /**
      * Full operation object for this endpoint
@@ -89,7 +87,7 @@ declare module 'apiful/schema' {
    * @example
    * type AvailablePaths = TestEchoApiPaths // Returns literal union of all available paths
    */
-  export type TestEchoApiPaths = keyof TestEchoPaths;
+  export type TestEchoApiPaths = keyof TestEchoPaths
   
   /**
    * Type helper to get available methods for a specific path of the TestEcho API
@@ -97,7 +95,7 @@ declare module 'apiful/schema' {
    * @example
    * type UserMethods = TestEchoApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
    */
-  export type TestEchoApiMethods<P extends keyof TestEchoPaths> = PathMethods<TestEchoPaths, P>;
+  export type TestEchoApiMethods<P extends keyof TestEchoPaths> = PathMethods<TestEchoPaths, P>
 }
 
 declare module 'apiful/schema/testEcho' {
