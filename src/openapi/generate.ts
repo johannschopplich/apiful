@@ -22,7 +22,7 @@ export async function generateDTS(
 
   // Build import statements
   const servicePathImports = serviceIds
-    .map(id => `  import { paths as ${pascalCase(id)}Paths } from 'apiful/services/${id}'`)
+    .map(id => `  import { paths as ${pascalCase(id)}Paths } from 'apiful/schema/${id}'`)
     .join('\n')
 
   // Build repository interface entries
@@ -121,7 +121,7 @@ export type ${pascalCase(id)}ApiMethods<P extends keyof ${pascalCase(id)}Paths> 
   // Build module declarations
   const moduleDeclarations = Object.entries(resolvedSchemas)
     .map(([id, types]) => `
-declare module 'apiful/services/${id}' {
+declare module 'apiful/schema/${id}' {
 ${normalizeIndentation(types).trimEnd()}
 }`.trimStart())
     .join('\n\n')
@@ -131,9 +131,9 @@ ${normalizeIndentation(types).trimEnd()}
   const legacyModuleDeclarations = Object.keys(resolvedSchemas)
     .map(id => `
 // Legacy module path for backward compatibility
-// Please import from \`apiful/services/${id}\` instead
+// Please import from \`apiful/schema/${id}\` instead
 declare module 'apiful/__${id}__' {
-  export type * from 'apiful/services/${id}'
+  export type * from 'apiful/schema/${id}'
 }`.trimStart())
     .join('\n\n')
 

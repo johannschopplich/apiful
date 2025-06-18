@@ -1,5 +1,5 @@
 import type { OpenAPISchemaRepository, PetStore } from 'apiful/schema'
-import type { components } from 'apiful/services/petStore'
+import type { components } from 'apiful/schema/petStore'
 import type { SchemaPaths } from '../../src/openapi/client'
 import { describe, expectTypeOf, it } from 'vitest'
 

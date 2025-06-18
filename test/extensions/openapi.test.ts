@@ -1,6 +1,6 @@
 import type { OpenAPISchemaRepository } from 'apiful/schema'
 import type { PetStore } from 'apiful/schema'
-import type { components } from 'apiful/services/petStore'
+import type { components } from 'apiful/schema/petStore'
 import type { ApiClient } from '../../src/client'
 import type { OpenAPIClient } from '../../src/extensions/openapi'
 import type { SchemaPaths } from '../../src/openapi/client'

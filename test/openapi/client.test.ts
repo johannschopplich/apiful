@@ -1,4 +1,4 @@
-import type { components } from 'apiful/services/petStore'
+import type { components } from 'apiful/schema/petStore'
 import type { FetchContext } from 'ofetch'
 import { ofetch } from 'ofetch'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

@@ -5,7 +5,7 @@ exports[`OpenAPI types generation > generates TypeScript types from OpenAPI sche
 /* prettier-ignore */
 
 declare module 'apiful/schema' {
-  import { paths as TestEchoPaths } from 'apiful/services/testEcho'
+  import { paths as TestEchoPaths } from 'apiful/schema/testEcho'
 
   // Augment the schema repository interface with all service schemas
   interface OpenAPISchemaRepository {
@@ -100,7 +100,7 @@ declare module 'apiful/schema' {
   export type TestEchoApiMethods<P extends keyof TestEchoPaths> = PathMethods<TestEchoPaths, P>;
 }
 
-declare module 'apiful/services/testEcho' {
+declare module 'apiful/schema/testEcho' {
   export interface paths {
     "/echo/static/constant": {
       parameters: {
@@ -435,9 +435,9 @@ declare module 'apiful/services/testEcho' {
 }
 
 // Legacy module path for backward compatibility
-// Please import from \`apiful/services/testEcho\` instead
+// Please import from \`apiful/schema/testEcho\` instead
 declare module 'apiful/__testEcho__' {
-  export type * from 'apiful/services/testEcho'
+  export type * from 'apiful/schema/testEcho'
 }
 "
 `;
