@@ -61,20 +61,20 @@ export type ${pascalCase(id)}<
   Method extends PathMethods<${pascalCase(id)}Paths, Path> = PathMethods<${pascalCase(id)}Paths, Path> extends string ? PathMethods<${pascalCase(id)}Paths, Path> : never
 > = {
   /** Path parameters for this endpoint */
-  path: ${pascalCase(id)}Paths[Path][Method] extends { parameters?: { path?: infer P } } ? P : Record<string, never>;
+  path: ${pascalCase(id)}Paths[Path][Method] extends { parameters?: { path?: infer P } } ? P : Record<string, never>
 
   /** Query parameters for this endpoint */
-  query: ${pascalCase(id)}Paths[Path][Method] extends { parameters?: { query?: infer Q } } ? Q : Record<string, never>;
+  query: ${pascalCase(id)}Paths[Path][Method] extends { parameters?: { query?: infer Q } } ? Q : Record<string, never>
 
   /** Request body for this endpoint */
-  request: ${pascalCase(id)}Paths[Path][Method] extends { requestBody?: { content: { 'application/json': infer R } } } ? R : Record<string, never>;
+  request: ${pascalCase(id)}Paths[Path][Method] extends { requestBody?: { content: { 'application/json': infer R } } } ? R : Record<string, never>
 
   /** Success response for this endpoint (defaults to 200 status code) */
   response: ${pascalCase(id)}Paths[Path][Method] extends { responses: infer R }
     ? 200 extends keyof R
       ? R[200] extends { content: { 'application/json': infer S } } ? S : Record<string, never>
       : Record<string, never>
-    : Record<string, never>;
+    : Record<string, never>
 
   /** All possible responses for this endpoint by status code */
   responses: {
@@ -82,13 +82,13 @@ export type ${pascalCase(id)}<
       ${pascalCase(id)}Paths[Path][Method]['responses'][Status] extends { content: { 'application/json': infer R } }
         ? R
         : Record<string, never>
-  };
+  }
 
   /** Full path with typed parameters for this endpoint (useful for route builders) */
-  fullPath: Path;
+  fullPath: Path
 
   /** HTTP method for this endpoint */
-  method: Method;
+  method: Method
 
   /**
    * Full operation object for this endpoint
@@ -105,7 +105,7 @@ export type ${pascalCase(id)}<
  * @example
  * type AvailablePaths = ${pascalCase(id)}ApiPaths // Returns literal union of all available paths
  */
-export type ${pascalCase(id)}ApiPaths = keyof ${pascalCase(id)}Paths;
+export type ${pascalCase(id)}ApiPaths = keyof ${pascalCase(id)}Paths
 
 /**
  * Type helper to get available methods for a specific path of the ${pascalCase(id)} API
@@ -113,7 +113,7 @@ export type ${pascalCase(id)}ApiPaths = keyof ${pascalCase(id)}Paths;
  * @example
  * type UserMethods = ${pascalCase(id)}ApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
  */
-export type ${pascalCase(id)}ApiMethods<P extends keyof ${pascalCase(id)}Paths> = PathMethods<${pascalCase(id)}Paths, P>;
+export type ${pascalCase(id)}ApiMethods<P extends keyof ${pascalCase(id)}Paths> = PathMethods<${pascalCase(id)}Paths, P>
 `.trim()].join('\n')
     })
     .join('\n\n')
@@ -147,11 +147,9 @@ ${servicePathImports}
 ${schemaRepositoryEntries}
   }
 
-  // Type helpers for OpenAPI paths
-  type ValidKeys<T> = {
-    [K in keyof T]: [T[K]] extends [never] ? never : [undefined] extends [T[K]] ? [never] extends [Exclude<T[K], undefined>] ? never : K : K;
-  }[keyof T];
-  type PathMethods<T, P extends keyof T> = Exclude<ValidKeys<T[P]>, 'parameters'>
+  // Type helpers for schema paths and methods
+  type NonNeverKeys<T> = { [K in keyof T]: T[K] extends never ? never : K }[keyof T]
+  type PathMethods<T, P extends keyof T> = Exclude<NonNeverKeys<T[P]>, 'parameters'>
 
 ${applyLineIndent(typeExports)}
 }
