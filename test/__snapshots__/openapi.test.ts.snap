@@ -437,7 +437,7 @@ declare module 'apiful/services/testEcho' {
 // Legacy module path for backward compatibility
 // Please import from \`apiful/services/testEcho\` instead
 declare module 'apiful/__testEcho__' {
-  export * from 'apiful/services/testEcho'
+  export type * from 'apiful/services/testEcho'
 }
 "
 `;

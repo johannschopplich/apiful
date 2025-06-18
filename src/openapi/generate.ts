@@ -120,24 +120,21 @@ export type ${pascalCase(id)}ApiMethods<P extends keyof ${pascalCase(id)}Paths> 
 
   // Build module declarations
   const moduleDeclarations = Object.entries(resolvedSchemas)
-    .map(([id, types]) => {
-      // Primary module path (new semantic path)
-      const primaryModule = `
+    .map(([id, types]) => `
 declare module 'apiful/services/${id}' {
 ${normalizeIndentation(types).trimEnd()}
-}`.trimStart()
+}`.trimStart())
+    .join('\n\n')
 
-      // Legacy module path for backward compatibility (re-exports from new path)
-      // TODO: Remove this in apiful v4
-      const legacyModule = `
+  // Legacy module path for backward compatibility (re-exports from new path)
+  // TODO: Remove this in apiful v4
+  const legacyModuleDeclarations = Object.keys(resolvedSchemas)
+    .map(id => `
 // Legacy module path for backward compatibility
 // Please import from \`apiful/services/${id}\` instead
 declare module 'apiful/__${id}__' {
-  export * from 'apiful/services/${id}'
-}`.trimStart()
-
-      return `${primaryModule}\n\n${legacyModule}`
-    })
+  export type * from 'apiful/services/${id}'
+}`.trimStart())
     .join('\n\n')
 
   return `
@@ -160,6 +157,8 @@ ${applyLineIndent(typeExports)}
 }
 
 ${moduleDeclarations}
+
+${legacyModuleDeclarations}
 `.trimStart()
 }
 
