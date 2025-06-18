@@ -1,5 +1,5 @@
+/* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable antfu/no-top-level-await */
-import type { PetStore } from 'apiful/schema'
 import { consola } from 'consola'
 import { apiRouterBuilder, createClient, ofetchBuilder, OpenAPIBuilder } from '../src/index'
 
@@ -9,9 +9,6 @@ interface JSONPlaceholderTodoResponse {
   title: string
   completed: boolean
 }
-
-type _Status = PetStore<'/pet/findByStatus', 'get'>['query']['status']
-type _Pet = PetStore<'/pet/{petId}', 'get'>['response']
 
 const client = createClient({
   baseURL: 'https://jsonplaceholder.typicode.com',
@@ -38,7 +35,7 @@ const petResponse = await petStore('/pet/{petId}', {
 consola.success(userResponse)
 consola.success(petResponse)
 
-async function _removePet(petId: number) {
+async function removePet(petId: number) {
   try {
     await petStore('/pet/{petId}', {
       method: 'DELETE',
