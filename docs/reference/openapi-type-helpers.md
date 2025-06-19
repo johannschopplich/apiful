@@ -101,3 +101,23 @@ type AllPaths = PetStoreApiPaths
 type PetMethods = PetStoreApiMethods<'/pet'>
 //   ^? 'get' | 'post' | 'put'
 ```
+
+## Schema Model Types
+
+APIful also generates a dedicated helper for extracting OpenAPI schema models directly:
+
+```ts
+import type { PetStoreModel } from 'apiful/schema'
+
+// Extract schema models directly
+type Pet = PetStoreModel<'Pet'>
+//   ^? { id?: number; name: string; category: Category; photoUrls: string[]; tags?: Tag[]; status?: 'available' | 'pending' | 'sold' }
+
+type Category = PetStoreModel<'Category'>
+//   ^? { id?: number; name?: string }
+
+type User = PetStoreModel<'User'>
+//   ^? { id?: number; username?: string; firstName?: string; lastName?: string; email?: string; password?: string; phone?: string; userStatus?: number }
+```
+
+This is particularly useful when you need to work with schema models independently of specific endpoints, such as for creating reusable components or utility functions.

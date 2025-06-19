@@ -22,7 +22,7 @@ export async function generateDTS(
 
   // Build import statements
   const servicePathImports = serviceIds
-    .map(id => `  import { paths as ${pascalCase(id)}Paths } from 'apiful/schema/${id}'`)
+    .map(id => `  import { paths as ${pascalCase(id)}Paths, components as ${pascalCase(id)}Components } from 'apiful/schema/${id}'`)
     .join('\n')
 
   // Build repository interface entries
@@ -114,6 +114,15 @@ export type ${pascalCase(id)}ApiPaths = keyof ${pascalCase(id)}Paths
  * type UserMethods = ${pascalCase(id)}ApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
  */
 export type ${pascalCase(id)}ApiMethods<P extends keyof ${pascalCase(id)}Paths> = PathMethods<${pascalCase(id)}Paths, P>
+
+/**
+ * Type helper to extract schema models from the ${pascalCase(id)} API
+ *
+ * @example
+ * type Pet = ${pascalCase(id)}Model<'Pet'> // Get the Pet schema model
+ * type User = ${pascalCase(id)}Model<'User'> // Get the User schema model
+ */
+export type ${pascalCase(id)}Model<T extends keyof ${pascalCase(id)}Components['schemas']> = ${pascalCase(id)}Components['schemas'][T]
 `.trim()].join('\n')
     })
     .join('\n\n')

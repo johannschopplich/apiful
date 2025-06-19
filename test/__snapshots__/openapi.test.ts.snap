@@ -5,7 +5,7 @@ exports[`OpenAPI types generation > generates TypeScript types from OpenAPI sche
 /* prettier-ignore */
 
 declare module 'apiful/schema' {
-  import { paths as TestEchoPaths } from 'apiful/schema/testEcho'
+  import { paths as TestEchoPaths, components as TestEchoComponents } from 'apiful/schema/testEcho'
 
   // Augment the schema repository interface with all service schemas
   interface OpenAPISchemaRepository {
@@ -96,6 +96,15 @@ declare module 'apiful/schema' {
    * type UserMethods = TestEchoApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
    */
   export type TestEchoApiMethods<P extends keyof TestEchoPaths> = PathMethods<TestEchoPaths, P>
+  
+  /**
+   * Type helper to extract schema models from the TestEcho API
+   *
+   * @example
+   * type Pet = TestEchoModel<'Pet'> // Get the Pet schema model
+   * type User = TestEchoModel<'User'> // Get the User schema model
+   */
+  export type TestEchoModel<T extends keyof TestEchoComponents['schemas']> = TestEchoComponents['schemas'][T]
 }
 
 declare module 'apiful/schema/testEcho' {

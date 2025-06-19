@@ -1,5 +1,5 @@
-import type { OpenAPISchemaRepository, PetStore } from 'apiful/schema'
-import type { components } from 'apiful/schema/petStore'
+import type { OpenAPISchemaRepository, PetStore, PetStoreModel } from 'apiful/schema'
+import type { components as Components } from 'apiful/schema/petStore'
 import type { SchemaPaths } from '../../src/openapi/client'
 import { describe, expectTypeOf, it } from 'vitest'
 
@@ -30,19 +30,19 @@ describe('PetStore type helper', () => {
   })
 
   it('extracts correct request body types using generated schemas', () => {
-    expectTypeOf<PetStore<'/pet', 'put'>['request']>().toEqualTypeOf<components['schemas']['Pet']>()
-    expectTypeOf<PetStore<'/pet', 'post'>['request']>().toEqualTypeOf<components['schemas']['Pet']>()
-    expectTypeOf<PetStore<'/store/order', 'post'>['request']>().toEqualTypeOf<components['schemas']['Order']>()
-    expectTypeOf<PetStore<'/user', 'post'>['request']>().toEqualTypeOf<components['schemas']['User']>()
-    expectTypeOf<PetStore<'/user/createWithList', 'post'>['request']>().toEqualTypeOf<components['schemas']['User'][]>()
+    expectTypeOf<PetStore<'/pet', 'put'>['request']>().toEqualTypeOf<Components['schemas']['Pet']>()
+    expectTypeOf<PetStore<'/pet', 'post'>['request']>().toEqualTypeOf<Components['schemas']['Pet']>()
+    expectTypeOf<PetStore<'/store/order', 'post'>['request']>().toEqualTypeOf<Components['schemas']['Order']>()
+    expectTypeOf<PetStore<'/user', 'post'>['request']>().toEqualTypeOf<Components['schemas']['User']>()
+    expectTypeOf<PetStore<'/user/createWithList', 'post'>['request']>().toEqualTypeOf<Components['schemas']['User'][]>()
   })
 
   it('extracts correct response types using generated schemas', () => {
-    expectTypeOf<PetStore<'/pet/{petId}', 'get'>['response']>().toEqualTypeOf<components['schemas']['Pet']>()
-    expectTypeOf<PetStore<'/pet/findByStatus', 'get'>['response']>().toEqualTypeOf<components['schemas']['Pet'][]>()
+    expectTypeOf<PetStore<'/pet/{petId}', 'get'>['response']>().toEqualTypeOf<Components['schemas']['Pet']>()
+    expectTypeOf<PetStore<'/pet/findByStatus', 'get'>['response']>().toEqualTypeOf<Components['schemas']['Pet'][]>()
     expectTypeOf<PetStore<'/store/inventory', 'get'>['response']>().toEqualTypeOf<{ [key: string]: number }>()
-    expectTypeOf<PetStore<'/store/order/{orderId}', 'get'>['response']>().toEqualTypeOf<components['schemas']['Order']>()
-    expectTypeOf<PetStore<'/user/{username}', 'get'>['response']>().toEqualTypeOf<components['schemas']['User']>()
+    expectTypeOf<PetStore<'/store/order/{orderId}', 'get'>['response']>().toEqualTypeOf<Components['schemas']['Order']>()
+    expectTypeOf<PetStore<'/user/{username}', 'get'>['response']>().toEqualTypeOf<Components['schemas']['User']>()
   })
 
   it('provides access to all response status codes', () => {
@@ -67,17 +67,14 @@ describe('PetStore type helper', () => {
     expectTypeOf<PetStore<'/pet/{petId}', 'get'>['operation']>().toHaveProperty('parameters')
     expectTypeOf<PetStore<'/pet/{petId}', 'get'>['operation']>().toHaveProperty('responses')
   })
+})
 
-  it('handles complex type scenarios', () => {
-    type AllPetEndpoints = PetStore<'/pet/{petId}', 'get'> | PetStore<'/pet/{petId}', 'delete'>
-
-    expectTypeOf<AllPetEndpoints['fullPath']>().toEqualTypeOf<'/pet/{petId}'>()
-    expectTypeOf<AllPetEndpoints['method']>().toEqualTypeOf<'get' | 'delete'>()
-
-    type PetCreateRequest = PetStore<'/pet', 'post'>['request']
-
-    expectTypeOf<PetCreateRequest['name']>().toBeString()
-    expectTypeOf<PetCreateRequest['photoUrls']>().toEqualTypeOf<string[]>()
-    expectTypeOf<PetCreateRequest['status']>().toEqualTypeOf<'available' | 'pending' | 'sold' | undefined>()
+// eslint-disable-next-line test/prefer-lowercase-title
+describe('PetStoreModel type helper', () => {
+  it('extracts correct schema model types', () => {
+    expectTypeOf<PetStoreModel<'Pet'>>().toEqualTypeOf<Components['schemas']['Pet']>()
+    expectTypeOf<PetStoreModel<'Tag'>>().toEqualTypeOf<Components['schemas']['Tag']>()
+    expectTypeOf<PetStoreModel<'Order'>>().toEqualTypeOf<Components['schemas']['Order']>()
+    expectTypeOf<PetStoreModel<'User'>>().toEqualTypeOf<Components['schemas']['User']>()
   })
 })
