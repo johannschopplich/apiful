@@ -2,26 +2,25 @@ import type { Listener } from 'listhen'
 import { fileURLToPath } from 'node:url'
 import { getRandomPort } from 'get-port-please'
 import {
-  createApp,
-  createError,
-  defineEventHandler,
+  defineHandler,
   getQuery,
-  getRequestHeaders,
+  H3,
+  HTTPError,
   readBody,
-  toNodeListener,
+  toNodeHandler,
 } from 'h3'
 import { listen } from 'listhen'
 
 export const currentDir: string = fileURLToPath(new URL('.', import.meta.url))
 
 export async function createListener(): Promise<Listener> {
-  const app = createApp()
+  const app = new H3()
     // Static constant endpoint - GET only
     .use(
       '/echo/static/constant',
-      defineEventHandler((event) => {
-        if (event.method !== 'GET') {
-          throw createError({ statusCode: 405 })
+      defineHandler((event) => {
+        if (event.req.method !== 'GET') {
+          throw new HTTPError({ statusCode: 405 })
         }
 
         return { value: 'foo' }
@@ -30,38 +29,38 @@ export async function createListener(): Promise<Listener> {
     // Request echo endpoints - specific HTTP methods
     .use(
       '/echo/request',
-      defineEventHandler(async (event) => {
+      defineHandler(async (event) => {
         const allowedMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
 
-        if (!allowedMethods.includes(event.method)) {
-          throw createError({ statusCode: 405 })
+        if (!allowedMethods.includes(event.req.method)) {
+          throw new HTTPError({ statusCode: 405 })
         }
 
         // Handle request body based on method
-        let body: Record<string, any> | undefined
+        let body: unknown
         try {
-          if (event.method !== 'DELETE') {
+          if (event.req.method !== 'DELETE') {
             body = await readBody(event).catch(() => ({}))
           }
         }
         catch {
-          throw createError({ statusCode: 400 })
+          throw new HTTPError({ statusCode: 400 })
         }
 
         return {
-          path: event.path,
+          path: event.url,
           body,
-          headers: getRequestHeaders(event),
-          method: event.method,
+          headers: Object.fromEntries(event.req.headers.entries()),
+          method: event.req.method,
         }
       }),
     )
     // Query parameters endpoint - GET only
     .use(
       '/echo/query',
-      defineEventHandler((event) => {
-        if (event.method !== 'GET') {
-          throw createError({ statusCode: 405 })
+      defineHandler((event) => {
+        if (event.req.method !== 'GET') {
+          throw new HTTPError({ statusCode: 405 })
         }
 
         return getQuery(event)
@@ -69,12 +68,12 @@ export async function createListener(): Promise<Listener> {
     )
     // 404 handler for non-existent routes
     .use(
-      defineEventHandler(() => {
-        throw createError({ statusCode: 404 })
+      defineHandler(() => {
+        throw new HTTPError({ statusCode: 404 })
       }),
     )
 
-  return await listen(toNodeListener(app), {
+  return await listen(toNodeHandler(app), {
     port: await getRandomPort(),
   })
 }
