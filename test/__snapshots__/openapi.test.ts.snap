@@ -9,7 +9,7 @@ declare module 'apiful/schema' {
 
   // Augment the schema repository interface with all service schemas
   interface OpenAPISchemaRepository {
-    testEcho: TestEchoPaths
+    'testEcho': TestEchoPaths
   }
 
   // Type helpers for schema paths and methods
