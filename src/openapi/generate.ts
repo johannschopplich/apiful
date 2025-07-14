@@ -27,7 +27,7 @@ export async function generateDTS(
 
   // Build repository interface entries
   const schemaRepositoryEntries = serviceIds
-    .map(id => `    ${id}: ${pascalCase(id)}Paths`)
+    .map(id => `    '${id}': ${pascalCase(id)}Paths`)
     .join('\n')
 
   // Build type exports
