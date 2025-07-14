@@ -77,12 +77,14 @@ export type ${pascalCase(id)}<
     : Record<string, never>
 
   /** All possible responses for this endpoint by status code */
-  responses: {
-    [Status in keyof ${pascalCase(id)}Paths[Path][Method]['responses']]:
-      ${pascalCase(id)}Paths[Path][Method]['responses'][Status] extends { content: { 'application/json': infer R } }
-        ? R
-        : Record<string, never>
-  }
+  responses: ${pascalCase(id)}Paths[Path][Method] extends { responses: infer T }
+    ? {
+        [Status in keyof T]:
+          T[Status] extends { content: { 'application/json': infer R } }
+            ? R
+            : Record<string, never>
+      }
+    : Record<string, never>
 
   /** Full path with typed parameters for this endpoint (useful for route builders) */
   fullPath: Path

@@ -59,12 +59,14 @@ declare module 'apiful/schema' {
       : Record<string, never>
   
     /** All possible responses for this endpoint by status code */
-    responses: {
-      [Status in keyof TestEchoPaths[Path][Method]['responses']]:
-        TestEchoPaths[Path][Method]['responses'][Status] extends { content: { 'application/json': infer R } }
-          ? R
-          : Record<string, never>
-    }
+    responses: TestEchoPaths[Path][Method] extends { responses: infer T }
+      ? {
+          [Status in keyof T]:
+            T[Status] extends { content: { 'application/json': infer R } }
+              ? R
+              : Record<string, never>
+        }
+      : Record<string, never>
   
     /** Full path with typed parameters for this endpoint (useful for route builders) */
     fullPath: Path
