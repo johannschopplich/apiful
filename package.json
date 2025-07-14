@@ -1,7 +1,7 @@
 {
   "name": "apiful",
   "type": "module",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "packageManager": "pnpm@10.13.1",
   "description": "Extensible, typed API tooling",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
