@@ -1,7 +1,7 @@
 import type { UserConfig, UserConfigFn } from 'tsdown/config'
 import { defineConfig } from 'tsdown/config'
 
-const { exports,dependencies } = await import('./package.json', { with: { type: 'json' } })
+const { exports, dependencies } = (await import('./package.json', { with: { type: 'json' } })).default
 
 const config: UserConfig | UserConfigFn = defineConfig({
   entry: [
