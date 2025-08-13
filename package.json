@@ -98,7 +98,6 @@
     }
   },
   "dependencies": {
-    "@types/json-schema": "^7.0.15",
     "c12": "^3.1.0",
     "citty": "^0.1.6",
     "consola": "^3.4.2",
@@ -110,6 +109,7 @@
     "@antfu/eslint-config": "^4.16.2",
     "@iconify-json/carbon": "^1.2.10",
     "@iconify-json/devicon-plain": "^1.2.30",
+    "@types/json-schema": "^7.0.15",
     "@types/node": "^22.16.3",
     "bumpp": "^10.2.0",
     "eslint": "^9.31.0",
