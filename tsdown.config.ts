@@ -13,8 +13,10 @@ const config: UserConfig | UserConfigFn = defineConfig({
     'json-schema',
     'json-schema-to-typescript-lite',
     'openapi-typescript',
+    '@types/json-schema',
   ],
   dts: true,
+  unbundle: true,
 })
 
 export default config

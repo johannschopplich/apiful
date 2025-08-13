@@ -15,9 +15,6 @@ importers:
 
   .:
     dependencies:
-      '@types/json-schema':
-        specifier: ^7.0.15
-        version: 7.0.15
       c12:
         specifier: ^3.1.0
         version: 3.1.0
@@ -46,6 +43,9 @@ importers:
       '@iconify-json/devicon-plain':
         specifier: ^1.2.30
         version: 1.2.30
+      '@types/json-schema':
+        specifier: ^7.0.15
+        version: 7.0.15
       '@types/node':
         specifier: ^22.16.3
         version: 22.16.3
