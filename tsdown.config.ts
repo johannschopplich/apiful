@@ -1,7 +1,6 @@
 import type { UserConfig, UserConfigFn } from 'tsdown/config'
 import { defineConfig } from 'tsdown/config'
-
-const { exports, dependencies } = (await import('./package.json', { with: { type: 'json' } })).default
+import { exports } from './package.json'
 
 const config: UserConfig | UserConfigFn = defineConfig({
   entry: [
@@ -14,7 +13,6 @@ const config: UserConfig | UserConfigFn = defineConfig({
     'json-schema-to-typescript-lite',
     'openapi-typescript',
     '@types/json-schema',
-    ...Object.keys(dependencies),
   ],
   dts: true,
   unbundle: true,
