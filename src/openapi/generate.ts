@@ -227,11 +227,10 @@ function isValidUrl(url: string) {
   }
 }
 
-// Add indentation of two spaces to each line
-function applyLineIndent(code: string) {
+function applyLineIndent(code: string, indent = 2): string {
   return code
     .split('\n')
-    .map(line => line.replace(/^/gm, '  '))
+    .map(line => line.replace(/^/gm, ' '.repeat(indent)))
     .join('\n')
 }
 
