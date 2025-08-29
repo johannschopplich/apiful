@@ -19,7 +19,7 @@ type CreateUserRequest = PetStore<'/user', 'post'>['request']
 
 ## The Unified Type Interface
 
-APIful generates a unified type interface for each service that gives you access to all endpoint information:
+APIful generates a unified type interface for each service that provides comprehensive access to all endpoint information. This interface follows the pattern `Service<Path, Method>` and serves as your single source of truth for API type information:
 
 ```ts
 import type { PetStore } from 'apiful/schema'
@@ -37,22 +37,26 @@ type ErrorResponse = UserEndpoint['responses'][404] // Specific status code
 
 ## Core Type Properties
 
-Every endpoint type provides these properties:
+Every endpoint type provides these essential properties that give you complete control over API interactions. These properties are automatically inferred from your OpenAPI schema:
 
 | Property | Description | Example |
 |----------|-------------|---------|
-| `path` | Path parameters | `{ petId: number }` |
-| `query` | Query parameters | `{ status: 'available' \| 'pending' }` |
-| `request` | Request body type | `{ name: string; category: Category }` |
-| `response` | Default response (200) | `{ id: number; name: string }` |
-| `responses` | All status responses | `{ 200: Pet; 404: Error; 400: ValidationError }` |
-| `fullPath` | Complete path string | `'/pet/{petId}'` |
-| `method` | HTTP method | `'get'` |
-| `operation` | Full OpenAPI operation | Complete operation object |
+| `path` | Path parameters extracted from URL segments enclosed in braces | `{ petId: number }` |
+| `query` | Query string parameters that can be appended to the URL | `{ status: 'available' \| 'pending' }` |
+| `request` | Request body type for POST/PUT/PATCH operations | `{ name: string; category: Category }` |
+| `response` | Success response type (typically 200 status code) | `{ id: number; name: string }` |
+| `responses` | Map of all possible HTTP status codes to their response types | `{ 200: Pet; 404: Error; 400: ValidationError }` |
+| `fullPath` | The complete path template as defined in the OpenAPI spec | `'/pet/{petId}'` |
+| `method` | HTTP method verb for the operation | `'get'` |
+| `operation` | Complete OpenAPI operation object with all metadata | Complete operation object |
 
 ## Practical Examples
 
+The following sections showcase common patterns for extracting type information from your OpenAPI schema. These examples demonstrate how to leverage the unified type interface for different use cases:
+
 ### Basic Type Extraction
+
+Extract individual type components for use in your application logic, form validation, or component props:
 
 ```ts
 import type { PetStore } from 'apiful/schema'
@@ -76,6 +80,8 @@ type PetResponse = PetStore<'/pet/{petId}', 'get'>['response']
 
 ### Error Handling Types
 
+Properly type your error handling by extracting specific error response types. This ensures robust error handling with full type safety:
+
 ```ts
 // Extract specific error response types
 type NotFoundError = PetStore<'/pet/{petId}', 'get'>['responses'][404]
@@ -88,7 +94,7 @@ type AllPetResponses = PetStore<'/pet/{petId}', 'get'>['responses']
 
 ## Schema Discovery
 
-APIful generates helper types for exploring your API:
+APIful generates helper types for exploring your API structure programmatically. These types are useful for building dynamic UI components or API documentation:
 
 ```ts
 import type { PetStoreApiMethods, PetStoreApiPaths } from 'apiful/schema'
@@ -104,7 +110,7 @@ type PetMethods = PetStoreApiMethods<'/pet'>
 
 ## Schema Model Types
 
-APIful also generates a dedicated helper for extracting OpenAPI schema models directly:
+APIful also generates a dedicated helper for extracting OpenAPI schema models directly. This provides access to your data models without needing to reference specific endpoints:
 
 ```ts
 import type { PetStoreModel } from 'apiful/schema'
@@ -120,4 +126,4 @@ type User = PetStoreModel<'User'>
 //   ^? { id?: number; username?: string; firstName?: string; lastName?: string; email?: string; password?: string; phone?: string; userStatus?: number }
 ```
 
-This is particularly useful when you need to work with schema models independently of specific endpoints, such as for creating reusable components or utility functions.
+This is particularly useful when you need to work with schema models independently of specific endpoints, such as for creating reusable components, utility functions, or when the same model is used across multiple API operations.
