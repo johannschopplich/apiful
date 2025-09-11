@@ -1,7 +1,7 @@
 import type { UserConfig } from 'unocss'
 import { defineConfig, presetIcons, presetWind3, transformerDirectives } from 'unocss'
 
-const config: UserConfig<object> = defineConfig({
+const config: UserConfig = defineConfig({
   presets: [
     presetWind3(),
     presetIcons(),
