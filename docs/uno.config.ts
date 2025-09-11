@@ -1,9 +1,9 @@
 import type { UserConfig } from 'unocss'
-import { defineConfig, presetIcons, presetUno, transformerDirectives } from 'unocss'
+import { defineConfig, presetIcons, presetWind3, transformerDirectives } from 'unocss'
 
 const config: UserConfig<object> = defineConfig({
   presets: [
-    presetUno(),
+    presetWind3(),
     presetIcons(),
   ],
   transformers: [
