@@ -5,7 +5,8 @@ const { exports } = (await import('./package.json', { with: { type: 'json' } }))
 
 const config: UserConfig | UserConfigFn = defineConfig({
   entry: [
-    ...([...inferExports(exports)].filter(entry => !entry.endsWith('schema.ts'))),
+    ...([...inferExports(exports)]
+      .filter(entry => !entry.endsWith('schema.ts'))),
     'src/cli/index.ts',
   ],
   external: [
