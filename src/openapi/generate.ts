@@ -1,5 +1,8 @@
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
 import type { ServiceOptions } from '../config'
+import * as path from 'node:path'
+import process from 'node:process'
+import { pathToFileURL } from 'node:url'
 import { pascalCase } from 'scule'
 import { defu } from 'utilful'
 import { CODE_HEADER_DIRECTIVES } from '../constants'
@@ -212,19 +215,22 @@ async function resolveSchema({ schema }: ServiceOptions): Promise<string | URL |
   if (typeof schema === 'function')
     return await schema()
 
-  if (typeof schema === 'string')
-    return isValidUrl(schema) ? schema : new URL(schema, import.meta.url)
+  if (typeof schema === 'string') {
+    if (/^https?:\/\//i.test(schema))
+      return schema
+
+    if (schema.startsWith('file://'))
+      return new URL(schema)
+
+    const resolvedPath = path.isAbsolute(schema)
+      ? schema
+      : path.resolve(process.cwd(), schema)
+
+    // openapi-typescript expects file URLs for local files
+    return pathToFileURL(resolvedPath)
+  }
 
   return schema!
-}
-
-function isValidUrl(url: string) {
-  try {
-    return Boolean(new URL(url))
-  }
-  catch {
-    return false
-  }
 }
 
 function applyLineIndent(code: string, indent = 2): string {
