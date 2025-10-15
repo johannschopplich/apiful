@@ -11,9 +11,9 @@ export function OpenAPIBuilder<
   Paths = SchemaPaths<Schema>,
 >() {
   return function (client: ApiClient): OpenAPIClient<Paths> {
-    const fetcher = ofetch.create(client.defaultOptions)
+    const fetchFn = ofetch.create(client.defaultOptions)
 
-    return (path, options) => fetcher(
+    return (path, options) => fetchFn(
       // @ts-expect-error: Path parameter provided by OpenAPI types
       resolvePathParams(path, options?.path),
       options as Record<string, any>,

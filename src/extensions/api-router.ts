@@ -51,8 +51,8 @@ export function apiRouterBuilder() {
 
             opts.method = method
 
-            const fetcher = ofetch.create(client.defaultOptions)
-            return fetcher<T, R>(url, opts)
+            const fetchFn = ofetch.create(client.defaultOptions)
+            return fetchFn<T, R>(url, opts)
           }
 
           return handler
