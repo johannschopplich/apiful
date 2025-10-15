@@ -6,6 +6,7 @@ on:
       - 'v*'
 
 permissions:
+  id-token: write
   contents: write
 
 jobs:
@@ -18,7 +19,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           registry-url: https://registry.npmjs.org/
           cache: pnpm
 
@@ -30,6 +31,6 @@ jobs:
       - run: pnpm install
 
       - name: Publish to npm
-        run: npm publish --access public
+        run: npm install -g npm@latest && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
