@@ -48,7 +48,6 @@ describe('jsonToTypeDefinition', () => {
     const result = await jsonToTypeDefinition(input, { typeName: 'ComprehensiveData' })
     expect(result).toMatchInlineSnapshot(`
       "/* eslint-disable */
-      /* prettier-ignore */
 
       export interface ComprehensiveData {
         stringValue?: string
@@ -166,7 +165,6 @@ describe('jsonToTypeDefinition', () => {
     const result = await jsonToTypeDefinition(input, { typeName: 'ComplexNested' })
     expect(result).toMatchInlineSnapshot(`
       "/* eslint-disable */
-      /* prettier-ignore */
 
       export interface ComplexNested {
         treeStructure?: {

@@ -85,7 +85,7 @@ const command: CommandDef<{
       await fsp.writeFile(outfilePath, `${CODE_HEADER_DIRECTIVES}${types}`)
 
       const relativePath = path.relative(rootDir, outfilePath)
-      consola.success(`Generated \`${relativePath}\` types`)
+      consola.success(`Types generated in \`${relativePath}\``)
       return
     }
 
@@ -130,7 +130,7 @@ const command: CommandDef<{
     )
 
     const relativeOutdir = path.relative(rootDir, outputDir)
-    consola.success(`Generated \`${relativeOutdir}/\` with entry file and ${fragments.length} service fragments`)
+    consola.success(`Types generated in \`${relativeOutdir}/\` (entry + ${fragments.length} services)`)
   },
 })
 
