@@ -1,13 +1,13 @@
 ---
 layout: home
-titleTemplate: Extensible, Typed API Tooling
+titleTemplate: Extensible & Type-Safe API Tooling
 hero:
   image:
     light: /logo-light.svg
     dark: /logo-dark.svg
     alt: APIful logo
   name: APIful
-  text: Extensible, Typed API Tooling
+  text: Extensible & Type-Safe API Tooling
   tagline: From generated OpenAPI clients to server-side utilities, for any JavaScript runtime
   actions:
     - theme: brand

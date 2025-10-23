@@ -5,7 +5,7 @@ const command = defineCommand({
   meta: {
     name,
     version,
-    description: 'APIful CLI: Extensible, Typed API Tooling',
+    description: 'APIful CLI: Extensible & Type-Safe API Tooling',
   },
   subCommands: {
     generate: () => import('./commands/generate').then(r => r.default),
