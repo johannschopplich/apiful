@@ -48,5 +48,5 @@ export type OpenAPIClient<Paths> = <
   ResT = Methods[DefaultMethod] extends Record<PropertyKey, any> ? FetchResponseData<Methods[DefaultMethod]> : never,
 >(
   url: ReqT,
-  options?: OpenAPIFetchOptions<Method, LowercasedMethod, Methods>
+  options?: OpenAPIFetchOptions<Method, LowercasedMethod, Methods>,
 ) => Promise<ResT>
