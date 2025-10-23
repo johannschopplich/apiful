@@ -132,27 +132,18 @@ export type ${pascalCase(id)}Model<T extends keyof ${pascalCase(id)}Components['
     })
     .join('\n\n')
 
-  // Build module declarations
-  const moduleDeclarations = Object.entries(resolvedSchemas)
-    .map(([id, types]) => `
+  const modules = Object.fromEntries(
+    Object.entries(resolvedSchemas).map(([id, types]) => {
+      const content = `
 declare module 'apiful/schema/${id}' {
 ${normalizeIndentation(types).trimEnd()}
-}`.trimStart())
-    .join('\n\n')
+}
+`.trimStart()
+      return [id, content]
+    }),
+  )
 
-  // Legacy module path for backward compatibility (re-exports from new path)
-  // TODO: Remove this in apiful v4
-  const legacyModuleDeclarations = Object.keys(resolvedSchemas)
-    .map(id => `
-// Legacy module path for backward compatibility
-// Please import from \`apiful/schema/${id}\` instead
-declare module 'apiful/__${id}__' {
-  export type * from 'apiful/schema/${id}'
-}`.trimStart())
-    .join('\n\n')
-
-  return `
-${CODE_HEADER_DIRECTIVES}
+  const entry = `
 declare module 'apiful/schema' {
 ${servicePathImports}
 
