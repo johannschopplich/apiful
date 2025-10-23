@@ -114,7 +114,7 @@
     "bumpp": "^10.3.1",
     "eslint": "^9.38.0",
     "get-port-please": "^3.2.0",
-    "h3": "^2.0.1-rc.2",
+    "h3": "^2.0.1-rc.3",
     "json-schema-to-typescript-lite": "^15.0.0",
     "listhen": "^1.9.0",
     "openapi-typescript": "^7.10.1",
