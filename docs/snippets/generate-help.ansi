@@ -5,4 +5,5 @@
 [0;1;4mOPTIONS[0m[0m
 [0m
   [0;36m--outfile="apiful.d.ts"[0m    Path to the output file [0m
+                 [0;36m--outdir[0m    Directory for fragmented output (entry + per-service files) [0m
                    [0;36m--root[0m    Path to the project root[0m

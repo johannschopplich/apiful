@@ -59,3 +59,18 @@ This displays the following output:
 
 > [!NOTE]
 > Although it is recommended to create an `apiful.config.ts` file with a [`defineApifulConfig`](/reference/define-apiful-config) default export, you can also write plain JavaScript (`.js`, `.mjs`, `.cjs`) or JSON (`.json`, `.json5`) configuration files.
+
+#### Fragmented Output
+
+For projects with many services, the generated type declaration file can grow large. Use `--outdir` to split the output into a directory structure with separate files per service:
+
+```sh
+npx apiful generate --outdir generated
+```
+
+The generated output follows this structure:
+
+- `generated/apiful.d.ts` – Main entry file with shared type helpers
+- `generated/schema/*.d.ts` – Individual service declaration files
+
+Splitting types into separate files keeps git diffs smaller and improves IDE performance for large schemas. To return to single-file mode, run the command with `--outfile` (or use the default behavior).

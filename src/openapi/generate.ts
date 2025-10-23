@@ -5,12 +5,25 @@ import process from 'node:process'
 import { pathToFileURL } from 'node:url'
 import { pascalCase } from 'scule'
 import { defu } from 'utilful'
-import { CODE_HEADER_DIRECTIVES } from '../constants'
+
+export interface DTSModuleOutput {
+  entry: string
+  modules: Record<string, string>
+}
 
 export async function generateDTS(
   services: Record<string, ServiceOptions>,
   openAPITSOptions?: OpenAPITSOptions,
 ): Promise<string> {
+  const { entry, modules } = await generateDTSModules(services, openAPITSOptions)
+  const moduleContent = Object.values(modules).join('\n\n')
+  return moduleContent ? `${entry}\n\n${moduleContent}` : entry
+}
+
+export async function generateDTSModules(
+  services: Record<string, ServiceOptions>,
+  openAPITSOptions?: OpenAPITSOptions,
+): Promise<DTSModuleOutput> {
   const resolvedSchemaEntries = await Promise.all(
     Object.entries(services)
       .filter(([, service]) => Boolean(service.schema))
@@ -158,11 +171,12 @@ ${schemaRepositoryEntries}
 
 ${applyLineIndent(typeExports)}
 }
-
-${moduleDeclarations}
-
-${legacyModuleDeclarations}
 `.trimStart()
+
+  return {
+    entry,
+    modules,
+  }
 }
 
 async function generateSchemaTypes(options: {

@@ -1,7 +1,7 @@
 import * as path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { defineApifulConfig } from '../src/config'
-import { generateDTS } from '../src/openapi/index'
+import { generateDTS, generateDTSModules } from '../src/openapi/index'
 import { currentDir } from './utils'
 
 // eslint-disable-next-line test/prefer-lowercase-title
@@ -17,5 +17,12 @@ describe('OpenAPI types generation', () => {
   it('generates TypeScript types from OpenAPI schema', async () => {
     const types = await generateDTS(config.services)
     expect(types).toMatchSnapshot()
+  })
+
+  it('generates DTS modules for directory output', async () => {
+    const { entry, modules } = await generateDTSModules(config.services)
+
+    expect(entry).toMatchSnapshot()
+    expect(modules).toMatchSnapshot()
   })
 })
