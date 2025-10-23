@@ -17,7 +17,7 @@ export async function generateDTS(
 ): Promise<string> {
   const { entry, modules } = await generateDTSModules(services, openAPITSOptions)
   const moduleContent = Object.values(modules).join('\n\n')
-  return moduleContent ? `${entry}\n\n${moduleContent}` : entry
+  return moduleContent ? `${entry}\n${moduleContent}` : entry
 }
 
 export async function generateDTSModules(

@@ -553,7 +553,6 @@ exports[`OpenAPI types generation > generates TypeScript types from OpenAPI sche
   export type TestEchoModel<T extends keyof TestEchoComponents['schemas']> = TestEchoComponents['schemas'][T]
 }
 
-
 declare module 'apiful/schema/testEcho' {
   export interface paths {
     "/echo/static/constant": {
