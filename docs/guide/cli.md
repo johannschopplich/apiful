@@ -1,3 +1,7 @@
+---
+outline: deep
+---
+
 # Command Line Interface
 
 APIful includes a command line interface (CLI) for generating TypeScript definitions from OpenAPI schemas. View all available commands with the help flag:
