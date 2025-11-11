@@ -3,11 +3,7 @@ import { defineConfig } from 'vitest/config'
 
 const config: UserConfig = defineConfig({
   test: {
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
+    maxWorkers: 1,
   },
 })
 
