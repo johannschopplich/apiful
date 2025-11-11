@@ -2,7 +2,7 @@
   "name": "apiful",
   "type": "module",
   "version": "4.0.0",
-  "packageManager": "pnpm@10.19.0",
+  "packageManager": "pnpm@10.21.0",
   "description": "Extensible & Type-Safe API Tooling",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
   "license": "MIT",
@@ -26,43 +26,43 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
     },
     "./config": {
-      "types": "./dist/config.d.ts",
-      "default": "./dist/config.js"
+      "types": "./dist/config.d.mts",
+      "default": "./dist/config.mjs"
     },
     "./extensions": {
-      "types": "./dist/extensions/index.d.ts",
-      "default": "./dist/extensions/index.js"
+      "types": "./dist/extensions/index.d.mts",
+      "default": "./dist/extensions/index.mjs"
     },
     "./openapi": {
-      "types": "./dist/openapi/index.d.ts",
-      "default": "./dist/openapi/index.js"
+      "types": "./dist/openapi/index.d.mts",
+      "default": "./dist/openapi/index.mjs"
     },
     "./openapi/client": {
-      "types": "./dist/openapi/client.d.ts",
-      "default": "./dist/openapi/client.js"
+      "types": "./dist/openapi/client.d.mts",
+      "default": "./dist/openapi/client.mjs"
     },
     "./schema": {
-      "types": "./schema.d.ts",
-      "default": "./schema.js"
+      "types": "./schema.d.mts",
+      "default": "./schema.mjs"
     },
     "./http-status-codes": {
-      "types": "./dist/generated/http-status-codes.d.ts",
-      "default": "./dist/generated/http-status-codes.js"
+      "types": "./dist/generated/http-status-codes.d.mts",
+      "default": "./dist/generated/http-status-codes.mjs"
     },
     "./http-status-phrases": {
-      "types": "./dist/generated/http-status-phrases.d.ts",
-      "default": "./dist/generated/http-status-phrases.js"
+      "types": "./dist/generated/http-status-phrases.d.mts",
+      "default": "./dist/generated/http-status-phrases.mjs"
     },
     "./utils": {
-      "types": "./dist/utils/index.d.ts",
-      "default": "./dist/utils/index.js"
+      "types": "./dist/utils/index.d.mts",
+      "default": "./dist/utils/index.mjs"
     }
   },
-  "types": "dist/index.d.ts",
+  "types": "dist/index.d.mts",
   "bin": {
     "apiful": "bin/apiful.mjs"
   },
@@ -98,36 +98,36 @@
     }
   },
   "dependencies": {
-    "c12": "^3.3.1",
+    "c12": "^3.3.2",
     "citty": "^0.1.6",
     "consola": "^3.4.2",
-    "ofetch": "^1.4.1",
+    "ofetch": "^1.5.1",
     "openapi-typescript-helpers": "0.0.13",
-    "ufo": "^1.6.1"
+    "scule": "^1.3.0",
+    "ufo": "^1.6.1",
+    "utilful": "^2.2.3"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^6.0.0",
+    "@antfu/eslint-config": "^6.2.0",
     "@iconify-json/carbon": "^1.2.14",
-    "@iconify-json/devicon-plain": "^1.2.41",
+    "@iconify-json/devicon-plain": "^1.2.43",
     "@types/json-schema": "^7.0.15",
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.10.0",
     "bumpp": "^10.3.1",
-    "eslint": "^9.38.0",
+    "eslint": "^9.39.1",
     "get-port-please": "^3.2.0",
-    "h3": "^2.0.1-rc.3",
+    "h3": "^2.0.1-rc.5",
     "json-schema-to-typescript-lite": "^15.0.0",
     "listhen": "^1.9.0",
     "openapi-typescript": "^7.10.1",
-    "scule": "^1.3.0",
-    "tinyexec": "^1.0.1",
+    "tinyexec": "^1.0.2",
     "ts-morph": "^27.0.2",
-    "tsdown": "^0.15.9",
+    "tsdown": "^0.16.2",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
-    "unocss": "^66.5.4",
-    "utilful": "^2.1.1",
+    "unocss": "^66.5.5",
     "vitepress": "^1.6.4",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.8"
   },
   "pnpm": {
     "overrides": {

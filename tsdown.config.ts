@@ -27,8 +27,8 @@ function inferExports(exports: Record<string, unknown>): Set<string> {
 
   for (const value of Object.values(exports)) {
     if (typeof value === 'string') {
-      if (value.endsWith('.js')) {
-        entries.add(value.replace('./dist', './src').replace('.js', '.ts'))
+      if (value.endsWith('.mjs')) {
+        entries.add(value.replace('./dist', './src').replace('.mjs', '.ts'))
       }
     }
     else if (typeof value === 'object' && value !== null) {
