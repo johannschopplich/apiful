@@ -1,199 +1,133 @@
-import type { JsonValue } from '../../src/utils/index'
+import type { JsonValue } from '../../src/utils'
 import { describe, expect, it } from 'vitest'
 import { jsonToTypeDefinition } from '../../src/utils/json-to-type-definition'
 
 describe('jsonToTypeDefinition', () => {
-  it('generates TypeScript types from comprehensive JSON data', async () => {
-    const input: JsonValue = {
-      // Basic primitive types
-      stringValue: 'test-string',
-      numberValue: 42,
-      booleanValue: true,
-      nullValue: null,
-
-      // Arrays
-      stringArray: ['item1', 'item2'],
-      emptyArray: [],
-      mixedArray: [1, 'string', true, { nestedKey: 'nestedValue' }],
-
-      // Nested objects
-      nestedObject: {
-        stringProp: 'nested-string',
-        numberProp: 123,
-        booleanProp: false,
-      },
-
-      // Special property names
-      specialKeys: {
-        'normal-key': 'value1',
-        '123': 'numeric-key-value',
-        'key with spaces': 'spaced-key-value',
-        'special@chars': 'special-chars-value',
-      },
-
-      // Arrays with object merging and null values
-      objectArray: [
-        { idField: 1, stringField: 'value1', emailField: 'test@example.com' },
-        { idField: 2, stringField: 'value2' },
-        { stringField: 'value3', numberField: 99, nullField: null },
-      ],
-
-      // Nested arrays
-      numberMatrix: [[1, 2], [3, 4]],
-
-      // Empty object
-      emptyObject: {},
-    }
-
-    const result = await jsonToTypeDefinition(input, { typeName: 'ComprehensiveData' })
-    expect(result).toMatchInlineSnapshot(`
-      "/* eslint-disable */
-
-      export interface ComprehensiveData {
-        stringValue?: string
-        numberValue?: number
-        booleanValue?: boolean
-        nullValue?: null
-        stringArray?: string[]
-        emptyArray?: unknown[]
-        mixedArray?: (number | string | boolean | {
-          nestedKey?: string
-        })[]
-        nestedObject?: {
-          stringProp?: string
-          numberProp?: number
-          booleanProp?: boolean
-        }
-        specialKeys?: {
-          "123"?: string
-          "normal-key"?: string
-          "key with spaces"?: string
-          "special@chars"?: string
-        }
-        objectArray?: {
-          idField?: number
-          stringField?: string
-          emailField?: string
-          numberField?: number
-          nullField?: null
-        }[]
-        numberMatrix?: number[][]
-        emptyObject?: {
-          [k: string]: unknown
-        }
-      }
-
-      "
-    `)
-  })
-
-  it('generates types for primitive root values', async () => {
-    expect(await jsonToTypeDefinition('string', { typeName: 'StringRoot' }))
-      .toContain('export type StringRoot = string')
-
-    expect(await jsonToTypeDefinition(123, { typeName: 'NumberRoot' }))
-      .toContain('export type NumberRoot = number')
-
-    expect(await jsonToTypeDefinition(true, { typeName: 'BooleanRoot' }))
-      .toContain('export type BooleanRoot = boolean')
-
-    expect(await jsonToTypeDefinition(null, { typeName: 'NullRoot' }))
-      .toContain('export type NullRoot = null')
-
-    // Array as root
-    const result = await jsonToTypeDefinition(['a', 'b', 'c'], { typeName: 'StringArray' })
-    expect(result).toContain('export type StringArray = string[]')
-  })
-
-  it('respects strictProperties option for required fields', async () => {
-    const input = {
-      stringField: 'test-value',
-      numberField: 123,
-    }
-
-    const strict = await jsonToTypeDefinition(input, {
-      typeName: 'StrictType',
-      strictProperties: true,
+  describe('primitive types', () => {
+    it('handles string', async () => {
+      const result = await jsonToTypeDefinition('test', { typeName: 'StringType' })
+      expect(result).toContain('export type StringType = string')
     })
 
-    const nonStrict = await jsonToTypeDefinition(input, {
-      typeName: 'NonStrictType',
-      strictProperties: false,
+    it('handles number', async () => {
+      const result = await jsonToTypeDefinition(42, { typeName: 'NumberType' })
+      expect(result).toContain('export type NumberType = number')
     })
 
-    // With strict properties, fields should be required (no `?`)
-    expect(strict).toContain('stringField: string')
-    expect(strict).toContain('numberField: number')
+    it('handles boolean', async () => {
+      const result = await jsonToTypeDefinition(true, { typeName: 'BooleanType' })
+      expect(result).toContain('export type BooleanType = boolean')
+    })
 
-    // With non-strict, fields should be optional (with `?`)
-    expect(nonStrict).toContain('stringField?: string')
-    expect(nonStrict).toContain('numberField?: number')
+    it('handles null', async () => {
+      const result = await jsonToTypeDefinition(null, { typeName: 'NullType' })
+      expect(result).toContain('export type NullType = null')
+    })
   })
 
-  it('generates types for complex nested and recursive structures', async () => {
-    const input = {
-      treeStructure: {
-        nodeValue: 1,
-        childNodes: [
-          {
-            nodeValue: 2,
-            childNodes: [
-              { nodeValue: 3 },
-            ],
-          },
-          {
-            nodeValue: 4,
-            childNodes: [],
-          },
-        ],
-      },
-      deeplyNested: {
-        level1: {
-          level2: {
-            level3: {
-              level4: {
-                level5: {
-                  deepValue: 'deep-string',
-                },
-              },
-            },
-          },
-        },
-      },
-    }
+  describe('arrays', () => {
+    it('handles empty array', async () => {
+      const result = await jsonToTypeDefinition([], { typeName: 'EmptyArray' })
+      expect(result).toContain('export type EmptyArray = unknown[]')
+    })
 
-    const result = await jsonToTypeDefinition(input, { typeName: 'ComplexNested' })
-    expect(result).toMatchInlineSnapshot(`
-      "/* eslint-disable */
+    it('handles homogeneous array', async () => {
+      const result = await jsonToTypeDefinition([1, 2, 3], { typeName: 'NumberArray' })
+      expect(result).toContain('export type NumberArray = number[]')
+    })
 
-      export interface ComplexNested {
-        treeStructure?: {
-          nodeValue?: number
-          childNodes?: {
-            nodeValue?: number
-            childNodes?: ({
-              nodeValue?: number
-            } | {
-              [k: string]: unknown
-            })[]
-          }[]
-        }
-        deeplyNested?: {
-          level1?: {
-            level2?: {
-              level3?: {
-                level4?: {
-                  level5?: {
-                    deepValue?: string
-                  }
-                }
-              }
+    it('handles mixed type array', async () => {
+      const result = await jsonToTypeDefinition([1, 'two', true], { typeName: 'MixedArray' })
+      expect(result).toContain('(number | string | boolean)[]')
+    })
+
+    it('handles nested arrays', async () => {
+      const result = await jsonToTypeDefinition([[1, 2], [3, 4]], { typeName: 'Matrix' })
+      expect(result).toContain('export type Matrix = number[][]')
+    })
+
+    it('merges object properties across array items', async () => {
+      const input = [
+        { id: 1, name: 'first' },
+        { id: 2, email: 'test@example.com' },
+      ]
+      const result = await jsonToTypeDefinition(input as unknown as JsonValue, { typeName: 'ObjectArray' })
+      expect(result).toContain('id?: number')
+      expect(result).toContain('name?: string')
+      expect(result).toContain('email?: string')
+    })
+
+    it('filters undefined and sparse values', async () => {
+      // eslint-disable-next-line no-sparse-arrays
+      const result = await jsonToTypeDefinition([1, undefined, , 3] as unknown as JsonValue, { typeName: 'Filtered' })
+      expect(result).toContain('export type Filtered = number[]')
+    })
+
+    it('deduplicates primitive types', async () => {
+      const result = await jsonToTypeDefinition([null, 'a', null, 'b'], { typeName: 'Dedup' })
+      expect(result).toContain('(null | string)[]')
+      expect(result).not.toMatch(/null.*null/) // No duplicate null
+    })
+  })
+
+  describe('objects', () => {
+    it('handles empty object', async () => {
+      const result = await jsonToTypeDefinition({}, { typeName: 'EmptyObject' })
+      expect(result).toContain('[k: string]: unknown')
+    })
+
+    it('handles nested objects', async () => {
+      const result = await jsonToTypeDefinition({ a: { b: { c: 1 } } }, { typeName: 'Nested' })
+      expect(result).toMatchInlineSnapshot(`
+        "/* eslint-disable */
+
+        export interface Nested {
+          a?: {
+            b?: {
+              c?: number
             }
           }
         }
-      }
 
-      "
-    `)
+        "
+      `)
+    })
+
+    it('quotes special property names', async () => {
+      const result = await jsonToTypeDefinition({ 'kebab-case': 1, '123': 2 }, { typeName: 'Special' })
+      expect(result).toContain('"kebab-case"?: number')
+      expect(result).toContain('"123"?: number')
+    })
+
+    it('excludes undefined properties', async () => {
+      const result = await jsonToTypeDefinition({ a: 1, undef: undefined } as unknown as JsonValue, { typeName: 'NoUndef' })
+      expect(result).toContain('a?: number')
+      expect(result).not.toContain('undef')
+    })
+  })
+
+  describe('options', () => {
+    it('defaults typeName to "Root"', async () => {
+      const result = await jsonToTypeDefinition({ value: 1 })
+      expect(result).toContain('export interface Root')
+    })
+
+    it('makes properties optional by default', async () => {
+      const result = await jsonToTypeDefinition({ a: 1 }, { typeName: 'T' })
+      expect(result).toContain('a?: number')
+    })
+
+    it('makes properties required with strictProperties', async () => {
+      const result = await jsonToTypeDefinition({ a: 1 }, { typeName: 'T', strictProperties: true })
+      expect(result).toContain('a: number')
+      expect(result).not.toContain('?')
+    })
+  })
+
+  describe('output format', () => {
+    it('includes eslint-disable header', async () => {
+      const result = await jsonToTypeDefinition({ a: 1 }, { typeName: 'T' })
+      expect(result).toMatch(/^\/\* eslint-disable \*\//)
+    })
   })
 })

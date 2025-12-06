@@ -31,56 +31,56 @@ ${output}
 }
 
 function createJsonSchema(data: unknown, options: ResolvedTypeDefinitionOptions): JSONSchema4 {
+  if (data === null) {
+    return { type: 'null' }
+  }
+
   if (Array.isArray(data)) {
     if (data.length === 0) {
-      return {
-        type: 'array',
-        items: {},
-      }
+      return { type: 'array', items: {} }
     }
 
-    const itemSchemas = data.map(item => createJsonSchema(item, options))
+    const itemSchemas = data
+      .filter(item => item !== undefined)
+      .map(item => createJsonSchema(item, options))
 
     return {
       type: 'array',
       items: mergeSchemas(itemSchemas, options),
     }
   }
-  else if (typeof data === 'object' && data !== null) {
-    const properties = Object.fromEntries(
-      Object.entries(data).map(([key, value]) => [
-        key,
-        createJsonSchema(value, options),
-      ]),
-    )
 
-    const isEmptyObject = Object.keys(data).length === 0
+  if (typeof data === 'object') {
+    const entries = Object.entries(data).filter(([, value]) => value !== undefined)
 
-    return {
-      type: 'object',
-      properties: isEmptyObject ? undefined : properties,
-      required: options.strictProperties && !isEmptyObject ? Object.keys(properties) : undefined,
-      additionalProperties: isEmptyObject ? {} : false,
-    }
-  }
-  else if (data === null) {
-    // Handle null as unknown type in TypeScript
-    return {
-      type: 'null',
-    }
-  }
-  else {
-    const primitiveType = typeof data
-
-    if (primitiveType === 'string' || primitiveType === 'number' || primitiveType === 'boolean') {
+    if (entries.length === 0) {
       return {
-        type: primitiveType,
+        type: 'object',
+        additionalProperties: {},
       }
     }
 
-    // Fallback for any other primitive types
-    return {}
+    const properties = Object.fromEntries(entries.map(
+      ([key, value]) => [key, createJsonSchema(value, options)],
+    ))
+    const propertyKeys = Object.keys(properties)
+
+    return {
+      type: 'object',
+      properties,
+      required: options.strictProperties ? propertyKeys : undefined,
+      additionalProperties: false,
+    }
   }
+
+  const primitiveType = typeof data
+
+  if (primitiveType === 'string' || primitiveType === 'number' || primitiveType === 'boolean') {
+    return { type: primitiveType }
+  }
+
+  // Fallback for unsupported types
+  return {}
 }
 
 function mergeSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOptions): JSONSchema4 {
@@ -107,10 +107,33 @@ function mergeSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOpt
 
   // Create a union for mixed types or if there are null schemas
   if (types.size !== 1 || hasNullSchemas) {
-    const unionSchemas = [...definedSchemas]
+    // Deduplicate schemas by type to avoid redundant union members (e.g., null | null)
+    const schemasByType = new Map<string, JSONSchema4>()
 
-    if (hasNullSchemas) {
+    for (const schema of definedSchemas) {
+      const typeKey = schema.type as string | undefined
+      // For primitive types, deduplicate by type
+      // For objects/arrays, we need to merge them (handled below)
+      if (typeKey && typeKey !== 'object' && typeKey !== 'array') {
+        if (!schemasByType.has(typeKey)) {
+          schemasByType.set(typeKey, schema)
+        }
+      }
+      else {
+        // For objects/arrays or undefined types, keep all (use unique key)
+        schemasByType.set(`${typeKey}-${schemasByType.size}`, schema)
+      }
+    }
+
+    const unionSchemas = Array.from(schemasByType.values())
+
+    if (hasNullSchemas && !schemasByType.has('null')) {
       unionSchemas.push({}) // Add null schema
+    }
+
+    // If after deduplication we only have one schema, return it directly
+    if (unionSchemas.length === 1 && !hasNullSchemas) {
+      return unionSchemas[0]!
     }
 
     return {
