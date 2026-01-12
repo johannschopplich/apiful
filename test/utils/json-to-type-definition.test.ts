@@ -57,6 +57,15 @@ describe('jsonToTypeDefinition', () => {
       expect(result).toContain('email?: string')
     })
 
+    it('creates union for same property with different types', async () => {
+      const input = [
+        { id: 1 },
+        { id: 'two' },
+      ]
+      const result = await jsonToTypeDefinition(input as unknown as JsonValue, { typeName: 'MixedProp' })
+      expect(result).toMatch(/id\?:\s*\(?number \| string\)?/)
+    })
+
     it('filters undefined and sparse values', async () => {
       // eslint-disable-next-line no-sparse-arrays
       const result = await jsonToTypeDefinition([1, undefined, , 3] as unknown as JsonValue, { typeName: 'Filtered' })
@@ -104,6 +113,12 @@ describe('jsonToTypeDefinition', () => {
       expect(result).toContain('a?: number')
       expect(result).not.toContain('undef')
     })
+
+    it('handles null property values', async () => {
+      const result = await jsonToTypeDefinition({ nullable: null, name: 'test' }, { typeName: 'WithNull' })
+      expect(result).toContain('nullable?: null')
+      expect(result).toContain('name?: string')
+    })
   })
 
   describe('options', () => {
@@ -121,6 +136,19 @@ describe('jsonToTypeDefinition', () => {
       const result = await jsonToTypeDefinition({ a: 1 }, { typeName: 'T', strictProperties: true })
       expect(result).toContain('a: number')
       expect(result).not.toContain('?')
+    })
+
+    it('uses intersection for required properties in merged objects', async () => {
+      const input = [
+        { shared: 1, onlyFirst: 'a' },
+        { shared: 2, onlySecond: true },
+      ]
+      const result = await jsonToTypeDefinition(input as unknown as JsonValue, { typeName: 'Merged', strictProperties: true })
+      // `shared` appears in both objects, so it should be required
+      expect(result).toMatch(/shared:\s*number/)
+      // `onlyFirst` and `onlySecond` only appear in one object each, so they should be optional
+      expect(result).toContain('onlyFirst?:')
+      expect(result).toContain('onlySecond?:')
     })
   })
 

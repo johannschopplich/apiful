@@ -90,109 +90,135 @@ function mergeSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOpt
   if (schemas.length === 1)
     return schemas[0]!
 
-  // Filter out empty schemas (representing null/any types)
+  // Filter out empty schemas (representing unknown/any types from unsupported values)
   const definedSchemas = schemas.filter(schema => schema.type !== undefined || Object.keys(schema).length > 0)
-  const hasNullSchemas = schemas.length > definedSchemas.length
+  const hasEmptySchemas = schemas.length > definedSchemas.length
 
   if (definedSchemas.length === 0) {
-    // All schemas were null/empty
     return {}
   }
 
-  if (definedSchemas.length === 1 && !hasNullSchemas) {
+  if (definedSchemas.length === 1 && !hasEmptySchemas) {
     return definedSchemas[0]!
   }
 
   const types = new Set(definedSchemas.map(schema => schema.type).filter(Boolean))
 
-  // Create a union for mixed types or if there are null schemas
-  if (types.size !== 1 || hasNullSchemas) {
-    // Deduplicate schemas by type to avoid redundant union members (e.g., null | null)
-    const schemasByType = new Map<string, JSONSchema4>()
-
-    for (const schema of definedSchemas) {
-      const typeKey = schema.type as string | undefined
-      // For primitive types, deduplicate by type
-      // For objects/arrays, we need to merge them (handled below)
-      if (typeKey && typeKey !== 'object' && typeKey !== 'array') {
-        if (!schemasByType.has(typeKey)) {
-          schemasByType.set(typeKey, schema)
-        }
-      }
-      else {
-        // For objects/arrays or undefined types, keep all (use unique key)
-        schemasByType.set(`${typeKey}-${schemasByType.size}`, schema)
-      }
-    }
-
-    const unionSchemas = Array.from(schemasByType.values())
-
-    if (hasNullSchemas && !schemasByType.has('null')) {
-      unionSchemas.push({}) // Add null schema
-    }
-
-    // If after deduplication we only have one schema, return it directly
-    if (unionSchemas.length === 1 && !hasNullSchemas) {
-      return unionSchemas[0]!
-    }
-
-    return {
-      anyOf: unionSchemas.map(schema => ({
-        ...schema,
-        additionalProperties: schema.type === 'object'
-          ? schema.additionalProperties
-          : undefined,
-      })),
-    }
+  // Create a union for mixed types or if there are empty schemas (unknown types)
+  if (types.size !== 1 || hasEmptySchemas) {
+    return createUnionSchema(definedSchemas, hasEmptySchemas)
   }
 
   const type = definedSchemas[0]!.type
 
   if (type === 'object') {
-    const propertySchemas = new Map<string, JSONSchema4[]>()
-    const requiredProperties = new Set<string>()
+    return mergeObjectSchemas(definedSchemas, options)
+  }
 
-    for (const schema of definedSchemas) {
-      if (!schema.properties)
-        continue
+  if (type === 'array') {
+    return mergeArraySchemas(definedSchemas, options)
+  }
 
-      for (const [key, value] of Object.entries(schema.properties)) {
-        if (!propertySchemas.has(key))
-          propertySchemas.set(key, [])
+  return definedSchemas[0]!
+}
 
-        propertySchemas.get(key)!.push(value)
-      }
+/**
+ * Deduplicates schemas by type and creates an anyOf union.
+ *
+ * @remarks
+ * Primitives are deduplicated by type, objects/arrays are kept separate.
+ */
+function createUnionSchema(schemas: JSONSchema4[], hasEmptySchemas: boolean): JSONSchema4 {
+  const schemasByType = new Map<string, JSONSchema4>()
 
-      if (Array.isArray(schema.required)) {
-        for (const key of schema.required)
-          requiredProperties.add(key)
+  for (const schema of schemas) {
+    const typeKey = schema.type as string | undefined
+
+    // For primitive types, deduplicate by type
+    // For objects/arrays, keep all (use unique key)
+    if (typeKey && typeKey !== 'object' && typeKey !== 'array') {
+      if (!schemasByType.has(typeKey)) {
+        schemasByType.set(typeKey, schema)
       }
     }
-
-    return {
-      type: 'object',
-      properties: Object.fromEntries(
-        Array.from(propertySchemas.entries()).map(([key, propertySchemas]) => [
-          key,
-          mergeSchemas(propertySchemas, options),
-        ]),
-      ),
-      required: requiredProperties.size > 0 ? Array.from(requiredProperties) : undefined,
-      additionalProperties: propertySchemas.size === 0 ? {} : false,
+    else {
+      schemasByType.set(`${typeKey}-${schemasByType.size}`, schema)
     }
   }
-  else if (type === 'array') {
-    const itemSchemas = definedSchemas
-      .map(schema => schema.items)
-      .filter((items): items is JSONSchema4 => Boolean(items))
 
-    return {
-      type: 'array',
-      items: mergeSchemas(itemSchemas, options),
+  const unionSchemas = Array.from(schemasByType.values())
+
+  if (hasEmptySchemas) {
+    unionSchemas.push({}) // Add empty schema for unknown/any types
+  }
+
+  // If after deduplication we only have one schema, return it directly
+  if (unionSchemas.length === 1 && !hasEmptySchemas) {
+    return unionSchemas[0]!
+  }
+
+  return {
+    anyOf: unionSchemas.map(schema => ({
+      ...schema,
+      additionalProperties: schema.type === 'object'
+        ? schema.additionalProperties
+        : undefined,
+    })),
+  }
+}
+
+/**
+ * Merges multiple object schemas by combining their properties.
+ *
+ * @remarks
+ * Required properties use intersection semantics (only properties required in **all** schemas).
+ */
+function mergeObjectSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOptions): JSONSchema4 {
+  const propertySchemas = new Map<string, JSONSchema4[]>()
+  const schemasWithProperties = schemas.filter(schema => schema.properties)
+
+  for (const schema of schemasWithProperties) {
+    for (const [key, value] of Object.entries(schema.properties!)) {
+      if (!propertySchemas.has(key))
+        propertySchemas.set(key, [])
+
+      propertySchemas.get(key)!.push(value)
     }
   }
-  else {
-    return definedSchemas[0]!
+
+  // Use intersection for required properties: only require properties that are required in **all** schemas
+  const requiredProperties = schemasWithProperties.length > 0
+    ? Array.from(propertySchemas.keys()).filter((key) => {
+        return schemasWithProperties.every(
+          schema => Array.isArray(schema.required) && schema.required.includes(key),
+        )
+      })
+    : []
+
+  return {
+    type: 'object',
+    properties: Object.fromEntries(
+      Array.from(propertySchemas.entries()).map(([key, schemas]) => [
+        key,
+        mergeSchemas(schemas, options),
+      ]),
+    ),
+    required: requiredProperties.length > 0 ? requiredProperties : undefined,
+    additionalProperties: propertySchemas.size === 0 ? {} : false,
+  }
+}
+
+/**
+ * Merges multiple array schemas by merging their item schemas.
+ */
+function mergeArraySchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOptions): JSONSchema4 {
+  const itemSchemas = schemas
+    .map(schema => schema.items)
+    .filter((items): items is JSONSchema4 => Boolean(items))
+
+  return {
+    type: 'array',
+    items: mergeSchemas(itemSchemas, options),
   }
 }
 
