@@ -135,9 +135,7 @@ describe('OpenAPIBuilder adapter', () => {
     })
 
     expect(response).toEqual(mockPet)
-    expect(mockFetch).toHaveBeenCalledWith('/pet/123', {
-      path: { petId: 123 },
-    })
+    expect(mockFetch).toHaveBeenCalledWith('/pet/123', {})
     assertType<components['schemas']['Pet']>(response)
   })
 

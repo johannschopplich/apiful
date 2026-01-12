@@ -3,7 +3,8 @@ import type { ApiClient } from '../client'
 import { ofetch } from 'ofetch'
 import { joinURL } from 'ufo'
 
-const payloadMethods: ReadonlyArray<string> = ['POST', 'PUT', 'DELETE', 'PATCH']
+const PAYLOAD_METHODS = ['POST', 'PUT', 'DELETE', 'PATCH'] as const
+const SUPPORTED_METHODS = new Set(['GET', ...PAYLOAD_METHODS])
 
 type ApiMethodHandler<Data = unknown> = <
   T = any,
@@ -28,13 +29,14 @@ export function apiRouterBuilder() {
   return function (client: ApiClient): ApiRouter {
     // Callable internal target required to use `apply` on it
     const internalTarget = (() => {}) as ApiRouter
+    const fetchFn = ofetch.create(client.defaultOptions)
 
     function p(url: string): ApiRouter {
       return new Proxy(internalTarget, {
         get(_target, key: string) {
           const method = key.toUpperCase()
 
-          if (!['GET', ...payloadMethods].includes(method))
+          if (!SUPPORTED_METHODS.has(method))
             return p(joinURL(url, key))
 
           const handler: ApiMethodHandler = <
@@ -46,12 +48,10 @@ export function apiRouterBuilder() {
           ) => {
             if (method === 'GET' && data)
               opts.query = data
-            else if (payloadMethods.includes(method) && data)
+            else if (data)
               opts.body = data
 
             opts.method = method
-
-            const fetchFn = ofetch.create(client.defaultOptions)
             return fetchFn<T, R>(url, opts)
           }
 
