@@ -1,9 +1,9 @@
-import type { UserConfig, UserConfigFn } from 'tsdown/config'
+import type { UserConfig } from 'tsdown/config'
 import { defineConfig } from 'tsdown/config'
 
 const { exports } = (await import('./package.json', { with: { type: 'json' } })).default
 
-const config: UserConfig | UserConfigFn = defineConfig({
+const config: UserConfig = defineConfig({
   entry: [
     ...([...inferExports(exports)]
       .filter(entry => !entry.endsWith('schema.ts'))),
