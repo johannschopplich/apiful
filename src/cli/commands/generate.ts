@@ -4,9 +4,9 @@ import * as path from 'node:path'
 import process from 'node:process'
 import { defineCommand } from 'citty'
 import { consola } from 'consola'
-import { CODE_HEADER_DIRECTIVES, DEFAULT_OUTFILE } from '../../constants'
-import { generateDTS, generateDTSModules } from '../../openapi/generate'
-import { loadConfig } from '../utils'
+import { CODE_HEADER_DIRECTIVES, DEFAULT_OUTFILE } from '../../constants.ts'
+import { generateDTS, generateDTSModules } from '../../openapi/generate.ts'
+import { loadConfig } from '../utils.ts'
 
 const command: CommandDef<{
   outfile: {

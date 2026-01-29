@@ -1,7 +1,7 @@
 /* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable antfu/no-top-level-await */
 import { consola } from 'consola'
-import { apiRouterBuilder, createClient, ofetchBuilder, OpenAPIBuilder } from '../src/index'
+import { apiRouterBuilder, createClient, ofetchBuilder, OpenAPIBuilder } from '../src/index.ts'
 
 interface JSONPlaceholderTodoResponse {
   userId: number

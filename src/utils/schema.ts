@@ -1,6 +1,6 @@
 import type { JSONSchema7 } from 'json-schema'
-import type { ValidationResult, Validator } from './validator'
-import { validatorSymbol } from './validator'
+import type { ValidationResult, Validator } from './validator.ts'
+import { validatorSymbol } from './validator.ts'
 
 const schemaSymbol: unique symbol = Symbol.for('apiful.schema')
 

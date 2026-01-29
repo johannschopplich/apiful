@@ -1,6 +1,6 @@
 import type { OpenAPISchemaRepository } from 'apiful/schema'
 import type { FetchContext, FetchOptions } from 'ofetch'
-import type { OpenAPIClient } from './types'
+import type { OpenAPIClient } from './types.ts'
 import { ofetch } from 'ofetch'
 
 export type SchemaPaths<K> = K extends keyof OpenAPISchemaRepository

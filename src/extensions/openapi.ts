@@ -1,11 +1,11 @@
 import type { FetchOptions } from 'ofetch'
-import type { ApiClient } from '../client'
-import type { SchemaPaths } from '../openapi/index'
-import type { OpenAPIClient } from '../openapi/types'
+import type { ApiClient } from '../client.ts'
+import type { SchemaPaths } from '../openapi/index.ts'
+import type { OpenAPIClient } from '../openapi/types.ts'
 import { ofetch } from 'ofetch'
-import { resolvePathParams } from '../openapi/index'
+import { resolvePathParams } from '../openapi/index.ts'
 
-export type * from '../openapi/types'
+export type * from '../openapi/types.ts'
 
 interface OpenAPIRequestOptions extends FetchOptions {
   path?: Record<string, string>

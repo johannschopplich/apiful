@@ -1,5 +1,5 @@
 import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
-import type { ServiceOptions } from '../config'
+import type { ServiceOptions } from '../config.ts'
 import * as path from 'node:path'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'

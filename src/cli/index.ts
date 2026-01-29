@@ -1,5 +1,7 @@
 import { defineCommand, runMain } from 'citty'
-import { name, version } from '../../package.json' with { type: 'json' }
+import pkg from '../../package.json' with { type: 'json' }
+
+const { name, version } = pkg
 
 const command = defineCommand({
   meta: {
@@ -8,7 +10,7 @@ const command = defineCommand({
     description: 'APIful CLI: Extensible & Type-Safe API Tooling',
   },
   subCommands: {
-    generate: () => import('./commands/generate').then(r => r.default),
+    generate: () => import('./commands/generate.ts').then(command => command.default),
   },
 })
 
