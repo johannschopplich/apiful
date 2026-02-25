@@ -1,4 +1,4 @@
-import type { CommandDef } from 'citty'
+import type { ArgsDef, CommandDef } from 'citty'
 import * as fsp from 'node:fs/promises'
 import * as path from 'node:path'
 import process from 'node:process'
@@ -8,44 +8,30 @@ import { CODE_HEADER_DIRECTIVES, DEFAULT_OUTFILE } from '../../constants.ts'
 import { generateDTS, generateDTSModules } from '../../openapi/generate.ts'
 import { loadConfig } from '../utils.ts'
 
-const command: CommandDef<{
+const args: ArgsDef = {
   outfile: {
-    type: 'string'
-    description: string
-    required: false
-  }
+    type: 'string',
+    description: 'Path to the output file',
+    required: false,
+  },
   outdir: {
-    type: 'string'
-    description: string
-    required: false
-  }
+    type: 'string',
+    description: 'Directory for fragmented output (entry + per-service files)',
+    required: false,
+  },
   root: {
-    type: 'string'
-    description: string
-    required: false
-  }
-}> = defineCommand({
+    type: 'string',
+    description: 'Path to the project root',
+    required: false,
+  },
+}
+
+const command: CommandDef<ArgsDef> = defineCommand({
   meta: {
     name: 'generate',
     description: 'Generates TypeScript definitions from OpenAPI schemas',
   },
-  args: {
-    outfile: {
-      type: 'string',
-      description: 'Path to the output file',
-      required: false,
-    },
-    outdir: {
-      type: 'string',
-      description: 'Directory for fragmented output (entry + per-service files)',
-      required: false,
-    },
-    root: {
-      type: 'string',
-      description: 'Path to the project root',
-      required: false,
-    },
-  },
+  args,
   async run({ args }) {
     const rootDir = args.root || process.cwd()
 
