@@ -1,7 +1,11 @@
+import type { ConfigNames, TypedFlatConfigItem } from '@antfu/eslint-config'
+import type { FlatConfigComposer } from 'eslint-flat-config-utils'
 import antfu from '@antfu/eslint-config'
 
-export default antfu().append({
+const config: FlatConfigComposer<TypedFlatConfigItem, ConfigNames> = antfu().append({
   rules: {
     'ts/no-unsafe-function-type': 'off',
   },
 })
+
+export default config
