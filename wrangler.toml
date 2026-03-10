@@ -1,6 +1,9 @@
 name = "apiful"
 compatibility_date = "2025-06-01"
-routes = [ { pattern = "apiful.land", custom_domain = true } ]
+
+[[routes]]
+pattern = "apiful.land"
+custom_domain = true
 
 [assets]
 directory = "./docs/.vitepress/dist/"
