@@ -30,8 +30,16 @@ export class TypeValidationError extends Error {
     value: unknown
     cause?: unknown
   }) {
+    let serializedValue: string
+    try {
+      serializedValue = JSON.stringify(value)
+    }
+    catch {
+      serializedValue = String(value)
+    }
+
     super(
-      `Type validation failed with value: ${JSON.stringify(value)}\nError message: ${getErrorMessage(cause)}`,
+      `Type validation failed with value: ${serializedValue}\nError message: ${getErrorMessage(cause)}`,
     )
 
     this.value = value
