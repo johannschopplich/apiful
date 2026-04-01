@@ -17,7 +17,7 @@ const client = createClient({
 ```
 
 > [!IMPORTANT]
-> The client by itself cannot make requests - you need at least one handler extension to provide the actual HTTP functionality.
+> The client by itself can't make requests – you need at least one handler extension to provide the actual HTTP functionality.
 
 > [!TIP]
 > Default options are automatically passed to all extensions, ensuring consistent configuration across your entire client.
@@ -42,7 +42,7 @@ Choose the extension that best fits your use case and personal preference:
 - **[API Router](/extensions/api-router)** - jQuery/Axios-style chaining with `client.users.get()`
 
 > [!TIP]
-> Start with the ofetch extension if you are new to APIful - it provides the most familiar API for developers coming from fetch or Axios.
+> Start with the ofetch extension if you're new to APIful – it provides the most familiar API for developers coming from fetch or Axios.
 
 ## Custom Extensions
 

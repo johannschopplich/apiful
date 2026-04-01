@@ -23,9 +23,6 @@ npm i -D apiful
 
 ## Usage
 
-> [!TIP]
-> [📖 Read the documentation](https://apiful.land)
-
 ### Your First API Client
 
 Create your first API client by initialising it with a base URL and a sample bearer token for authorization:
@@ -42,7 +39,7 @@ const client = createClient({
 ```
 
 > [!NOTE]
-> The `createClient` function returns an [`ApiClient`](https://apiful.land/reference/api-client) instance that does not yet have a call signature. You will need to add a base extension to the client in order to make API requests. Read on to learn how to do this.
+> The `createClient` function returns an [`ApiClient`](https://apiful.land/reference/api-client) instance that can't yet make requests. You'll need to add a handler extension to enable HTTP functionality. Read on to learn how to do this.
 
 ### Built-in Extensions
 
@@ -88,7 +85,7 @@ await api.users.post({ name: 'foo' })
 
 **What it does:**
 
-The `apiRouterBuilder` provides a jQuery-like and Axios-esque API for building and making API requests. It allows you to construct your API calls in a declarative way.
+The `apiRouterBuilder` provides a jQuery-like and Axios-style API for building and making API requests. It allows you to construct your API calls in a declarative way.
 
 </td></tr><tr><td width="500px" valign="top">
 
@@ -150,7 +147,7 @@ const extendedClient = client
 extendedClient.logDefaults() // { baseURL: 'https://api.example.com', headers: { Authorization: 'Bearer <your-bearer-token>' } }
 ```
 
-If you have specific requirements that are not covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](https://apiful.land/guide/custom-extensions) guide to learn more.
+If you have specific requirements that aren't covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](https://apiful.land/guide/custom-extensions) guide to learn more.
 
 ## Development
 

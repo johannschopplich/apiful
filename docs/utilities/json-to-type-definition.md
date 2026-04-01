@@ -7,7 +7,7 @@ APIful provides a utility for generating TypeScript interfaces from JSON data. T
 
 ## Prerequisites
 
-To keep the package size small, APIful does not include `json-schema-to-typescript-lite` as a dependency. Install the package using your preferred package manager:
+To keep the package size small, APIful doesn't include `json-schema-to-typescript-lite` as a dependency. Install the package using your preferred package manager:
 
 ::: code-group
   ```bash [pnpm]
@@ -22,7 +22,7 @@ To keep the package size small, APIful does not include `json-schema-to-typescri
 :::
 
 > [!NOTE]
-> This dependency is only needed when you want to generate TypeScript definitions from JSON. It will not be included in your production bundle.
+> This dependency is only needed when you want to generate TypeScript definitions from JSON. It won't be included in your production bundle.
 
 ## Usage
 

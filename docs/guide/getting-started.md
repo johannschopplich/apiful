@@ -2,7 +2,7 @@
 
 ## What Is This?
 
-APIful provides a unified interface to manage all your API interactions by setting up a client with default fetch options, such as the base API URL and headers. Extensions add a variety of features to the client through a sophisticated proxy-based architecture that maintains full TypeScript type safety while allowing runtime composition. This approach ensures that each extension can enhance or override behavior without breaking the client contract, while keeping bundle sizes minimal through intelligent tree-shaking.
+APIful provides a unified interface to manage all your API interactions by setting up a client with default fetch options, such as the base API URL and headers. Extensions add a variety of features to the client while maintaining full TypeScript type safety. Learn more about [how extensions work](/guide/using-extensions#how-extensions-work).
 
 You can use one of the [built-in extensions](/guide/using-extensions#built-in-extensions) to get started right away, or create your own [custom extension](/guide/custom-extensions) to meet your specific needs.
 
@@ -23,7 +23,7 @@ Get started by installing `apiful` in your project:
 :::
 
 > [!TIP]
-> APIful is designed as a development dependency since it is primarily used for generating types and building API clients during your build process.
+> APIful is designed as a development dependency since it's primarily used for generating types and building API clients during your build process.
 
 ## Your First API Client
 
@@ -41,7 +41,7 @@ const client = createClient({
 ```
 
 > [!NOTE]
-> The `createClient` function returns an [`ApiClient`](/reference/api-client) instance that cannot yet make requests. You will need to add a handler extension to enable HTTP functionality.
+> The `createClient` function returns an [`ApiClient`](/reference/api-client) instance that can't yet make requests. You'll need to add a handler extension to enable HTTP functionality.
 
 ## Choose a Built-in Extension
 
@@ -105,12 +105,8 @@ const extendedClient = client
 extendedClient.logDefaults() // { baseURL: 'https://api.example.com', headers: { Authorization: 'Bearer <your-bearer-token>' } }
 ```
 
-## Error Handling Across Extensions
-
-Each extension can implement its own error handling strategy, and errors propagate through the extension chain in a predictable manner. The ofetch extension automatically throws detailed errors with status codes and response bodies, while custom extensions can implement retry logic, circuit breakers, or custom error transformation. This layered approach allows higher-level extensions to catch and transform errors from lower-level ones, giving you complete control over how your application handles API failures.
-
 > [!IMPORTANT]
 > When chaining multiple extensions, later extensions override methods from earlier ones. This gives you fine-grained control over the final client behavior.
 
 > [!TIP]
-> If you have specific requirements that are not covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](/guide/custom-extensions) guide to learn more.
+> If you have specific requirements that aren't covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](/guide/custom-extensions) guide to learn more.

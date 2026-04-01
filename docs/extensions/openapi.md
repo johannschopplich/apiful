@@ -9,7 +9,7 @@ To use this extension, APIful must first generate TypeScript definitions from yo
 
 ## Prerequisites
 
-To keep the package size small, APIful does not include `openapi-typescript` as a dependency. Install the package using your preferred package manager:
+To keep the package size small, APIful doesn't include `openapi-typescript` as a dependency. Install the package using your preferred package manager:
 
 ::: code-group
   ```bash [pnpm]
@@ -24,7 +24,7 @@ To keep the package size small, APIful does not include `openapi-typescript` as 
 :::
 
 > [!NOTE]
-> `openapi-typescript` is only needed during development for type generation. It will not be included in your production bundle.
+> `openapi-typescript` is only needed during development for type generation. It won't be included in your production bundle.
 
 ## TypeScript Definitions Generation
 
@@ -55,7 +55,7 @@ The type generation process uses `openapi-typescript` to parse your OpenAPI sche
 Done! You can now use the `OpenAPIBuilder` extension to create a type-safe API client. Make sure you pass the **service name** to it as a generic parameter, such as `OpenAPIBuilder<'petStore'>()`. Follow the next chapter for more details.
 
 > [!IMPORTANT]
-> Make sure the generated `apiful.d.ts` file is not excluded by your `tsconfig.json` configuration. TypeScript needs to find this file to provide typed definitions for your OpenAPI schema.
+> Make sure the generated `apiful.d.ts` file isn't excluded by your `tsconfig.json` configuration. TypeScript needs to find this file to provide typed definitions for your OpenAPI schema.
 
 > [!TIP]
 > Run the generate command whenever your OpenAPI schema changes to keep your types up-to-date. Consider adding it to your build process or a pre-commit hook.
@@ -98,7 +98,7 @@ declare const userResponse: {
 
 ## OpenAPI Path Parameters
 
-OpenAPI can define path parameters on given endpoints. They are typically declared as `/foo/{id}`. Unfortunately, the endpoint type is not defined as `/foo/10`. Thus, using the latter as the path will break type inference.
+OpenAPI can define path parameters on given endpoints. They are typically declared as `/foo/{id}`. Unfortunately, the endpoint type isn't defined as `/foo/10`. Thus, using the latter as the path will break type inference.
 
 Instead, use the property `path` to pass an object of the parameters. You can then use the declared path for type inference, and the type checker will ensure you provide all required path parameters. The parameters will be interpolated into the path before the request is made.
 
@@ -111,11 +111,11 @@ const response = await petStore('/foo/{id}', {
 ```
 
 > [!WARNING]
-> Incorrect parameters will not be reported at runtime. An incomplete path will be sent to the backend _as-is_.
+> Incorrect parameters won't be reported at runtime. An incomplete path will be sent to the backend _as-is_.
 
 ## Request Headers
 
-Add headers to the request using the `headers` field. All headers defined in the OpenAPI schema will be type checked. You can still add additional headers that are not defined in the schema, which will not be type checked.
+Add headers to the request using the `headers` field. All headers defined in the OpenAPI schema will be type checked. You can still add additional headers that aren't defined in the schema, which won't be type checked.
 
 ```ts
 const response = await petStore('/some/endpoint', {

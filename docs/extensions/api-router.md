@@ -3,7 +3,7 @@
 > [!NOTE]
 > This is a [handler extension](/guide/custom-extensions#handler-extension) and wraps [ofetch](https://github.com/unjs/ofetch) under the hood.
 
-The route builder extension gives you a jQuery-like and Axios-esque API to construct your API calls. This extension is particularly powerful for REST APIs with predictable URL patterns, as it generates zero runtime overhead for property access until you call an HTTP method, at which point it constructs the full URL path and delegates to the underlying HTTP client. This design makes it ideal for APIs with deep nesting (like `/api/v1/organizations/123/projects/456/tasks`) while maintaining excellent TypeScript intellisense throughout the chain:
+The route builder extension gives you a jQuery-like and Axios-style API to construct your API calls. This extension is particularly powerful for REST APIs with predictable URL patterns, as it generates zero runtime overhead for property access until you call an HTTP method, at which point it constructs the full URL path and delegates to the underlying HTTP client. This design makes it ideal for APIs with deep nesting (like `/api/v1/organizations/123/projects/456/tasks`) while maintaining excellent TypeScript intellisense throughout the chain:
 
 ```ts
 // GET request to <baseURL>/users

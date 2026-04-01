@@ -2,7 +2,7 @@
   "name": "apiful",
   "type": "module",
   "version": "4.0.1",
-  "packageManager": "pnpm@10.30.3",
+  "packageManager": "pnpm@10.33.0",
   "description": "Extensible & Type-Safe API Tooling",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "nitro",
     "ofetch",
     "routes",
-    "worker"
+    "openapi"
   ],
   "sideEffects": false,
   "exports": {
@@ -86,7 +86,7 @@
     "prepare": "node src/cli/index.ts generate --root=\"playground\""
   },
   "peerDependencies": {
-    "json-schema-to-typescript-lite": "^14.1.0",
+    "json-schema-to-typescript-lite": "^15.0.0",
     "openapi-typescript": "^7.8.0"
   },
   "peerDependenciesMeta": {
@@ -108,26 +108,26 @@
     "utilful": "^2.5.1"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.6.1",
-    "@iconify-json/carbon": "^1.2.19",
-    "@iconify-json/devicon-plain": "^1.2.54",
+    "@antfu/eslint-config": "^7.7.3",
+    "@iconify-json/carbon": "^1.2.20",
+    "@iconify-json/devicon-plain": "^1.2.57",
     "@types/json-schema": "^7.0.15",
     "@types/node": "^24.12.0",
-    "bumpp": "^10.4.1",
-    "eslint": "^10.0.2",
-    "eslint-flat-config-utils": "^3.0.1",
+    "bumpp": "^11.0.1",
+    "eslint": "^10.1.0",
+    "eslint-flat-config-utils": "^3.1.0",
     "get-port-please": "^3.2.0",
-    "h3": "^2.0.1-rc.14",
+    "h3": "^2.0.1-rc.20",
     "json-schema-to-typescript-lite": "^15.0.0",
     "listhen": "^1.9.0",
     "openapi-typescript": "^7.13.0",
-    "tinyexec": "^1.0.2",
+    "tinyexec": "^1.0.4",
     "ts-morph": "^27.0.2",
-    "tsdown": "^0.21.0",
-    "typescript": "^5.9.3",
-    "unocss": "^66.6.5",
+    "tsdown": "^0.21.7",
+    "typescript": "^6.0.2",
+    "unocss": "^66.6.7",
     "vitepress": "^1.6.4",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.2"
   },
   "pnpm": {
     "overrides": {

@@ -4,14 +4,7 @@ APIful's true power lies in its extensibility. You can chain multiple extensions
 
 ## Extension Types
 
-Before creating your first extension, it is essential to understand the two types of extensions available.
-
-APIful provides two types of extensions:
-
-- **Handler Extension**: Adds the callable signature to a client instance (e.g., `client('/path')`). This provides the core HTTP functionality.
-- **Methods Extension**: Adds methods to the client instance (e.g., `client.login()`, `client.cache.get()`). You can chain multiple method extensions.
-
-Both extension types are created using a builder function that receives the client instance and returns the extension function (handler) or object (methods). This builder pattern serves two essential purposes: it provides access to the client instance for reading default options and existing extensions, and it enables TypeScript's type inference to work correctly across the extension chain.
+Before creating your first extension, make sure you understand the [two types of extensions](/guide/extension-types) available: handler extensions (callable signature) and methods extensions (additional methods).
 
 > [!IMPORTANT]
 > Use `satisfies HandlerExtensionBuilder` or `satisfies MethodsExtensionBuilder` instead of declaring extension variables directly with these types. The `satisfies` operator is crucial here – it validates that your extension conforms to the expected interface while preserving the exact return type for downstream type inference, ensuring seamless integration with other extensions.

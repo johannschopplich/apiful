@@ -22,19 +22,7 @@ The CLI currently provides one primary command:
 
 Generates TypeScript definitions from OpenAPI schemas. This is the core command for enabling type-safe API clients.
 
-This command requires the `openapi-typescript` package, which APIful does not include by default to keep its package size small. Install the package using your preferred package manager:
-
-::: code-group
-  ```bash [pnpm]
-  pnpm add -D openapi-typescript
-  ```
-  ```bash [yarn]
-  yarn add -D openapi-typescript
-  ```
-  ```bash [npm]
-  npm install -D openapi-typescript
-  ```
-:::
+This command requires the `openapi-typescript` package. See the [OpenAPI extension prerequisites](/extensions/openapi#prerequisites) for installation instructions.
 
 > [!IMPORTANT]
 > You must have a valid `apiful.config.ts` file with service definitions before running this command.
@@ -62,7 +50,7 @@ This displays the following output:
 <<< @/snippets/generate-help.ansi
 
 > [!NOTE]
-> Although it is recommended to create an `apiful.config.ts` file with a [`defineApifulConfig`](/reference/define-apiful-config) default export, you can also write plain JavaScript (`.js`, `.mjs`, `.cjs`) or JSON (`.json`, `.json5`) configuration files.
+> Although it's recommended to create an `apiful.config.ts` file with a [`defineApifulConfig`](/reference/define-apiful-config) default export, you can also write plain JavaScript (`.js`, `.mjs`, `.cjs`) or JSON (`.json`, `.json5`) configuration files.
 
 #### Fragmented Output
 
