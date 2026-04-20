@@ -64,6 +64,9 @@ const command: CommandDef<ArgsDef> = defineCommand({
       }
     }
 
+    const serviceCount = Object.keys(resolvedOpenAPIServices).length
+    const servicesLabel = serviceCount === 1 ? 'service' : 'services'
+
     // Single-file mode (default)
     if (!args.outdir) {
       const outfilePath = path.resolve(rootDir, args.outfile || DEFAULT_OUTFILE)
@@ -71,7 +74,7 @@ const command: CommandDef<ArgsDef> = defineCommand({
       await fsp.writeFile(outfilePath, `${CODE_HEADER_DIRECTIVES}${types}`)
 
       const relativePath = path.relative(rootDir, outfilePath)
-      consola.success(`Types generated in \`${relativePath}\``)
+      consola.success(`OpenAPI types generated in \`${relativePath}\` (${serviceCount} ${servicesLabel})`)
       return
     }
 
@@ -116,7 +119,7 @@ const command: CommandDef<ArgsDef> = defineCommand({
     )
 
     const relativeOutdir = path.relative(rootDir, outputDir)
-    consola.success(`Types generated in \`${relativeOutdir}/\` (entry + ${fragments.length} services)`)
+    consola.success(`OpenAPI types generated in \`${relativeOutdir}/\` (entry + ${fragments.length} ${servicesLabel})`)
   },
 })
 
