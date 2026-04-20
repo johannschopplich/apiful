@@ -221,7 +221,6 @@ async function resolveSchema({ schema }: ServiceOptions): Promise<string | URL |
     return await schema()
 
   if (typeof schema === 'string') {
-    // eslint-disable-next-line e18e/prefer-static-regex
     if (/^https?:\/\//i.test(schema))
       return schema
 
@@ -240,17 +239,14 @@ async function resolveSchema({ schema }: ServiceOptions): Promise<string | URL |
 }
 
 function applyLineIndent(code: string, indent = 2): string {
-  // eslint-disable-next-line e18e/prefer-static-regex
   return code.replace(/^/gm, ' '.repeat(indent))
 }
 
 function normalizeIndentation(code: string) {
   // Replace each cluster of four spaces with two spaces
-  // eslint-disable-next-line e18e/prefer-static-regex
   const replacedCode = code.replace(/^( {4})+/gm, match => '  '.repeat(match.length / 4))
 
   // Ensure each line starts with exactly two spaces
-  // eslint-disable-next-line e18e/prefer-static-regex
   const normalizedCode = replacedCode.replace(/^/gm, '  ')
 
   return normalizedCode
