@@ -66,6 +66,22 @@ export async function createListener(): Promise<Listener> {
         return getQuery(event)
       }),
     )
+    // Catch-all path echo endpoint - returns full request info for any method on /echo/path/**
+    .use(
+      '/echo/path/**',
+      defineHandler(async (event) => {
+        let body: unknown
+        if (event.req.method !== 'GET' && event.req.method !== 'DELETE') {
+          body = await readBody(event).catch(() => ({}))
+        }
+
+        return {
+          path: event.url,
+          body,
+          method: event.req.method,
+        }
+      }),
+    )
     // 404 handler for non-existent routes
     .use(
       defineHandler(() => {

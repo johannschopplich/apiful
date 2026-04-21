@@ -4,24 +4,14 @@ import { jsonToTypeDefinition } from '../../src/utils/json-to-type-definition'
 
 describe('jsonToTypeDefinition', () => {
   describe('primitive types', () => {
-    it('handles string', async () => {
-      const result = await jsonToTypeDefinition('test', { typeName: 'StringType' })
-      expect(result).toContain('export type StringType = string')
-    })
-
-    it('handles number', async () => {
-      const result = await jsonToTypeDefinition(42, { typeName: 'NumberType' })
-      expect(result).toContain('export type NumberType = number')
-    })
-
-    it('handles boolean', async () => {
-      const result = await jsonToTypeDefinition(true, { typeName: 'BooleanType' })
-      expect(result).toContain('export type BooleanType = boolean')
-    })
-
-    it('handles null', async () => {
-      const result = await jsonToTypeDefinition(null, { typeName: 'NullType' })
-      expect(result).toContain('export type NullType = null')
+    it.each([
+      ['test', 'StringType', 'string'],
+      [42, 'NumberType', 'number'],
+      [true, 'BooleanType', 'boolean'],
+      [null, 'NullType', 'null'],
+    ] as const)('handles %p as %s', async (input, typeName, expected) => {
+      const result = await jsonToTypeDefinition(input, { typeName })
+      expect(result).toContain(`export type ${typeName} = ${expected}`)
     })
   })
 
@@ -156,6 +146,38 @@ describe('jsonToTypeDefinition', () => {
     it('includes eslint-disable header', async () => {
       const result = await jsonToTypeDefinition({ a: 1 }, { typeName: 'T' })
       expect(result).toMatch(/^\/\* eslint-disable \*\//)
+    })
+  })
+
+  describe('edge cases', () => {
+    it('produces an open interface for unsupported root values', async () => {
+      const result = await jsonToTypeDefinition(undefined as unknown as JsonValue, { typeName: 'Unsupported' })
+      expect(result).toContain('export interface Unsupported')
+      expect(result).toContain('[k: string]: unknown')
+    })
+
+    it('represents arrays mixing primitives and objects as unions', async () => {
+      const input = [1, 'two', { tag: 'obj' }]
+      const result = await jsonToTypeDefinition(input as unknown as JsonValue, { typeName: 'Mixed' })
+      expect(result).toMatch(/number/)
+      expect(result).toMatch(/string/)
+      expect(result).toMatch(/tag\?:\s*string/)
+    })
+
+    it('merges deeply nested object schemas across array items', async () => {
+      const input = [
+        { meta: { version: 1 } },
+        { meta: { name: 'alpha' } },
+      ]
+      const result = await jsonToTypeDefinition(input as unknown as JsonValue, { typeName: 'Deep' })
+      expect(result).toContain('version?: number')
+      expect(result).toContain('name?: string')
+    })
+
+    it('types sparse or all-undefined arrays as unknown items', async () => {
+      // eslint-disable-next-line no-sparse-arrays
+      const result = await jsonToTypeDefinition([undefined, , undefined] as unknown as JsonValue, { typeName: 'AllUnknown' })
+      expect(result).toContain('unknown[]')
     })
   })
 })

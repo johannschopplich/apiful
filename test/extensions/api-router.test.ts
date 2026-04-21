@@ -1,5 +1,6 @@
 import type { Listener } from 'listhen'
 import type { ApiClient } from '../../src/client'
+import type { ApiRouter } from '../../src/extensions/api-router'
 import { afterAll, assertType, beforeAll, describe, expect, it } from 'vitest'
 import { apiRouterBuilder, createClient } from '../../src/index'
 import { createListener } from '../utils'
@@ -29,31 +30,19 @@ describe('apiRouterBuilder adapter', () => {
     assertType<{ value: string }>(response)
   })
 
-  it('handles POST request with JSON body', async () => {
+  it.each([
+    ['post', { foo: 'bar' }],
+    ['put', { foo: 'bar' }],
+    ['patch', { foo: 'bar' }],
+    ['delete', undefined],
+  ] as const)('routes %s requests to the echo endpoint', async (method, body) => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.echo!.request!.post({ foo: 'bar' })
-    expect(response.method).toEqual('POST')
-    expect(response.body).toEqual({ foo: 'bar' })
-  })
-
-  it('handles PUT request with JSON body', async () => {
-    const client = _client.with(apiRouterBuilder())
-    const response = await client.echo!.request!.put({ foo: 'bar' })
-    expect(response.method).toEqual('PUT')
-    expect(response.body).toEqual({ foo: 'bar' })
-  })
-
-  it('handles DELETE request without body', async () => {
-    const client = _client.with(apiRouterBuilder())
-    const response = await client.echo!.request!.delete()
-    expect(response.method).toEqual('DELETE')
-  })
-
-  it('handles PATCH request with JSON body', async () => {
-    const client = _client.with(apiRouterBuilder())
-    const response = await client.echo!.request!.patch({ foo: 'bar' })
-    expect(response.method).toEqual('PATCH')
-    expect(response.body).toEqual({ foo: 'bar' })
+    const response = body === undefined
+      ? await client.echo!.request![method]()
+      : await client.echo!.request![method](body)
+    expect(response.method).toEqual(method.toUpperCase())
+    if (body !== undefined)
+      expect(response.body).toEqual(body)
   })
 
   it('handles GET request with query parameters', async () => {
@@ -83,24 +72,14 @@ describe('apiRouterBuilder adapter', () => {
     expect(response.headers).to.include({ 'x-foo': 'baz' })
   })
 
-  it('supports bracket notation for path segments', async () => {
-    const client = _client.with(apiRouterBuilder())
+  it.each([
     // eslint-disable-next-line dot-notation
-    const response = await client.echo!.static!['constant']!.get<{ value: string }>()
-    expect(response).toEqual({ value: 'foo' })
-    assertType<{ value: string }>(response)
-  })
-
-  it('supports function call syntax for path segments', async () => {
+    ['bracket notation', (c: ApiRouter) => c.echo!.static!['constant']!.get<{ value: string }>()],
+    ['function call syntax', (c: ApiRouter) => c.echo!.static!('constant').get<{ value: string }>()],
+    ['multiple segments in single call', (c: ApiRouter) => c('echo', 'static', 'constant').get<{ value: string }>()],
+  ])('supports %s for path segments', async (_name, call) => {
     const client = _client.with(apiRouterBuilder())
-    const response = await client.echo!.static!('constant').get<{ value: string }>()
-    expect(response).toEqual({ value: 'foo' })
-    assertType<{ value: string }>(response)
-  })
-
-  it('supports multiple path segments in single call', async () => {
-    const client = _client.with(apiRouterBuilder())
-    const response = await client('echo', 'static', 'constant').get<{ value: string }>()
+    const response = await call(client)
     expect(response).toEqual({ value: 'foo' })
     assertType<{ value: string }>(response)
   })
@@ -110,5 +89,26 @@ describe('apiRouterBuilder adapter', () => {
     await expect(async () => {
       await client.baz!.get<{ value: string }>()
     }).rejects.toThrow(/404/)
+  })
+
+  it('coerces numeric path segments to strings', async () => {
+    const client = _client.with(apiRouterBuilder())
+    const response = await client('echo', 'path', 42).post({ foo: 'bar' })
+    expect(response.method).toBe('POST')
+    expect(response.path).toContain('/echo/path/42')
+    expect(response.body).toEqual({ foo: 'bar' })
+  })
+
+  it('omits query string when GET called without data', async () => {
+    const client = _client.with(apiRouterBuilder())
+    const response = await client.echo!.query!.get()
+    expect(response).toEqual({})
+  })
+
+  it('treats uppercase method access identically to lowercase', async () => {
+    const client = _client.with(apiRouterBuilder())
+    const response = await (client.echo!.request! as any).POST({ foo: 'bar' })
+    expect(response.method).toBe('POST')
+    expect(response.body).toEqual({ foo: 'bar' })
   })
 })

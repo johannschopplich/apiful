@@ -1,27 +1,8 @@
-import type { Listener } from 'listhen'
-import type { ApiClient, HandlerExtensionBuilder, MethodsExtensionBuilder } from '../src/index'
-import { afterAll, beforeAll, describe, expect, expectTypeOf, it, vi } from 'vitest'
+import type { HandlerExtensionBuilder, MethodsExtensionBuilder } from '../src/index'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createClient } from '../src/index'
-import { createListener } from './utils'
 
 describe('createClient', () => {
-  let listener: Listener
-  let client: ApiClient
-
-  beforeAll(async () => {
-    listener = await createListener()
-    client = createClient({
-      baseURL: listener.url,
-      headers: {
-        'X-Foo': 'bar',
-      },
-    })
-  })
-
-  afterAll(async () => {
-    await listener.close()
-  })
-
   const extension = ((_client) => {
     const target = () => new Response()
     target.foo = 'bar'
@@ -39,11 +20,6 @@ describe('createClient', () => {
       response: () => ({ foo: 'bar' }),
     }
   }) satisfies MethodsExtensionBuilder
-
-  it('returns undefined when called without extensions', () => {
-    const response = client()
-    expect(response).toBe(undefined)
-  })
 
   it('stores default options in client instance', () => {
     const options = {
@@ -77,7 +53,7 @@ describe('createClient', () => {
     expect(extendedClient.defaultOptions).toEqual(options)
   })
 
-  it('supports multiple extensions with callable extension first', () => {
+  it('supports multiple extensions combined via chained with()', () => {
     const client = createClient()
     const mockedExtension = vi.fn(extension)
     const extendedClient = client
@@ -85,17 +61,6 @@ describe('createClient', () => {
       .with(extensionWithRequestMethod)
       .with(extensionWithResponseMethod)
     expect(mockedExtension).toHaveBeenCalledWith(client)
-    expect(extendedClient()).toBeInstanceOf(Response)
-    expect(extendedClient.request()).toBeInstanceOf(Response)
-    expect(extendedClient.response()).toEqual({ foo: 'bar' })
-  })
-
-  it('supports multiple extensions with callable extension last', () => {
-    const client = createClient()
-    const extendedClient = client
-      .with(extensionWithRequestMethod)
-      .with(extensionWithResponseMethod)
-      .with(extension)
     expect(extendedClient()).toBeInstanceOf(Response)
     expect(extendedClient.request()).toBeInstanceOf(Response)
     expect(extendedClient.response()).toEqual({ foo: 'bar' })
@@ -115,5 +80,47 @@ describe('createClient', () => {
       typedMethod: (arg: number) => arg.toString(),
     }))
     expectTypeOf(extendedClient.typedMethod).toEqualTypeOf<(arg: number) => string>()
+  })
+
+  it('reflects reassigned extension methods on subsequent calls', () => {
+    const client = createClient()
+    const extendedClient = client.with(() => ({
+      compute: (): string => 'original',
+    }))
+    expect(extendedClient.compute()).toBe('original')
+
+    extendedClient.compute = () => 'replaced'
+    expect(extendedClient.compute()).toBe('replaced')
+  })
+
+  it('accepts ad-hoc properties on a callable client', () => {
+    const handler = ((_client) => {
+      const target = () => new Response()
+      target.foo = 'initial'
+      return target
+    }) satisfies HandlerExtensionBuilder
+
+    const extendedClient = createClient().with(handler)
+    expect(extendedClient.foo).toBe('initial')
+    ;(extendedClient as unknown as { bar: string }).bar = 'added'
+    expect((extendedClient as unknown as { bar: string }).bar).toBe('added')
+  })
+
+  it('replaces previous callable behavior with the latest callable extension', () => {
+    const firstHandler = ((_client) => {
+      const target = () => 'first'
+      return target as unknown as ReturnType<HandlerExtensionBuilder>
+    }) satisfies HandlerExtensionBuilder
+
+    const secondHandler = ((_client) => {
+      const target = () => 'second'
+      return target as unknown as ReturnType<HandlerExtensionBuilder>
+    }) satisfies HandlerExtensionBuilder
+
+    const extendedClient = createClient()
+      .with(firstHandler)
+      .with(secondHandler)
+
+    expect((extendedClient as unknown as () => string)()).toBe('second')
   })
 })

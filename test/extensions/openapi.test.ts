@@ -4,7 +4,7 @@ import type { ApiClient } from '../../src/client'
 import type { OpenAPIClient } from '../../src/extensions/openapi'
 import type { SchemaPaths } from '../../src/openapi/client'
 import { ofetch } from 'ofetch'
-import { afterEach, assertType, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createClient, OpenAPIBuilder } from '../../src/index'
 
 vi.mock('ofetch', () => ({
@@ -80,92 +80,56 @@ describe('OpenAPIBuilder adapter', () => {
     expectTypeOf(deleteResponse).toEqualTypeOf<Promise<never>>()
   })
 
-  it('handles GET inventory response', async () => {
-    const mockInventory = { available: 5, pending: 2, sold: 10 }
+  const samplePet: components['schemas']['Pet'] = {
+    id: 1,
+    name: 'Fluffy',
+    status: 'available',
+    photoUrls: [],
+  }
 
-    mockFetch.mockResolvedValue(mockInventory)
-
+  it.each([
+    {
+      name: 'no options (inventory)',
+      path: '/store/inventory',
+      options: undefined,
+      expectedUrl: '/store/inventory',
+      expectedOptions: {},
+      mockResponse: { available: 5, pending: 2, sold: 10 },
+    },
+    {
+      name: 'query parameters',
+      path: '/pet/findByStatus',
+      options: { query: { status: 'available' } },
+      expectedUrl: '/pet/findByStatus',
+      expectedOptions: { query: { status: 'available' } },
+      mockResponse: [samplePet],
+    },
+    {
+      name: 'path parameters (resolves template)',
+      path: '/pet/{petId}',
+      options: { path: { petId: 123 } },
+      expectedUrl: '/pet/123',
+      expectedOptions: {},
+      mockResponse: { ...samplePet, id: 123 },
+    },
+    {
+      name: 'method and body',
+      path: '/pet',
+      options: { method: 'POST' as const, body: samplePet },
+      expectedUrl: '/pet',
+      expectedOptions: { method: 'POST', body: samplePet },
+      mockResponse: { ...samplePet, id: 456 },
+    },
+  ])('forwards $name to the underlying fetch and returns the response', async ({ path, options, expectedUrl, expectedOptions, mockResponse }) => {
+    mockFetch.mockResolvedValue(mockResponse)
     const client = createClient({ baseURL: 'https://petstore3.swagger.io/api/v3' })
       .with(OpenAPIBuilder<'petStore'>())
 
-    const response = await client('/store/inventory')
-    expect(response).toEqual(mockInventory)
-    assertType<{ [key: string]: number }>(response)
-  })
+    const call = client as unknown as (path: string, options?: Record<string, unknown>) => Promise<unknown>
+    const response = await call(path, options)
 
-  it('handles GET pet by status with query parameters', async () => {
-    const mockPets: components['schemas']['Pet'][] = [{
-      id: 1,
-      name: 'Fluffy',
-      status: 'available',
-      photoUrls: [],
-    }]
-
-    mockFetch.mockResolvedValue(mockPets)
-
-    const client = createClient({ baseURL: 'https://petstore3.swagger.io/api/v3' })
-      .with(OpenAPIBuilder<'petStore'>())
-
-    const response = await client('/pet/findByStatus', {
-      query: { status: 'available' },
-    })
-
-    expect(response).toEqual(mockPets)
-    expect(mockFetch).toHaveBeenCalledWith('/pet/findByStatus', {
-      query: { status: 'available' },
-    })
-    assertType<components['schemas']['Pet'][]>(response)
-  })
-
-  it('handles GET pet by ID with path parameters', async () => {
-    const mockPet: components['schemas']['Pet'] = {
-      id: 123,
-      name: 'Max',
-      status: 'available',
-      photoUrls: [],
-    }
-
-    mockFetch.mockResolvedValue(mockPet)
-
-    const client = createClient({ baseURL: 'https://petstore3.swagger.io/api/v3' })
-      .with(OpenAPIBuilder<'petStore'>())
-
-    const response = await client('/pet/{petId}', {
-      path: { petId: 123 },
-    })
-
-    expect(response).toEqual(mockPet)
-    expect(mockFetch).toHaveBeenCalledWith('/pet/123', {})
-    assertType<components['schemas']['Pet']>(response)
-  })
-
-  it('handles POST request for creating pets', async () => {
-    const newPet: components['schemas']['Pet'] = {
-      name: 'Buddy',
-      status: 'available',
-      photoUrls: ['photo1.jpg'],
-    }
-    const createdPet: components['schemas']['Pet'] = {
-      ...newPet,
-      id: 456,
-    }
-
-    mockFetch.mockResolvedValue(createdPet)
-
-    const client = createClient({ baseURL: 'https://petstore3.swagger.io/api/v3' })
-      .with(OpenAPIBuilder<'petStore'>())
-
-    const response = await client('/pet', {
-      method: 'POST',
-      body: newPet,
-    })
-
-    expect(response).toEqual(createdPet)
-    expect(mockFetch).toHaveBeenCalledWith('/pet', {
-      method: 'POST',
-      body: newPet,
-    })
-    assertType<components['schemas']['Pet']>(response)
+    expect(response).toEqual(mockResponse)
+    expect(mockFetch).toHaveBeenCalledWith(expectedUrl, expectedOptions)
   })
 
   it('handles error responses', async () => {

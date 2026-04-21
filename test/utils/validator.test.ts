@@ -84,4 +84,58 @@ describe('validator', () => {
       expect(isValidator(undefined)).toBe(false)
     })
   })
+
+  // eslint-disable-next-line test/prefer-lowercase-title
+  describe('TypeValidationError', () => {
+    it('wraps the cause of the validation failure', () => {
+      const result = safeValidateTypes({ value: 'oops', schema })
+      if (!result.success) {
+        expect(result.error.value).toBe('oops')
+        expect(result.error.cause).toBeInstanceOf(Error)
+        expect((result.error.cause as Error).message).toBe('Not a number')
+      }
+    })
+
+    it('stringifies circular values in the error message', () => {
+      const circular: Record<string, unknown> = {}
+      circular.self = circular
+
+      const circularSchema = validator<unknown>(() => ({
+        success: false,
+        error: new Error('fail'),
+      }))
+
+      const result = safeValidateTypes({ value: circular, schema: circularSchema })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.message).toContain('[object Object]')
+        expect(result.error.message).toContain('fail')
+      }
+    })
+
+    it('reports thrown validator errors as validation failures', () => {
+      const throwingSchema = validator<unknown>(() => {
+        throw new Error('boom')
+      })
+
+      const result = safeValidateTypes({ value: 1, schema: throwingSchema })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBeInstanceOf(TypeValidationError)
+        expect(result.error.message).toContain('boom')
+      }
+    })
+
+    it.each([
+      ['string cause', 'literal string error' as unknown as Error, 'literal string error'],
+      ['object cause', { code: 42 } as unknown as Error, '{"code":42}'],
+      ['null cause', null as unknown as Error, 'Unknown error'],
+    ])('formats %s in the error message', (_name, cause, expected) => {
+      const schema = validator<unknown>(() => ({ success: false, error: cause }))
+      const result = safeValidateTypes({ value: 1, schema })
+      expect(result.success).toBe(false)
+      if (!result.success)
+        expect(result.error.message).toContain(expected)
+    })
+  })
 })
