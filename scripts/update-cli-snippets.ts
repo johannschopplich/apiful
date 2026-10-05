@@ -4,6 +4,7 @@ import * as path from 'node:path'
 import process from 'node:process'
 import { consola } from 'consola'
 import { exec } from 'tinyexec'
+import pkg from '../package.json' with { type: 'json' }
 
 const rootDir = path.join(import.meta.dirname, '..')
 const snippetDir = path.join(rootDir, 'docs/snippets')
@@ -28,8 +29,8 @@ consola.success('Generated the CLI snippets in `docs/snippets`')
 
 /**
  * Runs the CLI once and writes everything it printed to a snippet file. Both
- * streams are kept, since citty writes help to stdout while a command reports
- * its result on stderr.
+ * streams are kept, since help goes to stdout while a command reports its
+ * result on stderr.
  */
 async function capture(fileName: string, argv: string[]): Promise<void> {
   const { stdout, stderr } = await exec('node', [cliEntry, ...argv], {
@@ -37,15 +38,6 @@ async function capture(fileName: string, argv: string[]): Promise<void> {
   })
 
   const transcript = [stdout, stderr].filter(Boolean).join('').trimEnd()
-  await fsp.writeFile(path.join(snippetDir, fileName), `${withoutVersionSuffix(transcript)}\n`)
-}
-
-/**
- * Drops the parenthetical from the description line, where citty prints the
- * package version – it would otherwise rewrite every snippet on release. The
- * line cannot be matched to its end, since the color reset follows the bracket.
- */
-function withoutVersionSuffix(transcript: string): string {
-  const [description = '', ...rest] = transcript.split('\n')
-  return [description.replace(/ \([^()]*\)/, ''), ...rest].join('\n')
+  // Help opens with `name vX.Y.Z`, which would otherwise rewrite the help snippets on every release.
+  await fsp.writeFile(path.join(snippetDir, fileName), `${transcript.replace(` v${pkg.version}`, '')}\n`)
 }
