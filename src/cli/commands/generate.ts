@@ -1,22 +1,14 @@
-import type { ArgsDef, CommandDef } from 'utilful/cli'
+import type { CommandDef } from 'utilful/cli'
 import type { GenerationPlan } from '../plan.ts'
 import * as fsp from 'node:fs/promises'
 import * as path from 'node:path'
 import process from 'node:process'
-import { CliError, commonArgs, defineCommand, log } from 'utilful/cli'
+import { CliError, defineCommand, log } from 'utilful/cli'
 import { generateDTSFragments } from '../../openapi/generate.ts'
 import { findDrift, fragmentDirectoryFor, planGeneration } from '../plan.ts'
 import { loadConfig } from '../utils.ts'
 
-interface GenerateArgs extends ArgsDef {
-  outfile: { type: 'string', description: string, required: false }
-  outdir: { type: 'string', description: string, required: false }
-  check: { type: 'boolean', description: string }
-  root: { type: 'string', description: string, required: false }
-}
-
-const args: GenerateArgs = {
-  ...commonArgs,
+const args = {
   outfile: {
     type: 'string',
     description: 'Path to the output file',
@@ -36,9 +28,9 @@ const args: GenerateArgs = {
     description: 'Path to the project root',
     required: false,
   },
-}
+} as const
 
-const command: CommandDef<GenerateArgs> = defineCommand({
+const command: CommandDef<typeof args> = defineCommand({
   meta: {
     name: 'generate',
     description: 'Generates TypeScript definitions from OpenAPI schemas',
