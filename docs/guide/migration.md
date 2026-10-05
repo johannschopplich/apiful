@@ -68,7 +68,7 @@ A schema the generator could not read or parse used to be logged, after which th
 Failed to generate types for service `petStore` – …
 ```
 
-[`apiful generate`](/guide/cli) exits with code `1` and writes no types. Add `--verbose` for the underlying cause. Calling the generator from your own code, the same failure arrives as a `SchemaGenerationError`.
+[`apiful generate`](/guide/cli) exits with code `1` and writes no types. Calling the generator from your own code, the same failure arrives as a `SchemaGenerationError`.
 
 ### Types That Are Now Stricter
 

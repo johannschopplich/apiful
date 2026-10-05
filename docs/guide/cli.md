@@ -34,7 +34,7 @@ By default, this command loads the APIful configuration from the `apiful.config.
 
 The generated TypeScript types are saved as `apiful.d.ts` in the same directory. This file augments the `apiful/schema` module with your generated types, making them available to the [OpenAPI](/extensions/openapi) extension.
 
-A schema that cannot be read or parsed fails the whole run: the command reports the service it choked on, exits with code `1`, and writes no types, rather than leaving you with a client that compiles and is silently untyped. Add `--verbose` for the underlying cause. Calling the generator from your own code instead of the CLI, the same failure arrives as a `SchemaGenerationError`.
+A schema that cannot be read or parsed fails the whole run: the command reports the service it choked on, exits with code `1`, and writes no types, rather than leaving you with a client that compiles and is silently untyped. Calling the generator from your own code instead of the CLI, the same failure arrives as a `SchemaGenerationError`.
 
 A service with no `schema` has nothing to generate from, so the run skips it and names it in a warning. Every other service is still generated, and the run succeeds. In a TypeScript configuration the omission is a type error long before that, since `schema` is required.
 
