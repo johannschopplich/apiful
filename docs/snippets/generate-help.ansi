@@ -1,11 +1,12 @@
-[90mGenerates TypeScript definitions from OpenAPI schemas[39m
+[1mapiful generate[22m
+Generates TypeScript definitions from OpenAPI schemas
 
-[4m[1mUSAGE[22m[24m [36mapiful generate [OPTIONS] [39m
+[1mUSAGE[22m  [36mapiful generate [OPTIONS][39m
 
-[4m[1mOPTIONS[22m[24m
+[1mOPTIONS[22m
 
-            [36m--verbose[39m    Print the cause chain and stack trace on failure [90m(Default: false)[39m                  
-  [36m--outfile=<outfile>[39m    Path to the output file                                                                      
-    [36m--outdir=<outdir>[39m    Directory for fragmented output (entry + per-service files)                                  
-              [36m--check[39m    Report whether the generated files are up to date, writing nothing [90m(Default: false)[39m
-        [36m--root=<root>[39m    Path to the project root
+  [36m--outfile[39m[2m=<outfile>[22m  Path to the output file
+  [36m--outdir[39m[2m=<outdir>[22m    Directory for fragmented output (entry + per-service files)
+  [36m--check[39m              Report whether the generated files are up to date, writing nothing
+  [36m--root[39m[2m=<root>[22m        Path to the project root
+  [36m--verbose[39m            Print the stack trace on failure

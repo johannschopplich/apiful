@@ -1,9 +1,10 @@
-[90mAPIful CLI: Extensible & Type-Safe API Tooling[39m
+[1mapiful[22m
+APIful CLI: Extensible & Type-Safe API Tooling
 
-[4m[1mUSAGE[22m[24m [36mapiful generate[39m
+[1mUSAGE[22m  [36mapiful generate[39m
 
-[4m[1mCOMMANDS[22m[24m
+[1mCOMMANDS[22m
 
-  [36mgenerate[39m    Generates TypeScript definitions from OpenAPI schemas
+  [36mgenerate[39m  Generates TypeScript definitions from OpenAPI schemas
 
 Use [36mapiful <command> --help[39m for more information about a command.
