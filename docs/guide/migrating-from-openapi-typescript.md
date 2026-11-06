@@ -273,5 +273,6 @@ APIful starts from openapi-typescript's default output and changes the parts bel
 - An operation sits in `paths` itself rather than in a separate `operations` interface.
 - A `format: binary` string, or one with a non-JSON `contentMediaType`, is `Blob | File`, and a `multipart/form-data` body also accepts a `FormData`.
 - A required query, header, or cookie parameter whose schema declares a `default` is optional. A path parameter stays required.
+- A property with a `default` is optional unless the schema lists it as `required`, where openapi-typescript makes it required outside request bodies and parameters.
 - A query parameter with `application/json` content and an object schema is typed as that schema – pass the object, and ofetch serializes it.
 - OpenAPI 3.2 operations are typed: the `query` method, custom methods from `additionalOperations` under their lowercased name, and a `querystring` parameter as the type of the `query` object.

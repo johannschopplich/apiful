@@ -63,9 +63,9 @@ interface EmitContext {
 }
 
 interface TransformOptions {
-  /** Ref to the node being transformed, which discriminator and default handling read its position from. */
+  /** Ref to the node being transformed – its position in the document, not a ref it holds. */
   ref?: string
-  /** Refs being inlined around the node, a ref among them being one that recurses. */
+  /** Refs inlined on the way to the node, so a ref already among them recurses. */
   inlinedRefs?: string[]
   context: EmitContext
 }
@@ -817,14 +817,7 @@ function transformSchemaObjectCore(schemaObject: SchemaObject, options: Transfor
         throw new Error(`Invalid property \`${key}\` at \`${options.ref}\`, expected a schema object or a boolean`)
 
       const isReadOnly = typeof value === 'object' && !!value.readOnly
-      const hasDefault = typeof value === 'object' && 'default' in value && value.default !== undefined
-      // A default makes a property required, since the API returns it – except in a schema
-      // written inline under a parameter or request body, which only a client sends.
-      const isRequired = schemaObject.required?.includes(key)
-        || (hasDefault
-          && !options.ref?.includes('parameters')
-          && !options.ref?.includes('requestBody')
-          && !options.ref?.includes('requestBodies'))
+      const isRequired = !!schemaObject.required?.includes(key)
 
       const propertyType = transformSchemaObject(value, { ...options, ref: createRef([options.ref, key]) }, memberIndent)
       propertyTypes.push(propertyType)

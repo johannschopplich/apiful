@@ -238,10 +238,10 @@ export interface components {
     expect(types).toContain('Image: string;')
   })
 
-  it('makes a property with a default required in a component schema', () => {
+  it('keeps a property with a default optional where `required` leaves it out', () => {
     const types = generateSchemaComponentTypes({ Page: { type: 'object', properties: { size: { type: 'integer', default: 10 } } } })
 
-    expect(types).toContain('      size: number;')
+    expect(types).toContain('      size?: number;')
   })
 
   it('skips an additionalOperations method that a fixed field already declares', () => {
