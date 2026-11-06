@@ -10,8 +10,7 @@ export type ApiExtension = HandlerExtension | MethodsExtension
 export type HandlerExtensionBuilder = (client: ApiClient) => HandlerExtension
 export type MethodsExtensionBuilder = (client: ApiClient) => MethodsExtension
 
-/** Fetch options where `baseURL` keeps the literal type `createClient` inferred, rather than widening to `string`. */
-export type ClientOptions<BaseURL extends string = string> = Omit<FetchOptions, 'baseURL'> & { baseURL?: BaseURL }
+export type ClientOptions = FetchOptions
 
 export interface ClientFactoryOptions {
   /**
@@ -22,33 +21,35 @@ export interface ClientFactoryOptions {
   fetch?: $Fetch
 }
 
-export interface ApiClient<BaseURL extends string = string> extends Function {
-  _handler?: Fn
-  _extensions: Record<PropertyKey, unknown>
-  defaultOptions: ClientOptions<BaseURL>
+/**
+ * A client typed after the extensions `with` added to it: the call signature and properties of
+ * its latest handler extension, and the methods of every methods extension.
+ */
+export type ApiClient<Handler = unknown, Methods = unknown> = ApiClientBase<Handler, Methods> & Handler & Methods
+
+interface ApiClientBase<Handler, Methods> extends Function {
+  defaultOptions: ClientOptions
   fetch: $Fetch
   with: <Extension extends ApiExtension>(
-    createExtension: (client: this) => Extension,
-  ) => this & Extension
+    createExtension: (client: ApiClient<Handler, Methods>) => Extension,
+  ) => [Extension] extends [HandlerExtension]
+    // A handler extension takes the place of the previous one, as it does at runtime.
+    ? ApiClient<Extension, Methods>
+    : ApiClient<Handler, Methods & Extension>
 }
 
-export function createClient<const BaseURL extends string = '/'>(
-  defaultOptions: ClientOptions<BaseURL> = {},
+export function createClient(
+  defaultOptions: ClientOptions = {},
   { fetch = ofetch.create(defaultOptions) }: ClientFactoryOptions = {},
-): ApiClient<BaseURL> {
+): ApiClient {
   const client = (() => {
     throw new TypeError('This client cannot make requests. Add a handler extension, such as `createClient().with(ofetchBuilder())`.')
-  }) as unknown as ApiClient<BaseURL>
+  }) as unknown as ApiClient
 
   client.defaultOptions = defaultOptions
   client.fetch = fetch
-  client._extensions = Object.create(null)
 
-  client.with = function <Extension extends ApiExtension>(
-    createExtension: (client: ApiClient<BaseURL>) => Extension,
-  ) {
-    return addExtension<BaseURL, Extension>(client, client._extensions, undefined, createExtension(client))
-  }
+  client.with = (createExtension => addExtension(client, Object.create(null), undefined, createExtension(client))) as ApiClient['with']
 
   return client
 }
@@ -57,52 +58,43 @@ export function createClient<const BaseURL extends string = '/'>(
  * Derives a client carrying one more extension. The extension record is copied rather than
  * written to, so the client `with` was called on keeps the extensions it already had.
  */
-function addExtension<BaseURL extends string, Extension extends ApiExtension>(
-  base: ApiClient<BaseURL>,
+function addExtension(
+  base: ApiClient,
   extensions: Record<PropertyKey, unknown>,
   handler: Fn | undefined,
   extension: ApiExtension,
-): ApiClient<BaseURL> & Extension {
+): ApiClient {
   const nextExtensions: Record<PropertyKey, unknown> = Object.assign(Object.create(null), extensions)
 
   if (typeof extension === 'function')
-    return createExtendedClient<BaseURL, Extension>(base, nextExtensions, extension)
+    return createExtendedClient(base, nextExtensions, extension)
 
   for (const key of Object.keys(extension)) {
     nextExtensions[key] = extension[key]
   }
 
-  return createExtendedClient<BaseURL, Extension>(base, nextExtensions, handler)
+  return createExtendedClient(base, nextExtensions, handler)
 }
 
 /**
  * Wraps the client `createClient` returned, never another proxy, so a property resolves in
  * one hop however many extensions the client carries.
  */
-function createExtendedClient<BaseURL extends string, Extension extends ApiExtension>(
-  base: ApiClient<BaseURL>,
+function createExtendedClient(
+  base: ApiClient,
   extensions: Record<PropertyKey, unknown>,
-  initialHandler: Fn | undefined,
-): ApiClient<BaseURL> & Extension {
-  let handler = initialHandler
-  let client: ApiClient<BaseURL> & Extension
+  handler: Fn | undefined,
+): ApiClient {
+  let client: ApiClient
 
-  function withExtension<Next extends ApiExtension>(
-    createExtension: (client: ApiClient<BaseURL> & Extension) => Next,
-  ) {
-    return addExtension<BaseURL, Next>(base, extensions, handler, createExtension(client))
+  function withExtension(createExtension: (client: ApiClient) => ApiExtension) {
+    return addExtension(base, extensions, handler, createExtension(client))
   }
 
   client = new Proxy(base, {
     get(target, prop, receiver) {
       if (prop === 'with')
         return withExtension
-
-      if (prop === '_extensions')
-        return extensions
-
-      if (prop === '_handler')
-        return handler
 
       if (prop in extensions)
         return extensions[prop]
@@ -116,11 +108,6 @@ function createExtendedClient<BaseURL extends string, Extension extends ApiExten
       return handler === undefined ? undefined : Reflect.get(handler, prop)
     },
     set(target, prop, value, receiver) {
-      if (prop === '_handler') {
-        handler = value
-        return true
-      }
-
       // A name the base client does not answer to belongs to this client alone, not to the
       // one it was extended from.
       if (prop in extensions || !(prop in target)) {
@@ -136,7 +123,7 @@ function createExtendedClient<BaseURL extends string, Extension extends ApiExten
 
       return Reflect.apply(target, thisArg, args)
     },
-  }) as ApiClient<BaseURL> & Extension
+  })
 
   return client
 }

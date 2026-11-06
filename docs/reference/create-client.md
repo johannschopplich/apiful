@@ -28,10 +28,10 @@ const newUser = await client('users', {
 ## Type Definition
 
 ```ts
-declare function createClient<const BaseURL extends string = '/'>(
-  defaultOptions?: ClientOptions<BaseURL>,
+declare function createClient(
+  defaultOptions?: ClientOptions,
   factoryOptions?: ClientFactoryOptions
-): ApiClient<BaseURL>
+): ApiClient
 
 interface ClientFactoryOptions {
   fetch?: $Fetch

@@ -5,20 +5,22 @@ The client returned by [`createClient`](/reference/create-client): a callable ob
 ## Type Definition
 
 ```ts
-type Fn<T = any> = (...args: any[]) => T
+type ClientOptions = FetchOptions
 
-type ClientOptions<BaseURL extends string = string> = Omit<FetchOptions, 'baseURL'> & { baseURL?: BaseURL }
+type ApiClient<Handler = unknown, Methods = unknown> = ApiClientBase<Handler, Methods> & Handler & Methods
 
-interface ApiClient<BaseURL extends string = string> extends Function {
-  _handler?: Fn
-  _extensions: Record<PropertyKey, unknown>
-  defaultOptions: ClientOptions<BaseURL>
+interface ApiClientBase<Handler, Methods> extends Function {
+  defaultOptions: ClientOptions
   fetch: $Fetch
   with: <Extension extends ApiExtension>(
-    createExtension: (client: this) => Extension,
-  ) => this & Extension
+    createExtension: (client: ApiClient<Handler, Methods>) => Extension,
+  ) => [Extension] extends [HandlerExtension]
+    ? ApiClient<Extension, Methods>
+    : ApiClient<Handler, Methods & Extension>
 }
 ```
+
+`Handler` is the latest handler extension and `Methods` collects every methods extension. A handler extension added with `with` takes the place of the previous one in the type, as it does at runtime, so the call signature and properties of the replaced handler are gone from the client. A bare `ApiClient` carries neither – every extended client is assignable to it.
 
 `createExtension` receives the client as it stands, carrying every extension added before it – see [reaching the client](/guide/custom-extensions#reaching-the-client).
 
@@ -27,5 +29,3 @@ interface ApiClient<BaseURL extends string = string> extends Function {
 `fetch` is what every extension makes its requests through. It defaults to an ofetch instance built from `defaultOptions`, and [`createClient`](/reference/create-client#supplying-your-own-fetch) takes one of your own.
 
 Calling a client that has no handler extension throws a `TypeError` – add one with `with`, such as [`ofetchBuilder()`](/extensions/ofetch).
-
-`_handler` and `_extensions` are the bookkeeping behind [`with`](/guide/using-extensions#how-extensions-work): the current call signature and the properties resolved through the proxy. They are visible on the type, but reading or assigning them is not part of the API.

@@ -1,4 +1,4 @@
-import type { HandlerExtensionBuilder, MethodsExtensionBuilder } from '../src/index'
+import type { ApiClient, HandlerExtensionBuilder, MethodsExtensionBuilder } from '../src/index'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createClient } from '../src/index'
 
@@ -27,6 +27,15 @@ describe('createClient', () => {
     }
     const client = createClient(options)
     expect(client.defaultOptions).toEqual(options)
+  })
+
+  it('types the client without the literal baseURL it was given', () => {
+    expectTypeOf(createClient({ baseURL: 'http://example.com' })).toEqualTypeOf<ApiClient>()
+  })
+
+  it('leaves _handler and _extensions off the client type', () => {
+    expectTypeOf(createClient().with(extension)).not.toHaveProperty('_handler')
+    expectTypeOf(createClient()).not.toHaveProperty('_extensions')
   })
 
   it('throws when called without a handler extension', () => {
@@ -117,6 +126,24 @@ describe('createClient', () => {
     expect(extendedClient.compute()).toBe('replaced')
   })
 
+  it('types the call signature of the latest handler extension only', () => {
+    const extendedClient = createClient()
+      .with(() => (path: string) => path)
+      .with(() => (path: '/pets') => path.length)
+
+    expectTypeOf(extendedClient('/pets')).toEqualTypeOf<number>()
+    // @ts-expect-error: The first handler extension no longer answers the call.
+    extendedClient('/not-a-path')
+  })
+
+  it('drops the properties of a replaced handler extension from the type', () => {
+    const extendedClient = createClient()
+      .with(extension)
+      .with(() => () => new Response())
+
+    expectTypeOf(extendedClient).not.toHaveProperty('foo')
+  })
+
   it('accepts ad-hoc properties on a callable client', () => {
     const handler = ((_client) => {
       const target = () => new Response()
@@ -149,7 +176,6 @@ describe('createClient', () => {
   it('leaves the client `with` was called on without the extension', () => {
     const client = createClient()
     client.with(() => ({ ghost: () => 'boo' }))
-    expect(Object.keys(client._extensions)).toEqual([])
     expect((client as unknown as { ghost?: unknown }).ghost).toBeUndefined()
   })
 
