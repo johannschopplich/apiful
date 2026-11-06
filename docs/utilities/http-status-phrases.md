@@ -1,6 +1,8 @@
 # HTTP Status Reason Phrases
 
-APIful provides all common HTTP status reason phrases as constants. These are individually typed exports that you can use wherever you need a status phrase instead of hardcoding raw strings.
+APIful provides the reason phrase of every registered HTTP status code as a constant. These are individually typed exports that you can use wherever you need a status phrase instead of hardcoding raw strings.
+
+The phrases are the ones the [IANA HTTP Status Code Registry](https://www.iana.org/assignments/http-status-codes) lists, and each constant shares its name with the matching [status code](/utilities/http-status-codes): `CONTENT_TOO_LARGE` is `'Content Too Large'`.
 
 > [!TIP]
 > You may be wondering, why not use the [http-status-codes](https://www.npmjs.com/package/http-status-codes) package directly? Because the enums exported by the package don't work well with frameworks like Hono that use the `@hono/zod-openapi` type system.

@@ -1,8 +1,8 @@
 # HTTP Status Codes
 
-APIful provides all common HTTP status codes as constants. These are individually typed exports that you can use wherever you need a status code instead of hardcoding raw numbers.
+APIful provides every registered HTTP status code as a constant. These are individually typed exports that you can use wherever you need a status code instead of hardcoding raw numbers.
 
-All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1), RFC2518 (WebDAV), RFC6585 (Additional HTTP Status Codes), and RFC7538 (Permanent Redirect) are supported.
+The constants follow the [IANA HTTP Status Code Registry](https://www.iana.org/assignments/http-status-codes) and take their names from its reason phrases – [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes)'s, for the codes that RFC defines: `413` is `CONTENT_TOO_LARGE`, `422` is `UNPROCESSABLE_CONTENT`. Codes the registry marks as unused, such as `418`, and temporary registrations have no constant. Each constant links to the RFC that defines its code, down to the section where the registry names one.
 
 > [!TIP]
 > You may be wondering, why not use the [http-status-codes](https://www.npmjs.com/package/http-status-codes) package directly? Because the enums exported by the package don't work well with frameworks like Hono that use the `@hono/zod-openapi` type system.

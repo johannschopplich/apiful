@@ -4,11 +4,11 @@ APIful not only allows you to build powerful clients, it also provides a set of 
 
 ## HTTP Status Codes
 
-List of all [common HTTP status codes](/utilities/http-status-codes) as individually exported constants.
+List of all [HTTP status codes](/utilities/http-status-codes) as individually exported constants.
 
 ## HTTP Status Reason Phrases
 
-List of all [common HTTP status reason phrases](/utilities/http-status-phrases) as individually exported constants.
+List of all [HTTP status reason phrases](/utilities/http-status-phrases) as individually exported constants.
 
 ## JSON to Type Definition
 
