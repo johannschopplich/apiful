@@ -27,12 +27,19 @@ describe('resolvePathParams', () => {
     { path: '/search/{query}', params: { query: 'hello world' }, out: '/search/hello%20world' },
     { path: '/files/{path}', params: { path: 'folder/file.txt' }, out: '/files/folder%2Ffile.txt' },
     { path: '/items/{id}', params: { id: '!@#$%^&*()' }, out: '/items/!%40%23%24%25%5E%26*()' },
+    // A dot value that shares its segment
+    { path: '/files/{name}.json', params: { name: '..' }, out: '/files/...json' },
     // Coercion of a value the OpenAPI types allow but the URL cannot carry
     { path: '/users/{id}', params: { id: 123 as unknown as string }, out: '/users/123' },
     { path: '/items/{active}', params: { active: true as unknown as string }, out: '/items/true' },
     { path: '/data/{value}', params: { value: null as unknown as string }, out: '/data/null' },
   ])('resolves $path with $params', ({ path, params, out = path }) => {
     expect(resolvePathParams(path, params)).toBe(out)
+  })
+
+  it.each(['.', '..'])('throws for the path parameter %s, which would resolve to another path', (value) => {
+    expect(() => resolvePathParams('/users/{id}/posts', { id: value }))
+      .toThrow(`Path parameter \`id\` is \`${value}\`, which would resolve the URL to another path`)
   })
 })
 
@@ -146,6 +153,14 @@ describe('createOpenAPIClient', () => {
     const client = createOpenAPIClient<'petStore'>({ baseURL: 'https://petstore3.swagger.io/api/v3' })
     await client('/store/inventory')
     expect(mockFetch).toHaveBeenCalledWith('/store/inventory', {})
+  })
+
+  it('rejects for the path parameter .. rather than throwing', async () => {
+    const client = createOpenAPIClient<'petStore'>()
+
+    await expect(client('/pet/{petId}', { path: { petId: '..' as unknown as number } }))
+      .rejects
+      .toThrow('Path parameter `petId` is `..`')
   })
 
   it('returns the fetch result unchanged', async () => {

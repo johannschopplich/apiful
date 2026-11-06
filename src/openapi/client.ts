@@ -26,7 +26,7 @@ export function createOpenAPIClient<
 ): OpenAPIClient<Paths> {
   let bodySerializingFetch: $Fetch | undefined
 
-  return ((url: string, options?: OpenAPIRequestOptions) => {
+  return (async (url: string, options?: OpenAPIRequestOptions) => {
     const { path: pathParams, ...fetchOptions } = options ?? {}
     const request = resolvePathParams(url, pathParams)
     if (PAYLOAD_METHODS.has(fetchOptions.method?.toUpperCase() ?? 'GET') || !isJSONSerializable(fetchOptions.body))
@@ -43,8 +43,14 @@ export function createOpenAPIClient<
 
 export function resolvePathParams(path: string, params?: Record<string, string>): string {
   if (params) {
-    for (const [key, value] of Object.entries(params))
-      path = path.replaceAll(`{${key}}`, encodeURIComponent(String(value)))
+    for (const [key, value] of Object.entries(params)) {
+      const segment = encodeURIComponent(String(value))
+      // `encodeURIComponent` leaves dots as they are, so a `.` or `..` value that fills a whole
+      // segment survives encoding as a dot segment.
+      if ((segment === '.' || segment === '..') && path.split('/').includes(`{${key}}`))
+        throw new Error(`Path parameter \`${key}\` is \`${segment}\`, which would resolve the URL to another path`)
+      path = path.replaceAll(`{${key}}`, segment)
+    }
   }
 
   return path
