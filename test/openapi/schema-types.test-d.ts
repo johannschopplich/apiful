@@ -22,8 +22,8 @@ describe('binary payloads', () => {
     expectTypeOf<Catalog<'/files/{fileId}', 'get'>['response']>().toEqualTypeOf<Blob | File>()
   })
 
-  it('accepts FormData for a multipart/form-data request body', () => {
-    expectTypeOf<Catalog<'/files', 'post'>['request']>().toEqualTypeOf<{ file: Blob | File, label?: string } | FormData>()
+  it('types a multipart/form-data request body as FormData', () => {
+    expectTypeOf<Catalog<'/files', 'post'>['request']>().toEqualTypeOf<FormData>()
   })
 })
 

@@ -278,7 +278,7 @@ declare module 'apiful/schema/petStore' {
           content: {
             "application/json": components["schemas"]["Pet"];
             "application/xml": components["schemas"]["Pet"];
-            "application/x-www-form-urlencoded": components["schemas"]["Pet"];
+            "application/x-www-form-urlencoded": components["schemas"]["Pet"] | URLSearchParams;
           };
         };
         responses: {
@@ -331,7 +331,7 @@ declare module 'apiful/schema/petStore' {
           content: {
             "application/json": components["schemas"]["Pet"];
             "application/xml": components["schemas"]["Pet"];
-            "application/x-www-form-urlencoded": components["schemas"]["Pet"];
+            "application/x-www-form-urlencoded": components["schemas"]["Pet"] | URLSearchParams;
           };
         };
         responses: {
@@ -601,7 +601,7 @@ declare module 'apiful/schema/petStore' {
           content: {
             "application/json": components["schemas"]["Order"];
             "application/xml": components["schemas"]["Order"];
-            "application/x-www-form-urlencoded": components["schemas"]["Order"];
+            "application/x-www-form-urlencoded": components["schemas"]["Order"] | URLSearchParams;
           };
         };
         responses: {
@@ -717,7 +717,7 @@ declare module 'apiful/schema/petStore' {
           content: {
             "application/json": components["schemas"]["User"];
             "application/xml": components["schemas"]["User"];
-            "application/x-www-form-urlencoded": components["schemas"]["User"];
+            "application/x-www-form-urlencoded": components["schemas"]["User"] | URLSearchParams;
           };
         };
         responses: {
@@ -892,7 +892,7 @@ declare module 'apiful/schema/petStore' {
           content: {
             "application/json": components["schemas"]["User"];
             "application/xml": components["schemas"]["User"];
-            "application/x-www-form-urlencoded": components["schemas"]["User"];
+            "application/x-www-form-urlencoded": components["schemas"]["User"] | URLSearchParams;
           };
         };
         responses: {
@@ -1086,11 +1086,7 @@ declare module 'apiful/schema/catalog' {
         };
         requestBody: {
           content: {
-            "multipart/form-data": {
-              /** Format: binary */
-              file: Blob | File;
-              label?: string;
-            } | FormData;
+            "multipart/form-data": FormData;
           };
         };
         responses: {

@@ -171,7 +171,7 @@ const pet = await petStore('/pet', {
 })
 ```
 
-A `multipart/form-data` body also accepts a `FormData`, which ofetch sends as is.
+A `multipart/form-data` body is typed as `FormData`, since ofetch sends a plain object as JSON. An `application/x-www-form-urlencoded` body takes its schema's object or a `URLSearchParams` – ofetch form-encodes the object once the request sets that content type in `headers`.
 
 ## Catch Errors Instead of Reading `error`
 
@@ -271,7 +271,8 @@ APIful starts from openapi-typescript's default output and changes the parts bel
 
 - A path item holds only the methods the path declares, without the other verbs set to `never` or a path-level `parameters` key. Path-level parameters are merged into each operation.
 - An operation sits in `paths` itself rather than in a separate `operations` interface.
-- A `format: binary` string, or one with a non-JSON `contentMediaType`, is `Blob | File`, and a `multipart/form-data` body also accepts a `FormData`.
+- A `format: binary` string, or one with a non-JSON `contentMediaType`, is `Blob | File`.
+- A `multipart/form-data` request body is typed as `FormData`, which ofetch sends as is, and an `application/x-www-form-urlencoded` one also accepts a `URLSearchParams`.
 - A required query, header, or cookie parameter whose schema declares a `default` is optional. A path parameter stays required.
 - A property with a `default` is optional unless the schema lists it as `required`, where openapi-typescript makes it required outside request bodies and parameters.
 - A query parameter with `application/json` content and an object schema is typed as that schema – pass the object, and ofetch serializes it.

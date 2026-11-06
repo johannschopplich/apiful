@@ -119,9 +119,10 @@ The phrases of these five follow their names, and `NON_AUTHORITATIVE_INFORMATION
 
 #### The Generated Types Follow More of the Schema
 
-The new generator types four things differently from v5 – the [openapi-typescript migration guide](/guide/migrating-from-openapi-typescript) compares its output with openapi-typescript's in full:
+The new generator types five things differently from v5 – the [openapi-typescript migration guide](/guide/migrating-from-openapi-typescript) compares its output with openapi-typescript's in full:
 
-- A `format: binary` string, or one with a non-JSON `contentMediaType`, is `Blob | File`, and a `multipart/form-data` body also accepts a `FormData`.
+- A `format: binary` string, or one with a non-JSON `contentMediaType`, is `Blob | File`.
+- A `multipart/form-data` request body is typed as `FormData`. ofetch sends a plain object as JSON whatever the operation declares, so an object passed for a multipart body now fails to compile – build the `FormData` yourself. An `application/x-www-form-urlencoded` body also accepts a `URLSearchParams`; an object still works once the request sets that content type.
 - A required query, header, or cookie parameter whose schema declares a `default` is optional, since the server falls back to it. A path parameter stays required.
 - A property with a `default` is optional unless the schema lists it as `required`, in responses too. JSON Schema treats `default` as an annotation, which promises no value in the response, so code reading such a property handles `undefined` now.
 - OpenAPI 3.2 operations are typed: the `query` method, custom methods from `additionalOperations` under their lowercased name, and a `querystring` parameter as the type of the whole `query` object.

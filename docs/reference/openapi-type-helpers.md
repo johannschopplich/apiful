@@ -78,7 +78,7 @@ type StatusQuery = PetStore<'/pet/findByStatus', 'get'>['query']
 
 // Extract request body
 type CreatePetBody = PetStore<'/pet', 'post'>['request']
-//   ^? { id?: number; name: string; category?: Category; photoUrls: string[]; tags?: Tag[]; status?: 'available' | 'pending' | 'sold' }
+//   ^? { id?: number; name: string; category?: Category; photoUrls: string[]; tags?: Tag[]; status?: 'available' | 'pending' | 'sold' } | URLSearchParams
 
 // Extract response type
 type PetResponse = PetStore<'/pet/{petId}', 'get'>['response']
@@ -89,7 +89,7 @@ A request body the schema marks optional comes back widened with `undefined`, ma
 
 ```ts
 type PlaceOrderBody = PetStore<'/store/order', 'post'>['request']
-//   ^? Order | undefined
+//   ^? Order | URLSearchParams | undefined
 ```
 
 ### Error Response Types

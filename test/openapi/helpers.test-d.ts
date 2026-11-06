@@ -133,14 +133,14 @@ describe('PetStore', () => {
     expectTypeOf<PetStore<'/pet', 'post'>['query']>().toBeNever()
   })
 
-  it('extracts the request body types from the generated components', () => {
-    expectTypeOf<PetStore<'/pet', 'put'>['request']>().toEqualTypeOf<Components['schemas']['Pet']>()
-    expectTypeOf<PetStore<'/pet', 'post'>['request']>().toEqualTypeOf<Components['schemas']['Pet']>()
+  it('types a request body as the union of its media types', () => {
+    expectTypeOf<PetStore<'/pet', 'put'>['request']>().toEqualTypeOf<Components['schemas']['Pet'] | URLSearchParams>()
+    expectTypeOf<PetStore<'/pet', 'post'>['request']>().toEqualTypeOf<Components['schemas']['Pet'] | URLSearchParams>()
   })
 
   it('widens an optional request body with undefined', () => {
-    expectTypeOf<PetStore<'/store/order', 'post'>['request']>().toEqualTypeOf<Components['schemas']['Order'] | undefined>()
-    expectTypeOf<PetStore<'/user', 'post'>['request']>().toEqualTypeOf<Components['schemas']['User'] | undefined>()
+    expectTypeOf<PetStore<'/store/order', 'post'>['request']>().toEqualTypeOf<Components['schemas']['Order'] | URLSearchParams | undefined>()
+    expectTypeOf<PetStore<'/user', 'post'>['request']>().toEqualTypeOf<Components['schemas']['User'] | URLSearchParams | undefined>()
     expectTypeOf<PetStore<'/user/createWithList', 'post'>['request']>().toEqualTypeOf<Components['schemas']['User'][] | undefined>()
   })
 

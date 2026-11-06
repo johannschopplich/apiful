@@ -95,6 +95,7 @@ const PRIMITIVE_TYPES = ['boolean', 'string', 'number', 'integer', 'null']
 const BINARY_TYPE = 'Blob | File'
 const JSON_MEDIA_TYPE_RE = /^application\/(?:[\w.+-]+\+)?json(?:;|$)/i
 const MULTIPART_FORM_DATA_RE = /^multipart\/form-data(?:;|$)/i
+const FORM_URLENCODED_RE = /^application\/x-www-form-urlencoded(?:;|$)/i
 const EMPTY_PATHS = `export type paths = ${tsRecord(STRING, NEVER)};`
 const EMPTY_COMPONENTS = `export type components = ${tsRecord(STRING, NEVER)};`
 
@@ -420,13 +421,9 @@ function transformRequestBodyObject(requestBodyObject: Record<string, any>, opti
   const members: TSNode[] = []
 
   for (const [contentType, mediaTypeObject] of Object.entries<any>(requestBodyObject.content ?? {})) {
-    let mediaType = transformMediaTypeObject(mediaTypeObject, { ...options, ref: createRef([options.ref, 'content', contentType]) }, contentIndent)
-    if (MULTIPART_FORM_DATA_RE.test(contentType))
-      mediaType = tsUnion([mediaType, 'FormData'])
-
     members.push(propertySignature({
       name: tsPropertyIndex(contentType),
-      type: mediaType,
+      type: transformRequestMediaType(contentType, mediaTypeObject, { ...options, ref: createRef([options.ref, 'content', contentType]) }, contentIndent),
       comment: createJSDocComment(mediaTypeObject, contentIndent),
       indent: contentIndent,
     }))
@@ -436,6 +433,18 @@ function transformRequestBodyObject(requestBodyObject: Record<string, any>, opti
     members.push(propertySignature({ name: tsPropertyIndex('*/*'), optional: true, type: NEVER, indent: contentIndent }))
 
   return typeLiteral([propertySignature({ name: 'content', type: typeLiteral(members, memberIndent), indent: memberIndent })], indent)
+}
+
+/**
+ * Types a request body by what reaches the wire. ofetch sends a plain object as JSON unless the
+ * request sets an `application/x-www-form-urlencoded` content type, so a multipart body is typed
+ * as the `FormData` it sends as is, and a urlencoded body takes a `URLSearchParams` besides its schema.
+ */
+function transformRequestMediaType(contentType: string, mediaTypeObject: Record<string, any>, options: TransformOptions, indent: string): TSNode {
+  if (MULTIPART_FORM_DATA_RE.test(contentType))
+    return 'FormData'
+  const mediaType = transformMediaTypeObject(mediaTypeObject, options, indent)
+  return FORM_URLENCODED_RE.test(contentType) ? tsUnion([mediaType, 'URLSearchParams']) : mediaType
 }
 
 function transformResponsesObject(responsesObject: Record<string, any>, options: TransformOptions, indent: string): TSNode {
