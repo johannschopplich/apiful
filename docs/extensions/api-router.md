@@ -131,7 +131,7 @@ The following methods are supported as the last method in the chain:
 
 ## Error Handling
 
-Requests throw on non-2xx status codes, which is ofetch's behavior. Handle them with try-catch:
+Requests throw on 4xx and 5xx status codes, which is ofetch's behavior. Handle them with try-catch:
 
 ```ts
 try {

@@ -109,7 +109,7 @@ const response = await petStore('/foo/{id}', {
 
 ## Error Responses
 
-A non-2xx response throws, the same as with any ofetch client. The thrown error carries the parsed body on `data`, and `FetchResponseError` types that body from the schema the request was typed against:
+A 4xx or 5xx response throws, the same as with any ofetch client. The thrown error carries the parsed body on `data`, and `FetchResponseError` types that body from the schema the request was typed against:
 
 ```ts
 import type { FetchResponseError } from 'apiful/openapi'

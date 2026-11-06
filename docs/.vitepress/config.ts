@@ -42,6 +42,7 @@ export default defineConfig({
           { text: 'Creating Extensions', link: '/guide/custom-extensions' },
           { text: 'Command Line Interface', link: '/guide/cli' },
           { text: 'Migration', link: '/guide/migration' },
+          { text: 'Migrating From openapi-typescript', link: '/guide/migrating-from-openapi-typescript' },
         ],
       },
       {
@@ -145,6 +146,7 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
         { text: 'Creating Extensions', link: '/guide/custom-extensions' },
         { text: 'Command Line Interface', link: '/guide/cli' },
         { text: 'Migration', link: '/guide/migration' },
+        { text: 'Migrating From openapi-typescript', link: '/guide/migrating-from-openapi-typescript' },
       ],
     },
     {

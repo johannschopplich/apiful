@@ -12,7 +12,7 @@ You can use one of the [built-in extensions](https://apiful.land/guide/using-ext
 > [📖 Read the documentation](https://apiful.land)
 
 > [!NOTE]
-> Upgrading from v4? See the [migration guide](https://apiful.land/guide/migration).
+> Upgrading from v5? See the [migration guide](https://apiful.land/guide/migration). Coming from openapi-typescript and openapi-fetch? See [Migrating from openapi-typescript and openapi-fetch](https://apiful.land/guide/migrating-from-openapi-typescript).
 
 ```bash
 # pnpm

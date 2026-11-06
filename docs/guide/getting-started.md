@@ -74,7 +74,7 @@ const newUser = await client('users', {
 })
 ```
 
-Each request inherits the client's default options and can override them individually. JSON serialization, response parsing, and thrown errors for non-2xx responses come from ofetch.
+Each request inherits the client's default options and can override them individually. JSON serialization, response parsing, and thrown errors for 4xx and 5xx responses come from ofetch.
 
 > [!TIP]
 > If your API publishes an OpenAPI schema, the [OpenAPI extension](/extensions/openapi) types paths, bodies, and responses for you from that schema.

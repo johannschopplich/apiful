@@ -55,7 +55,7 @@ features:
     linkText: Typed Clients for Nitro
   - icon: <span class="i-carbon:application"></span>
     title: Server-Side Utilities
-    details: Framework-agnostic HTTP status codes, phrases, and schema helpers for your server code.
+    details: Framework-agnostic HTTP status codes and phrases for your server code.
     link: /utilities
     linkText: Import Utilities
   - icon: <span class="i-carbon:code"></span>
