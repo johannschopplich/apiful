@@ -46,6 +46,14 @@ describe('apiRouterBuilder', () => {
     expect(requests[0]!.query).toEqual({ value: 'bar' })
   })
 
+  it('leaves the options object it was given unchanged', async () => {
+    const { client } = createRouter()
+    const options = { headers: { 'X-Bar': 'baz' } }
+    await client.echo!.query!.get({ value: 'bar' }, options)
+
+    expect(options).toEqual({ headers: { 'X-Bar': 'baz' } })
+  })
+
   it('includes default headers in requests', async () => {
     const { client, requests } = createRouter()
     await client.echo!.request!.post(undefined, {

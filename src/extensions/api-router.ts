@@ -57,13 +57,14 @@ export function apiRouterBuilder() {
             data?: any,
             opts: FetchOptions<R> = {},
           ) => {
-            if (method === 'GET' && data)
-              opts.query = data
-            else if (data)
-              opts.body = data
+            const requestOptions: FetchOptions<R> = { ...opts, method }
 
-            opts.method = method
-            return fetchFn<T, R>(url, opts)
+            if (method === 'GET' && data)
+              requestOptions.query = data
+            else if (data)
+              requestOptions.body = data
+
+            return fetchFn<T, R>(url, requestOptions)
           }
 
           return handler
