@@ -3,7 +3,7 @@
   "type": "module",
   "version": "6.0.0",
   "packageManager": "pnpm@12.18.0",
-  "description": "A fetch client you compose – typed from your OpenAPI schema, no generated client code",
+  "description": "A fetch client you compose – typed from your OpenAPI document, no generated client code",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
   "license": "MIT",
   "homepage": "https://apiful.land",
