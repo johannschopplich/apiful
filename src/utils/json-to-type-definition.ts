@@ -8,7 +8,7 @@ export interface TypeDefinitionOptions {
   strictProperties?: boolean
 }
 
-export type ResolvedTypeDefinitionOptions = Required<TypeDefinitionOptions>
+type ResolvedTypeDefinitionOptions = Required<TypeDefinitionOptions>
 
 /** The subset of JSON Schema that sample data infers. */
 interface InferredSchema {
