@@ -157,6 +157,14 @@ describe('createClient', () => {
     expect((extendedClient as unknown as { bar: string }).bar).toBe('added')
   })
 
+  it('reads back call written to a client with a handler extension', () => {
+    const extendedClient = createClient().with(() => () => new Response()) as unknown as { call: unknown }
+    const call = () => 'mine'
+    extendedClient.call = call
+
+    expect(extendedClient.call).toBe(call)
+  })
+
   it('keeps the methods of two clients extended from the same client apart', () => {
     const client = createClient()
     const left = client.with(() => ({ tag: () => 'left' }))

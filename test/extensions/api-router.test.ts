@@ -132,6 +132,21 @@ describe('apiRouterBuilder', () => {
     await expect(Promise.resolve(route)).resolves.toBe(route)
   })
 
+  it.each(['name', 'call'])('sends a GET request to a %s segment rather than reading the Function property', async (segment) => {
+    const { client, requests } = createRouter()
+    await client[segment]!.get()
+
+    expect(requests[0]!.path).toBe(`/${segment}`)
+  })
+
+  it('answers fetch with the fetch the client was created with rather than a route', () => {
+    const defaultOptions = { baseURL: BASE_URL }
+    const { fetch } = createRecordingFetch(defaultOptions)
+    const client = createClient(defaultOptions, { fetch }).with(apiRouterBuilder())
+
+    expect(client.fetch).toBe(fetch)
+  })
+
   it('treats uppercase method access identically to lowercase', async () => {
     const { client, requests } = createRouter()
     await (client.echo!.request! as any).POST({ foo: 'bar' })

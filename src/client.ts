@@ -3,6 +3,9 @@ import { ofetch } from 'ofetch'
 
 type Fn<T = any> = (...args: any[]) => T
 
+/** Members the base client answers for itself, ahead of the handler extension. */
+const CLIENT_MEMBERS = new Set<PropertyKey>(['defaultOptions', 'fetch'])
+
 export type HandlerExtension = Fn
 export type MethodsExtension = Record<string, unknown>
 export type ApiExtension = HandlerExtension | MethodsExtension
@@ -97,18 +100,18 @@ function createExtendedClient(
       if (prop in extensions)
         return extensions[prop]
 
-      if (prop in target)
+      if (CLIENT_MEMBERS.has(prop) || handler === undefined)
         return Reflect.get(target, prop, receiver)
 
-      // Whatever the base client cannot answer is asked of the handler extension, which may
-      // carry properties of its own or, as `apiRouterBuilder` does, answer a name it holds
-      // no property for.
-      return handler === undefined ? undefined : Reflect.get(handler, prop)
+      // Every other name, those of `Function` among them, is asked of the handler extension,
+      // which may carry properties of its own or, as `apiRouterBuilder` does, answer a name
+      // it holds no property for.
+      return Reflect.get(handler, prop)
     },
     set(target, prop, value, receiver) {
-      // A name the base client does not answer to belongs to this client alone, not to the
+      // A name the base client does not answer for belongs to this client alone, not to the
       // one it was extended from.
-      if (prop in extensions || !(prop in target)) {
+      if (prop in extensions || !CLIENT_MEMBERS.has(prop)) {
         extensions[prop] = value
         return true
       }
