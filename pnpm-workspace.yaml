@@ -1,15 +1,13 @@
+minimumReleaseAgeExcludePrune: true
 minimumReleaseAgeExclude:
   - utilful@3.5.1
 
-shellEmulator: true
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - vite@5.4.21
   - tinyclip@0.1.13
 
-allowBuilds:
-  '@parcel/watcher': true
-  esbuild: true
+shellEmulator: true
 
 overrides:
   function-bind: npm:@socketregistry/function-bind@^1.0.7
@@ -17,3 +15,7 @@ overrides:
   indent-string: npm:@socketregistry/indent-string@^1.0.14
   is-core-module: npm:@socketregistry/is-core-module@^1.0.11
   path-parse: npm:@socketregistry/path-parse@^1.0.8
+
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
