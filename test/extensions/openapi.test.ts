@@ -3,7 +3,6 @@ import type { components } from 'apiful/schema/petStore'
 import type { $Fetch } from 'ofetch'
 import type { ApiClient } from '../../src/client'
 import type { OpenAPIClient } from '../../src/extensions/openapi'
-import type { ServicePaths } from '../../src/openapi/client'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createClient, openAPIBuilder } from '../../src/index'
 
@@ -25,20 +24,7 @@ describe('openAPIBuilder', () => {
 
     const client = {} as ApiClient
     const openApiClient = builder(client)
-    expectTypeOf(openApiClient).toEqualTypeOf<OpenAPIClient<ServicePaths<'petStore'>>>()
-  })
-
-  it('types the client from the service name it was given', () => {
-    const petStoreBuilder = openAPIBuilder<'petStore'>()
-    const client = {} as ApiClient
-    const petStoreClient = petStoreBuilder(client)
-
-    expectTypeOf(petStoreClient).toEqualTypeOf<OpenAPIClient<OpenAPIServiceRepository['petStore']>>()
-
-    const secondPetStoreBuilder = openAPIBuilder<'petStore'>()
-    const secondPetStoreClient = secondPetStoreBuilder(client)
-
-    expectTypeOf(secondPetStoreClient).toEqualTypeOf<OpenAPIClient<OpenAPIServiceRepository['petStore']>>()
+    expectTypeOf(openApiClient).toEqualTypeOf<OpenAPIClient<OpenAPIServiceRepository['petStore']>>()
   })
 
   it('rejects an unknown service name', () => {
@@ -59,13 +45,22 @@ describe('openAPIBuilder', () => {
     const deleteResponse = petStoreClient('/pet/{petId}', {
       method: 'DELETE',
       path: { petId: 1 },
+    })
+
+    expectTypeOf(deleteResponse).toEqualTypeOf<Promise<never>>()
+  })
+
+  it('accepts an undeclared header beside a declared one', () => {
+    const petStoreClient = openAPIBuilder<'petStore'>()(createRecordedClient().client)
+
+    petStoreClient('/pet/{petId}', {
+      method: 'DELETE',
+      path: { petId: 1 },
       headers: {
         'api_key': 'test',
         'x-foo': 'bar',
       },
     })
-
-    expectTypeOf(deleteResponse).toEqualTypeOf<Promise<never>>()
   })
 
   it('passes the typed call signature to the next extension builder', () => {

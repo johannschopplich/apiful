@@ -160,7 +160,7 @@ describe('apiful CLI', () => {
       expect(stderr).toContain('schema')
     })
 
-    it('--check exits with code 1 for type definitions that were never generated', async () => {
+    it('--check exits with code 1 for generated types that were never written', async () => {
       const directory = createDirectory({
         'apiful.config.ts': CONFIG,
         'schemas/pet-store.json': SCHEMA,
@@ -173,7 +173,7 @@ describe('apiful CLI', () => {
       await expect(fsp.readFile(path.join(directory, 'apiful.d.ts'), 'utf-8')).rejects.toThrow()
     })
 
-    it('--check leaves an outdated type definition file unchanged', async () => {
+    it('--check leaves outdated generated types unchanged', async () => {
       const directory = createDirectory({
         'apiful.config.ts': CONFIG,
         'schemas/pet-store.json': SCHEMA,
@@ -188,7 +188,7 @@ describe('apiful CLI', () => {
         .toContain('apiful/schema/stale')
     })
 
-    it('--check passes for type definitions that are already current', async () => {
+    it('--check passes for generated types that are already current', async () => {
       const directory = createDirectory({
         'apiful.config.ts': CONFIG,
         'schemas/pet-store.json': SCHEMA,
@@ -200,7 +200,7 @@ describe('apiful CLI', () => {
       expect(exitCode).toBe(0)
     })
 
-    it('--check passes for type definitions written to an --outfile path', async () => {
+    it('--check passes for generated types written to an --outfile path', async () => {
       const directory = createDirectory({
         'apiful.config.ts': CONFIG,
         'schemas/pet-store.json': SCHEMA,

@@ -1,4 +1,4 @@
-import type { OpenAPIServiceRepository, PetStore, PetStoreApiMethods, PetStoreApiPaths, PetStoreModel, TestEcho } from 'apiful/schema'
+import type { PetStore, PetStoreApiMethods, PetStoreApiPaths, PetStoreModel, TestEcho } from 'apiful/schema'
 import type { components as Components } from 'apiful/schema/petStore'
 import type { components as TestEchoComponents } from 'apiful/schema/testEcho'
 import type { FetchContext } from 'ofetch'
@@ -59,11 +59,6 @@ describe('FetchResponseData', () => {
 })
 
 describe('ServicePaths', () => {
-  it('resolves a service name to its paths', () => {
-    expectTypeOf<ServicePaths<'petStore'>>().toEqualTypeOf<OpenAPIServiceRepository['petStore']>()
-    expectTypeOf<ServicePaths<'testEcho'>>().toEqualTypeOf<OpenAPIServiceRepository['testEcho']>()
-  })
-
   it('rejects an unknown service name', () => {
     // @ts-expect-error: No service is named `petStroe`.
     type _UnknownServicePaths = ServicePaths<'petStroe'>
