@@ -39,8 +39,7 @@ export type OpenAPIParameters<Operation, Kind extends 'path' | 'query'> = Operat
 
 /**
  * Every type one operation carries, keyed for extraction – `Service<'/pet/{petId}', 'get'>['response']`.
- * `request` and `response` reach for the same helpers `OpenAPIClient` reaches for, so
- * both report the same type; a test pins that against a call through an actual client.
+ * `response` is the same `FetchResponseData` an `OpenAPIClient` call with the default `json` `responseType` resolves to.
  */
 export interface OpenAPIEndpoint<Paths, Path extends keyof Paths, Method extends keyof Paths[Path]> {
   path: OpenAPIParameters<Paths[Path][Method], 'path'>
