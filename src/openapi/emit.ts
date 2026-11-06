@@ -94,13 +94,21 @@ const PRIMITIVE_TYPES = ['boolean', 'string', 'number', 'integer', 'null']
 const BINARY_TYPE = 'Blob | File'
 const JSON_MEDIA_TYPE_RE = /^application\/(?:[\w.+-]+\+)?json(?:;|$)/i
 const MULTIPART_FORM_DATA_RE = /^multipart\/form-data(?:;|$)/i
+const EMPTY_PATHS = `export type paths = ${tsRecord(STRING, NEVER)};`
+const EMPTY_COMPONENTS = `export type components = ${tsRecord(STRING, NEVER)};`
+
+/**
+ * Stand-in for the types of a schema that failed to load, declaring `paths` and `components`
+ * without members, so the helpers and clients typed after them still compile.
+ */
+export const EMPTY_SCHEMA_TYPES: string = `${EMPTY_PATHS}\n${EMPTY_COMPONENTS}\n`
 
 /**
  * Emits the `paths` and `components` declarations for a bundled OpenAPI document. Operations
  * are inlined into `paths` rather than collected in an `operations` interface; each path item
  * lists only the methods it declares, with path-level parameters folded into its operations.
  */
-export function emitSchemaTypes(document: OpenAPIDocument): string {
+export function generateSchemaTypes(document: OpenAPIDocument): string {
   // Discriminator handling patches the schemas it maps, which must not reach the caller's document.
   const schema = structuredClone(document)
   const context: EmitContext = {
@@ -116,11 +124,11 @@ export function emitSchemaTypes(document: OpenAPIDocument): string {
   const pathMembers = isObject(schema.paths) ? transformPathsObject(schema.paths, context) : []
   declarations.push(pathMembers.length
     ? `export interface paths {\n${pathMembers.join('\n')}\n}`
-    : `export type paths = ${tsRecord(STRING, NEVER)};`)
+    : EMPTY_PATHS)
 
   declarations.push(isObject(schema.components)
     ? `export interface components {\n${transformComponentsObject(schema.components, /^3\.[01]\./.test(schema.openapi), context).join('\n')}\n}`
-    : `export type components = ${tsRecord(STRING, NEVER)};`)
+    : EMPTY_COMPONENTS)
 
   if (context.hasWithRequired)
     declarations.push(WITH_REQUIRED_HELPER)

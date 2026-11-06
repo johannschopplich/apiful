@@ -1,4 +1,4 @@
-import type { DTSFragmentOutput } from '../../src/openapi/generate.ts'
+import type { GeneratedDeclarations } from '../../src/openapi/generate.ts'
 import * as path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { findDrift, planGeneration } from '../../src/cli/plan.ts'
@@ -6,7 +6,7 @@ import { GENERATED_FILE_HEADER } from '../../src/constants.ts'
 
 const ROOT = path.resolve('/projects/app')
 
-const DTS: DTSFragmentOutput = {
+const DTS: GeneratedDeclarations = {
   entry: `declare module 'apiful/schema' {}\n`,
   fragments: {
     petStore: `declare module 'apiful/schema/petStore' {}\n`,
@@ -14,7 +14,7 @@ const DTS: DTSFragmentOutput = {
   },
 }
 
-const SINGLE_SERVICE_DTS: DTSFragmentOutput = {
+const SINGLE_SERVICE_DTS: GeneratedDeclarations = {
   entry: DTS.entry,
   fragments: { petStore: DTS.fragments.petStore! },
 }
@@ -27,6 +27,12 @@ describe('planGeneration', () => {
     expect(files.get(path.join(ROOT, 'apiful.d.ts'))).toBe(
       `${GENERATED_FILE_HEADER}${DTS.entry}\n${DTS.fragments.petStore}\n\n${DTS.fragments.testEcho}`,
     )
+  })
+
+  it('writes the entry alone to apiful.d.ts when no service is listed', () => {
+    const { files } = planGeneration({ entry: DTS.entry, fragments: {} }, { rootDir: ROOT })
+
+    expect(files.get(path.join(ROOT, 'apiful.d.ts'))).toBe(`${GENERATED_FILE_HEADER}${DTS.entry}`)
   })
 
   it('resolves --outfile against the root and names its parent as a directory to create', () => {
@@ -69,7 +75,7 @@ describe('planGeneration', () => {
   })
 
   it('names the output directory rather than the fragment directory when no service is listed', () => {
-    const empty: DTSFragmentOutput = { entry: DTS.entry, fragments: {} }
+    const empty: GeneratedDeclarations = { entry: DTS.entry, fragments: {} }
     const { files, directories, summary } = planGeneration(empty, { rootDir: ROOT, outdir: 'generated' })
 
     expect(directories).toEqual([path.join(ROOT, 'generated')])

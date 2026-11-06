@@ -9,6 +9,7 @@ The exported symbols, their type definitions, and the options each one takes. Fo
 | [`createClient`](/reference/create-client) | Creates a client from default fetch options. Every APIful client starts here. |
 | [`createOpenAPIClient`](/reference/create-openapi-client) | Creates a client typed from a generated OpenAPI schema, without the extension chain. |
 | [`defineApifulConfig`](/reference/define-apiful-config) | Declares the services the [`generate`](/guide/cli) command reads. |
+| [Type Generator](/reference/type-generator) | Generates the types the `generate` command writes, for tools that write them themselves. |
 
 ## Types
 

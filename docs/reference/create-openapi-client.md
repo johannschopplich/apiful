@@ -11,7 +11,7 @@ Same as the [`openAPIBuilder`](/extensions/openapi) extension – you need TypeS
 ## Example
 
 ```ts
-import { createOpenAPIClient } from 'apiful/openapi/client'
+import { createOpenAPIClient } from 'apiful/openapi'
 
 const petStore = createOpenAPIClient<'petStore'>({
   baseURL: 'https://petstore3.swagger.io/api/v3',
@@ -65,9 +65,11 @@ const client = createOpenAPIClient<'petStore'>({
 `createOpenAPIClient` builds its fetch function from `defaultOptions` with `ofetch.create`. To supply one yourself – an instance you already configured, or a stub in a test – pass it as `fetch`, the same option [`createClient`](/reference/create-client#supplying-your-own-fetch) takes:
 
 ```ts
-import { createOpenAPIClient } from 'apiful/openapi/client'
+import { createOpenAPIClient } from 'apiful/openapi'
 
 const petStore = createOpenAPIClient<'petStore'>({}, { fetch: myFetch })
 ```
 
 The client resolves the `path` parameters into the URL and passes every other option on to the fetch function unchanged. A fetch you supply owns its own options, so `defaultOptions` no longer reaches it.
+
+ofetch serializes a body only for `PATCH`, `POST`, `PUT` and `DELETE`. For an object body with any other method, such as OpenAPI 3.2's `QUERY`, the client derives an instance from your fetch with `create` and `native` that serializes the body the same way – so a stub that receives such a request needs both.

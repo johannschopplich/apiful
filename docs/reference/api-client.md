@@ -5,12 +5,10 @@ The client returned by [`createClient`](/reference/create-client): a callable ob
 ## Type Definition
 
 ```ts
-type ClientOptions = FetchOptions
-
 type ApiClient<Handler = unknown, Methods = unknown> = ApiClientBase<Handler, Methods> & Handler & Methods
 
 interface ApiClientBase<Handler, Methods> extends Function {
-  defaultOptions: ClientOptions
+  defaultOptions: FetchOptions
   fetch: $Fetch
   with: <Extension extends ApiExtension>(
     createExtension: (client: ApiClient<Handler, Methods>) => Extension,

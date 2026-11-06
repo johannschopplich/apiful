@@ -29,7 +29,7 @@ const newUser = await client('users', {
 
 ```ts
 declare function createClient(
-  defaultOptions?: ClientOptions,
+  defaultOptions?: FetchOptions,
   factoryOptions?: ClientFactoryOptions
 ): ApiClient
 
@@ -38,7 +38,7 @@ interface ClientFactoryOptions {
 }
 ```
 
-`ClientOptions` is defined with the [`ApiClient`](/reference/api-client) type.
+`FetchOptions` and `$Fetch` come from [ofetch](https://github.com/unjs/ofetch).
 
 ## Supplying Your Own Fetch
 
@@ -59,6 +59,3 @@ const client = createClient({ baseURL: 'https://api.example.com' }, {
 ```
 
 A fetch you supply is handed the request as it stands and owns its own options, so `defaultOptions` no longer reaches it – the exception is `baseURL`, which [`apiRouterBuilder`](/extensions/api-router) reads directly to build its routes. To keep ofetch's option handling while swapping only the transport, create the instance yourself with `ofetch.create(defaultOptions, { fetch })`.
-
-> [!NOTE]
-> `FetchOptions` and `$Fetch` are imported from [ofetch](https://github.com/unjs/ofetch).

@@ -4,7 +4,7 @@ import * as fsp from 'node:fs/promises'
 import * as path from 'node:path'
 import process from 'node:process'
 import { CliError, defineCommand, log } from 'utilful/cli'
-import { generateDTSFragments } from '../../openapi/generate.ts'
+import { generateDeclarations } from '../../openapi/generate.ts'
 import { findDrift, fragmentDirectoryFor, planGeneration } from '../plan.ts'
 import { loadConfig } from '../utils.ts'
 
@@ -63,9 +63,9 @@ const command: CommandDef<typeof args> = defineCommand({
       return
     }
 
-    const dtsOutput = await generateDTSFragments(Object.fromEntries(servicesWithSchema), { rootDir })
+    const declarations = await generateDeclarations(Object.fromEntries(servicesWithSchema), { rootDir })
 
-    const plan = planGeneration(dtsOutput, {
+    const plan = planGeneration(declarations, {
       rootDir,
       outfile: args.outfile,
       outdir: args.outdir,

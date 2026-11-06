@@ -1,182 +1,207 @@
 import type { ServiceOptions } from '../config.ts'
 import { pascalCase } from 'scule'
-import { emitSchemaTypes } from './emit.ts'
-import { loadOpenAPIDocument } from './load.ts'
+import { generateSchemaTypes } from './emit.ts'
+import { getErrorMessage, loadOpenAPIDocument } from './load.ts'
+import { isIdentifier } from './typescript.ts'
 
-export interface DTSFragmentOutput {
+export { EMPTY_SCHEMA_TYPES, generateSchemaTypes } from './emit.ts'
+export { loadOpenAPIDocument } from './load.ts'
+export type { LoadOpenAPIDocumentOptions, OpenAPIDocument, OpenAPIDocumentSource } from './load.ts'
+
+const ENTRY_IMPORTED_TYPE_NAMES = ['OpenAPIEndpoint', 'OpenAPIPathMethods']
+const SCHEMA_REPOSITORY_TYPE_NAME = 'OpenAPISchemaRepository'
+/** Types the `apiful/schema` entry declares itself, which no service may generate. */
+const ENTRY_TYPE_NAMES = [...ENTRY_IMPORTED_TYPE_NAMES, SCHEMA_REPOSITORY_TYPE_NAME]
+const SERVICE_NAME_RE = /^[\p{L}\p{N}$_.-]+$/u
+
+export interface GeneratedDeclarations {
   /** The `apiful/schema` module, importing from every fragment and exporting the type helpers. */
   entry: string
-  /** One `apiful/schema/<id>` module per service, keyed by service name. */
+  /** One `apiful/schema/<service>` module per service, keyed by service name. */
   fragments: Record<string, string>
 }
 
-export interface GenerateOptions {
+export interface GenerateDeclarationsOptions {
   /** Directory a relative schema path resolves against. Defaults to the current working directory. */
   rootDir?: string
 }
 
-export class SchemaGenerationError extends Error {}
-
-export async function generateDTS(
-  services: Record<string, ServiceOptions>,
-  options: GenerateOptions = {},
-): Promise<string> {
-  return joinDTSFragments(await generateDTSFragments(services, options))
+export interface TypeHelperIdentifiers {
+  /** Name of the `paths` type the helpers read the endpoints from. */
+  paths: string
+  /** Name of the `components` type the model helper reads the schemas from. */
+  components: string
 }
 
-/** Joins the entry and the per-service fragments into the single file `generateDTS` returns. */
-export function joinDTSFragments({ entry, fragments }: DTSFragmentOutput): string {
-  const fragmentContent = Object.values(fragments).join('\n\n')
-  return fragmentContent ? `${entry}\n${fragmentContent}` : entry
+export class SchemaGenerationError extends Error {
+  override name = 'SchemaGenerationError'
 }
 
-export async function generateDTSFragments(
+/**
+ * Loads the schema of every service and generates the `apiful/schema` module declarations:
+ * one fragment per service carrying its types, and an entry carrying the type helpers.
+ */
+export async function generateDeclarations(
   services: Record<string, ServiceOptions>,
-  options: GenerateOptions = {},
-): Promise<DTSFragmentOutput> {
-  assertDistinctTypeNames(Object.keys(services))
+  options: GenerateDeclarationsOptions = {},
+): Promise<GeneratedDeclarations> {
+  assertDeclarableTypeNames(Object.keys(services))
 
-  const resolvedSchemaEntries = await Promise.all(
-    Object.entries(services).map(async ([id, service]) => {
-      const types = await generateSchemaTypes({ id, service, ...options })
-      return [id, types] as const
+  const fragmentEntries = await Promise.all(
+    Object.entries(services).map(async ([serviceName, service]) => {
+      const types = await generateServiceTypes(serviceName, service, options)
+      return [serviceName, declareModule(`apiful/schema/${serviceName}`, types)] as const
     }),
   )
 
-  const resolvedSchemas = Object.fromEntries(resolvedSchemaEntries)
-  const serviceIds = Object.keys(resolvedSchemas)
+  const serviceTypeNames = Object.keys(services).map(serviceName => [serviceName, createTypeNames(serviceName)] as const)
 
-  const servicePathImports = serviceIds
-    .map(id => `  import { paths as ${pascalCase(id)}Paths, components as ${pascalCase(id)}Components } from 'apiful/schema/${id}'`)
+  const servicePathImports = serviceTypeNames
+    .map(([serviceName, typeNames]) => `import { paths as ${typeNames.paths}, components as ${typeNames.components} } from 'apiful/schema/${serviceName}'`)
     .join('\n')
 
-  const schemaRepositoryEntries = serviceIds
-    .map(id => `    '${id}': ${pascalCase(id)}Paths`)
+  const schemaRepositoryEntries = serviceTypeNames
+    .map(([serviceName, typeNames]) => `  '${serviceName}': ${typeNames.paths}`)
     .join('\n')
 
-  const typeExports = serviceIds
-    .map(generateTypeHelpers)
+  const typeHelpers = serviceTypeNames
+    .map(([serviceName, typeNames]) => generateTypeHelpers(serviceName, typeNames))
     .join('\n\n')
 
-  const fragments = Object.fromEntries(
-    Object.entries(resolvedSchemas).map(([id, types]) => {
-      const content = `
-declare module 'apiful/schema/${id}' {
-${applyLineIndent(types.trimEnd())}
-}
-`.trimStart()
-      return [id, content]
-    }),
-  )
-
-  const entry = `
-declare module 'apiful/schema' {
-  import { OpenAPIEndpoint, OpenAPIPathMethods } from 'apiful/openapi'
+  const entry = declareModule('apiful/schema', `
+import { ${ENTRY_IMPORTED_TYPE_NAMES.join(', ')} } from 'apiful/openapi'
 ${servicePathImports}
 
-  interface OpenAPISchemaRepository {
+interface ${SCHEMA_REPOSITORY_TYPE_NAME} {
 ${schemaRepositoryEntries}
-  }
-
-${applyLineIndent(typeExports)}
 }
-`.trimStart()
+
+${typeHelpers}
+`.trimStart())
 
   return {
     entry,
-    fragments,
+    fragments: Object.fromEntries(fragmentEntries),
   }
 }
 
+/** Wraps declarations in an ambient module declaration, indenting every line that holds code. */
+export function declareModule(specifier: string, body: string): string {
+  return `declare module '${specifier}' {\n${body.trimEnd().replace(/^(?=.)/gm, '  ')}\n}\n`
+}
+
 /**
- * Emits the type helpers for one service. The emitted code references `<Id>Paths` and
- * `<Id>Components` along with `OpenAPIEndpoint` and `OpenAPIPathMethods`, none of which it
- * imports – the module declaration it is placed in brings them into scope.
+ * Emits the type helpers for one service, named after it. The emitted code references
+ * the given `paths` and `components` types along with `OpenAPIEndpoint` and
+ * `OpenAPIPathMethods` from `apiful/openapi`, none of which it imports – the code around it
+ * brings them into scope.
  */
-export function generateTypeHelpers(id: string): string {
+export function generateTypeHelpers(serviceName: string, { paths, components }: TypeHelperIdentifiers): string {
+  const { endpoint: helperName, apiPaths, apiMethods, model } = createTypeNames(serviceName)
+
   return `
 /**
- * OpenAPI endpoint type helper for the ${pascalCase(id)} API.
+ * OpenAPI endpoint type helper for the ${helperName} API.
  *
  * @example
  * // Get path parameters for retrieving a user by ID:
- * type UserParams = ${pascalCase(id)}<'/users/{id}', 'get'>['path']
+ * type UserParams = ${helperName}<'/users/{id}', 'get'>['path']
  *
  * // Get query parameters for listing users:
- * type UsersQuery = ${pascalCase(id)}<'/users', 'get'>['query']
+ * type UsersQuery = ${helperName}<'/users', 'get'>['query']
  *
  * // Get request body type for creating a user:
- * type CreateUserBody = ${pascalCase(id)}<'/users', 'post'>['request']
+ * type CreateUserBody = ${helperName}<'/users', 'post'>['request']
  *
  * // Get success response for retrieving a user:
- * type UserResponse = ${pascalCase(id)}<'/users/{id}', 'get'>['response']
+ * type UserResponse = ${helperName}<'/users/{id}', 'get'>['response']
  *
  * // Get a specific status code response:
- * type UserNotFoundResponse = ${pascalCase(id)}<'/users/{id}', 'get'>['responses'][404]
+ * type UserNotFoundResponse = ${helperName}<'/users/{id}', 'get'>['responses'][404]
  *
  * // Get complete endpoint type definition:
- * type UserEndpoint = ${pascalCase(id)}<'/users/{id}', 'get'>
+ * type UserEndpoint = ${helperName}<'/users/{id}', 'get'>
  */
-export type ${pascalCase(id)}<
-  Path extends keyof ${pascalCase(id)}Paths,
-  Method extends OpenAPIPathMethods<${pascalCase(id)}Paths, Path>
-> = OpenAPIEndpoint<${pascalCase(id)}Paths, Path, Method>
+export type ${helperName}<
+  Path extends keyof ${paths},
+  Method extends OpenAPIPathMethods<${paths}, Path>
+> = OpenAPIEndpoint<${paths}, Path, Method>
 
 /**
  * @example
- * type AvailablePaths = ${pascalCase(id)}ApiPaths // Returns literal union of all available paths
+ * type AvailablePaths = ${apiPaths} // Returns literal union of all available paths
  */
-export type ${pascalCase(id)}ApiPaths = keyof ${pascalCase(id)}Paths
+export type ${apiPaths} = keyof ${paths}
 
 /**
  * @example
- * type UserMethods = ${pascalCase(id)}ApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
+ * type UserMethods = ${apiMethods}<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
  */
-export type ${pascalCase(id)}ApiMethods<Path extends keyof ${pascalCase(id)}Paths> = OpenAPIPathMethods<${pascalCase(id)}Paths, Path>
+export type ${apiMethods}<Path extends keyof ${paths}> = OpenAPIPathMethods<${paths}, Path>
 
 /**
  * @example
- * type Pet = ${pascalCase(id)}Model<'Pet'> // Get the Pet schema model
- * type User = ${pascalCase(id)}Model<'User'> // Get the User schema model
+ * type Pet = ${model}<'Pet'> // Get the Pet schema model
+ * type User = ${model}<'User'> // Get the User schema model
  */
-export type ${pascalCase(id)}Model<T extends keyof ${pascalCase(id)}Components['schemas']> = ${pascalCase(id)}Components['schemas'][T]
+export type ${model}<T extends keyof ${components}['schemas']> = ${components}['schemas'][T]
 `.trim()
 }
 
-/** Loads the schema of one service and returns its types, without a module declaration around them. */
-export async function generateSchemaTypes(options: {
-  id: string
-  service: ServiceOptions
-} & GenerateOptions): Promise<string> {
+/**
+ * Throws where a service name holds a character that its module specifier or fragment file
+ * cannot, or where the service would declare a type in the `apiful/schema` module that is not
+ * a valid identifier, or that another service or the module itself already declares.
+ */
+function assertDeclarableTypeNames(serviceNames: string[]): void {
+  const serviceNamesByTypeName = new Map<string, string>()
+
+  for (const serviceName of serviceNames) {
+    // The name also ends a module specifier and names the file of its fragment.
+    if (!SERVICE_NAME_RE.test(serviceName))
+      throw new SchemaGenerationError(`Service \`${serviceName}\` may only hold letters, digits, \`_\`, \`$\`, \`.\`, and \`-\``)
+    const typeNames = createTypeNames(serviceName)
+    if (!isIdentifier(typeNames.endpoint))
+      throw new SchemaGenerationError(`Service \`${serviceName}\` generates the type \`${typeNames.endpoint}\`, which is not a valid identifier`)
+
+    for (const typeName of Object.values(typeNames)) {
+      if (ENTRY_TYPE_NAMES.includes(typeName))
+        throw new SchemaGenerationError(`Service \`${serviceName}\` generates the type \`${typeName}\`, which the \`apiful/schema\` module declares itself`)
+      const existingServiceName = serviceNamesByTypeName.get(typeName)
+      if (existingServiceName !== undefined)
+        throw new SchemaGenerationError(`Services \`${existingServiceName}\` and \`${serviceName}\` both generate the type \`${typeName}\``)
+      serviceNamesByTypeName.set(typeName, serviceName)
+    }
+  }
+}
+
+/** Loads the schema of one service and returns its types, naming the service in any failure. */
+async function generateServiceTypes(
+  serviceName: string,
+  service: ServiceOptions,
+  { rootDir }: GenerateDeclarationsOptions,
+): Promise<string> {
   try {
-    const document = await loadOpenAPIDocument(options.service.schema, { rootDir: options.rootDir })
-    return emitSchemaTypes(document)
+    const document = await loadOpenAPIDocument(service.schema, { rootDir })
+    return generateSchemaTypes(document)
   }
   catch (error) {
-    const reason = Error.isError(error) ? error.message : String(error)
     throw new SchemaGenerationError(
-      `Failed to generate types for service \`${options.id}\` – ${reason}`,
+      `Failed to generate types for service \`${serviceName}\` – ${getErrorMessage(error)}`,
       { cause: error },
     )
   }
 }
 
-/** Throws where two services would declare the same type in the `apiful/schema` module. */
-function assertDistinctTypeNames(serviceIds: string[]): void {
-  const serviceIdsByTypeName = new Map<string, string>()
-
-  for (const id of serviceIds) {
-    const helperName = pascalCase(id)
-    const typeNames = ['', 'ApiPaths', 'ApiMethods', 'Model', 'Paths', 'Components'].map(suffix => `${helperName}${suffix}`)
-    for (const typeName of typeNames) {
-      const existingId = serviceIdsByTypeName.get(typeName)
-      if (existingId !== undefined)
-        throw new SchemaGenerationError(`Services \`${existingId}\` and \`${id}\` both generate the type \`${typeName}\``)
-      serviceIdsByTypeName.set(typeName, id)
-    }
+/** Returns the name of every type the `apiful/schema` module declares for one service. */
+function createTypeNames(serviceName: string) {
+  const helperName = pascalCase(serviceName)
+  return {
+    endpoint: helperName,
+    apiPaths: `${helperName}ApiPaths`,
+    apiMethods: `${helperName}ApiMethods`,
+    model: `${helperName}Model`,
+    paths: `${helperName}Paths`,
+    components: `${helperName}Components`,
   }
-}
-
-function applyLineIndent(code: string, indent = 2): string {
-  return code.replace(/^/gm, ' '.repeat(indent))
 }

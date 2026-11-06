@@ -35,21 +35,13 @@
       "types": "./dist/config.d.mts",
       "default": "./dist/config.mjs"
     },
-    "./extensions": {
-      "types": "./dist/extensions/index.d.mts",
-      "default": "./dist/extensions/index.mjs"
-    },
     "./openapi": {
       "types": "./dist/openapi/index.d.mts",
       "default": "./dist/openapi/index.mjs"
     },
-    "./openapi/client": {
-      "types": "./dist/openapi/client.d.mts",
-      "default": "./dist/openapi/client.mjs"
-    },
-    "./openapi/types": {
-      "types": "./dist/openapi/types.d.mts",
-      "default": "./dist/openapi/types.mjs"
+    "./openapi/generate": {
+      "types": "./dist/openapi/generate.d.mts",
+      "default": "./dist/openapi/generate.mjs"
     },
     "./schema": {
       "types": "./schema.d.mts",

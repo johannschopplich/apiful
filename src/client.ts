@@ -10,8 +10,6 @@ export type ApiExtension = HandlerExtension | MethodsExtension
 export type HandlerExtensionBuilder = (client: ApiClient) => HandlerExtension
 export type MethodsExtensionBuilder = (client: ApiClient) => MethodsExtension
 
-export type ClientOptions = FetchOptions
-
 export interface ClientFactoryOptions {
   /**
    * Fetch every extension of the client issues its requests through. Defaults to an
@@ -28,7 +26,7 @@ export interface ClientFactoryOptions {
 export type ApiClient<Handler = unknown, Methods = unknown> = ApiClientBase<Handler, Methods> & Handler & Methods
 
 interface ApiClientBase<Handler, Methods> extends Function {
-  defaultOptions: ClientOptions
+  defaultOptions: FetchOptions
   fetch: $Fetch
   with: <Extension extends ApiExtension>(
     createExtension: (client: ApiClient<Handler, Methods>) => Extension,
@@ -39,7 +37,7 @@ interface ApiClientBase<Handler, Methods> extends Function {
 }
 
 export function createClient(
-  defaultOptions: ClientOptions = {},
+  defaultOptions: FetchOptions = {},
   { fetch = ofetch.create(defaultOptions) }: ClientFactoryOptions = {},
 ): ApiClient {
   const client = (() => {

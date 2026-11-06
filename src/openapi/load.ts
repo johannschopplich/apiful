@@ -805,6 +805,6 @@ function getRefBaseName(absoluteRef: string): string {
   return absoluteRef.split(/[/\\]/).pop()!.replace(/\.[^.]+$/, '')
 }
 
-function getErrorMessage(error: unknown): string {
+export function getErrorMessage(error: unknown): string {
   return Error.isError(error) ? error.message : String(error)
 }

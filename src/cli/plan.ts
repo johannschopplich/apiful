@@ -1,7 +1,6 @@
-import type { DTSFragmentOutput } from '../openapi/generate.ts'
+import type { GeneratedDeclarations } from '../openapi/generate.ts'
 import * as path from 'node:path'
 import { DEFAULT_OUTFILE, GENERATED_FILE_HEADER } from '../constants.ts'
-import { joinDTSFragments } from '../openapi/generate.ts'
 
 export interface GenerationPlan {
   /** Full contents keyed by absolute path, for every file the run would write. */
@@ -34,12 +33,12 @@ export function fragmentDirectoryFor(rootDir: string, outdir: string): string {
 }
 
 /** Decides everything a run would change on disk, without touching any of it. */
-export function planGeneration(dtsOutput: DTSFragmentOutput, options: PlanOptions): GenerationPlan {
+export function planGeneration(declarations: GeneratedDeclarations, options: PlanOptions): GenerationPlan {
   const { outdir } = options
 
   return outdir
-    ? planFragmentedOutput(dtsOutput, { ...options, outdir })
-    : planSingleFileOutput(dtsOutput, options)
+    ? planFragmentedOutput(declarations, { ...options, outdir })
+    : planSingleFileOutput(declarations, options)
 }
 
 /**
@@ -69,20 +68,26 @@ export function findDrift(
   return drift
 }
 
-function planSingleFileOutput(dtsOutput: DTSFragmentOutput, { rootDir, outfile }: PlanOptions): GenerationPlan {
+function planSingleFileOutput(declarations: GeneratedDeclarations, { rootDir, outfile }: PlanOptions): GenerationPlan {
   const outfilePath = path.resolve(rootDir, outfile || DEFAULT_OUTFILE)
-  const serviceCount = Object.keys(dtsOutput.fragments).length
+  const serviceCount = Object.keys(declarations.fragments).length
 
   return {
-    files: new Map([[outfilePath, `${GENERATED_FILE_HEADER}${joinDTSFragments(dtsOutput)}`]]),
+    files: new Map([[outfilePath, `${GENERATED_FILE_HEADER}${joinDeclarations(declarations)}`]]),
     removals: [],
     directories: [path.dirname(outfilePath)],
     summary: `OpenAPI types generated in \`${path.relative(rootDir, outfilePath)}\` (${serviceCount} ${pluralizeServices(serviceCount)})`,
   }
 }
 
+/** Joins the entry and the per-service fragments into the single file an `outfile` run writes. */
+function joinDeclarations({ entry, fragments }: GeneratedDeclarations): string {
+  const fragmentContent = Object.values(fragments).join('\n\n')
+  return fragmentContent ? `${entry}\n${fragmentContent}` : entry
+}
+
 function planFragmentedOutput(
-  { entry, fragments }: DTSFragmentOutput,
+  { entry, fragments }: GeneratedDeclarations,
   { rootDir, outdir, existingFragments }: PlanOptions & { outdir: string },
 ): GenerationPlan {
   const outputDir = path.resolve(rootDir, outdir)

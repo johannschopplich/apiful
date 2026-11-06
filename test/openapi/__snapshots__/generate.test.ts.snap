@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`OpenAPI types generation > generates an entry and one fragment per service 1`] = `
+exports[`generateDeclarations > generates an entry and one fragment per service 1`] = `
 "declare module 'apiful/schema' {
   import { OpenAPIEndpoint, OpenAPIPathMethods } from 'apiful/openapi'
   import { paths as TestEchoPaths, components as TestEchoComponents } from 'apiful/schema/testEcho'
@@ -35,19 +35,19 @@ exports[`OpenAPI types generation > generates an entry and one fragment per serv
     Path extends keyof TestEchoPaths,
     Method extends OpenAPIPathMethods<TestEchoPaths, Path>
   > = OpenAPIEndpoint<TestEchoPaths, Path, Method>
-  
+
   /**
    * @example
    * type AvailablePaths = TestEchoApiPaths // Returns literal union of all available paths
    */
   export type TestEchoApiPaths = keyof TestEchoPaths
-  
+
   /**
    * @example
    * type UserMethods = TestEchoApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
    */
   export type TestEchoApiMethods<Path extends keyof TestEchoPaths> = OpenAPIPathMethods<TestEchoPaths, Path>
-  
+
   /**
    * @example
    * type Pet = TestEchoModel<'Pet'> // Get the Pet schema model
@@ -58,7 +58,7 @@ exports[`OpenAPI types generation > generates an entry and one fragment per serv
 "
 `;
 
-exports[`OpenAPI types generation > generates an entry and one fragment per service 2`] = `
+exports[`generateDeclarations > generates an entry and one fragment per service 2`] = `
 {
   "testEcho": "declare module 'apiful/schema/testEcho' {
   export interface paths {

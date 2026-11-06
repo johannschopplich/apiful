@@ -38,26 +38,26 @@ declare module 'apiful/schema' {
     Path extends keyof TestEchoPaths,
     Method extends OpenAPIPathMethods<TestEchoPaths, Path>
   > = OpenAPIEndpoint<TestEchoPaths, Path, Method>
-  
+
   /**
    * @example
    * type AvailablePaths = TestEchoApiPaths // Returns literal union of all available paths
    */
   export type TestEchoApiPaths = keyof TestEchoPaths
-  
+
   /**
    * @example
    * type UserMethods = TestEchoApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
    */
   export type TestEchoApiMethods<Path extends keyof TestEchoPaths> = OpenAPIPathMethods<TestEchoPaths, Path>
-  
+
   /**
    * @example
    * type Pet = TestEchoModel<'Pet'> // Get the Pet schema model
    * type User = TestEchoModel<'User'> // Get the User schema model
    */
   export type TestEchoModel<T extends keyof TestEchoComponents['schemas']> = TestEchoComponents['schemas'][T]
-  
+
   /**
    * OpenAPI endpoint type helper for the PetStore API.
    *
@@ -84,26 +84,26 @@ declare module 'apiful/schema' {
     Path extends keyof PetStorePaths,
     Method extends OpenAPIPathMethods<PetStorePaths, Path>
   > = OpenAPIEndpoint<PetStorePaths, Path, Method>
-  
+
   /**
    * @example
    * type AvailablePaths = PetStoreApiPaths // Returns literal union of all available paths
    */
   export type PetStoreApiPaths = keyof PetStorePaths
-  
+
   /**
    * @example
    * type UserMethods = PetStoreApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
    */
   export type PetStoreApiMethods<Path extends keyof PetStorePaths> = OpenAPIPathMethods<PetStorePaths, Path>
-  
+
   /**
    * @example
    * type Pet = PetStoreModel<'Pet'> // Get the Pet schema model
    * type User = PetStoreModel<'User'> // Get the User schema model
    */
   export type PetStoreModel<T extends keyof PetStoreComponents['schemas']> = PetStoreComponents['schemas'][T]
-  
+
   /**
    * OpenAPI endpoint type helper for the Catalog API.
    *
@@ -130,19 +130,19 @@ declare module 'apiful/schema' {
     Path extends keyof CatalogPaths,
     Method extends OpenAPIPathMethods<CatalogPaths, Path>
   > = OpenAPIEndpoint<CatalogPaths, Path, Method>
-  
+
   /**
    * @example
    * type AvailablePaths = CatalogApiPaths // Returns literal union of all available paths
    */
   export type CatalogApiPaths = keyof CatalogPaths
-  
+
   /**
    * @example
    * type UserMethods = CatalogApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
    */
   export type CatalogApiMethods<Path extends keyof CatalogPaths> = OpenAPIPathMethods<CatalogPaths, Path>
-  
+
   /**
    * @example
    * type Pet = CatalogModel<'Pet'> // Get the Pet schema model

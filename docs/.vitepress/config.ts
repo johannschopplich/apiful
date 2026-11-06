@@ -73,6 +73,7 @@ export default defineConfig({
               { text: 'createClient', link: '/reference/create-client' },
               { text: 'createOpenAPIClient', link: '/reference/create-openapi-client' },
               { text: 'defineApifulConfig', link: '/reference/define-apiful-config' },
+              { text: 'Type Generator', link: '/reference/type-generator' },
             ],
           },
           {
@@ -181,6 +182,7 @@ function referenceGuide(): DefaultTheme.SidebarItem[] {
         { text: 'createClient', link: '/reference/create-client' },
         { text: 'createOpenAPIClient', link: '/reference/create-openapi-client' },
         { text: 'defineApifulConfig', link: '/reference/define-apiful-config' },
+        { text: 'Type Generator', link: '/reference/type-generator' },
       ],
     },
     {
