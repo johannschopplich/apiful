@@ -83,6 +83,7 @@
     "lint:fix": "eslint . --fix",
     "test": "vitest --typecheck",
     "test:types": "tsc --noEmit",
+    "test:types:consumer": "node scripts/typecheck-consumer.ts",
     "release": "bumpp",
     "prepack": "pnpm run build"
   },

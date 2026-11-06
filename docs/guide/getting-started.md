@@ -23,7 +23,7 @@ Get started by installing `apiful` in your project:
 > [!TIP]
 > Your API client ships with your application, so `apiful` belongs in `dependencies`.
 
-APIful supports Node 24 or later.
+APIful supports Node 24 or later, and its types require TypeScript 5.9 or later.
 
 ## Your First API Client
 
