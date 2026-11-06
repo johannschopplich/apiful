@@ -127,6 +127,16 @@ describe('loadOpenAPIDocument', () => {
       expect(components!.mediaTypes!.Tag).toEqual({ schema: { $ref: '#/components/schemas/tag' } })
     })
 
+    it('leaves the refs in an OpenAPI 3.1 components.mediaTypes as they are', async () => {
+      const { components } = await loadOpenAPIDocument({
+        openapi: '3.1',
+        info: { title: 'Media Types', version: '1.0.0' },
+        components: { mediaTypes: { Tag: { schema: { $ref: './multi-file/schemas/tag.yaml' } } } },
+      }, { rootDir: fixturesDir })
+
+      expect(components!.mediaTypes!.Tag).toEqual({ schema: { $ref: './multi-file/schemas/tag.yaml' } })
+    })
+
     it('keeps the siblings of an OpenAPI 3.1 $ref', async () => {
       const { paths } = await loadOpenAPIDocument(multiFileRoot) as Record<string, any>
 

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
 import { parseYAML } from 'confbox/yaml'
 import { isObject } from 'utilful/object'
+import { hasMediaTypesGroup } from './emit.ts'
 import { escapePointer, parseRef } from './pointer.ts'
 
 export interface OpenAPIDocument {
@@ -320,7 +321,7 @@ async function resolveRefs(
  */
 function bundleDocument(rootDocument: LoadedDocument & { parsed: OpenAPIDocument }, resolvedRefs: Map<string, ResolvedRef>): void {
   const root = rootDocument.parsed
-  const types = createNodeTypes(root.openapi.startsWith('3.0'))
+  const types = createNodeTypes(root.openapi)
   const visitedNodesByType = new Map<string, Set<unknown>>()
   // A rewritten ref is tracked by its node, which may be reached again from another file,
   // where its new ref string could name a different target.
@@ -520,7 +521,8 @@ function bundleDocument(rootDocument: LoadedDocument & { parsed: OpenAPIDocument
  * Ported from the OpenAPI 3.0 and 3.1 types of `@redocly/openapi-core` 1.x (MIT),
  * https://github.com/Redocly/redocly-cli/tree/v1/packages/core/src/types
  */
-function createNodeTypes(isOpenAPI30: boolean) {
+function createNodeTypes(openapi: string) {
+  const isOpenAPI30 = openapi.startsWith('3.0')
   const scalar: NodeType = { name: 'scalar' }
   const extension: NodeType = { name: 'SpecExtension', additionalProperties: scalar }
   const opaque: NodeType = { name: 'Opaque' }
@@ -669,11 +671,9 @@ function createNodeTypes(isOpenAPI30: boolean) {
       securitySchemes: mapOf(opaque, 'NamedSecuritySchemes'),
       links: mapOf(link, 'NamedLinks'),
       callbacks: mapOf(callback, 'NamedCallbacks'),
-      ...(!isOpenAPI30 && {
-        pathItems: mapOf(pathItem, 'NamedPathItems'),
-        // An OpenAPI 3.2 group, which Redocly 1.x leaves unbundled.
-        mediaTypes: mapOf(mediaType, 'NamedMediaTypes'),
-      }),
+      ...(!isOpenAPI30 && { pathItems: mapOf(pathItem, 'NamedPathItems') }),
+      // An OpenAPI 3.2 group, which Redocly 1.x leaves unbundled.
+      ...(hasMediaTypesGroup(openapi) && { mediaTypes: mapOf(mediaType, 'NamedMediaTypes') }),
     },
     hasExtensions: true,
   }

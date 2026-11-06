@@ -56,6 +56,7 @@ interface EmitContext {
     refsHandled: string[]
   }
   hasWithRequired: boolean
+  hasMediaTypesGroup: boolean
   resolve: <T = any>($ref: string) => T | undefined
   /** Returns the node a ref points to as it stands, even where that node is itself a ref, which `resolve` would follow. */
   resolveOneHop: <T = any>($ref: string) => T | undefined
@@ -114,6 +115,7 @@ export function generateSchemaTypes(document: OpenAPIDocument): string {
   const context: EmitContext = {
     discriminators: { objects: {}, refsHandled: [] },
     hasWithRequired: false,
+    hasMediaTypesGroup: hasMediaTypesGroup(schema.openapi),
     resolve: $ref => resolveRef(schema, $ref),
     resolveOneHop: $ref => resolveRefOneHop(schema, $ref),
   }
@@ -127,7 +129,7 @@ export function generateSchemaTypes(document: OpenAPIDocument): string {
     : EMPTY_PATHS)
 
   declarations.push(isObject(schema.components)
-    ? `export interface components {\n${transformComponentsObject(schema.components, /^3\.[01]\./.test(schema.openapi), context).join('\n')}\n}`
+    ? `export interface components {\n${transformComponentsObject(schema.components, context).join('\n')}\n}`
     : EMPTY_COMPONENTS)
 
   if (context.hasWithRequired)
@@ -136,7 +138,24 @@ export function generateSchemaTypes(document: OpenAPIDocument): string {
   return `${declarations.join('\n')}\n`
 }
 
-function transformPathsObject(pathsObject: Record<string, any>, ctx: EmitContext): TSNode[] {
+/** Whether an OpenAPI version has the `mediaTypes` components group, which OpenAPI 3.2 adds. */
+export function hasMediaTypesGroup(openapi: string): boolean {
+  return !/^3\.[01](?:\.|$)/.test(openapi)
+}
+
+/** Types a schema object that stands on its own, outside any document, and so holds no `$ref`. */
+export function generateStandaloneSchemaType(schemaObject: SchemaObject): string {
+  const context: EmitContext = {
+    discriminators: { objects: {}, refsHandled: [] },
+    hasWithRequired: false,
+    hasMediaTypesGroup: false,
+    resolve: () => undefined,
+    resolveOneHop: () => undefined,
+  }
+  return transformSchemaObject(schemaObject, { context }, '')
+}
+
+function transformPathsObject(pathsObject: Record<string, any>, context: EmitContext): TSNode[] {
   const memberIndent = INDENT
   const members: TSNode[] = []
 
@@ -156,7 +175,7 @@ function transformPathsObject(pathsObject: Record<string, any>, ctx: EmitContext
 
     members.push(propertySignature({
       name: tsPropertyIndex(url),
-      type: transformPathItemObject(pathItemObject, { ref: createRef(['paths', url]), context: ctx }, memberIndent),
+      type: transformPathItemObject(pathItemObject, { ref: createRef(['paths', url]), context }, memberIndent),
       indent: memberIndent,
     }))
   }
@@ -164,13 +183,13 @@ function transformPathsObject(pathsObject: Record<string, any>, ctx: EmitContext
   return members
 }
 
-function transformComponentsObject(componentsObject: Record<string, any>, isBeforeOpenAPI32: boolean, context: EmitContext): TSNode[] {
+function transformComponentsObject(componentsObject: Record<string, any>, context: EmitContext): TSNode[] {
   const memberIndent = INDENT
   const itemIndent = `${memberIndent}${INDENT}`
   const members: TSNode[] = []
 
   for (const componentGroup of COMPONENT_GROUPS) {
-    if (componentGroup === 'mediaTypes' && isBeforeOpenAPI32)
+    if (componentGroup === 'mediaTypes' && !context.hasMediaTypesGroup)
       continue
     const items: TSNode[] = []
 

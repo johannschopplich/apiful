@@ -11,9 +11,6 @@ const config: UserConfig = defineConfig({
   ],
   external: [
     'apiful/schema',
-    'json-schema',
-    'json-schema-to-typescript-lite',
-    '@types/json-schema',
   ],
   dts: true,
   unbundle: true,

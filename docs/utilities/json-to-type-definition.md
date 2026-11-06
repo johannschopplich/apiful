@@ -5,30 +5,11 @@ APIful provides a utility for generating TypeScript interfaces from JSON data. T
 > [!NOTE]
 > All properties in generated interfaces are optional by default to accommodate varying JSON structures. Mark them as required as needed with the `strictProperties` option.
 
-## Prerequisites
-
-To keep the package size small, APIful doesn't include `json-schema-to-typescript-lite` as a dependency. Install the package using your preferred package manager:
-
-::: code-group
-  ```bash [pnpm]
-  pnpm add -D json-schema-to-typescript-lite
-  ```
-  ```bash [yarn]
-  yarn add -D json-schema-to-typescript-lite
-  ```
-  ```bash [npm]
-  npm install -D json-schema-to-typescript-lite
-  ```
-:::
-
-> [!NOTE]
-> This dependency is only needed when you want to generate TypeScript definitions from JSON. It won't be included in your production bundle.
-
 ## Usage
 
-Import the `jsonToTypeDefinition` function from `apiful/utils`. Pass your JSON data and specify the interface name you want to generate. The function returns a promise that resolves to a string containing the TypeScript interface definition.
+Import the `jsonToTypeDefinition` function from `apiful/utils`. Pass your JSON data and specify the interface name you want to generate. The function returns a string containing the TypeScript type definition.
 
-All objects, arrays, and primitive values in the JSON data are converted to TypeScript interfaces, types, and literals. Generated interfaces are named based on the `typeName` option or default to `Root`. Use the `strictProperties` option to mark all properties as required.
+A JSON object becomes an interface, any other JSON value a type alias, named after the `typeName` option or `Root` by default. Use the `strictProperties` option to mark all properties as required.
 
 Here is an example of generating a type definition for a JSON response:
 
@@ -53,7 +34,7 @@ const response = {
   },
 }
 
-const responseTypeDefinition = await jsonToTypeDefinition(
+const responseTypeDefinition = jsonToTypeDefinition(
   response,
   { typeName: 'Response' },
 )
@@ -61,20 +42,22 @@ const responseTypeDefinition = await jsonToTypeDefinition(
 
 The `responseTypeDefinition` variable will contain the following TypeScript interface as a string:
 
+<!-- eslint-skip -->
+
 ```ts
 export interface Response {
-  status?: string
+  status?: string;
   data?: {
-    id?: number
+    id?: number;
     items?: {
-      name?: string
-      price?: number
-    }[]
+      name?: string;
+      price?: number;
+    }[];
     metadata?: {
-      total?: number
-      page?: number
-    }
-  }
+      total?: number;
+      page?: number;
+    };
+  };
 }
 ```
 
@@ -94,7 +77,7 @@ interface TypeDefinitionOptions {
 declare function jsonToTypeDefinition(
   data: JsonValue,
   options?: TypeDefinitionOptions,
-): Promise<string>
+): string
 ```
 
 The input parameter `data` is a JSON object or any other valid JSON value. For reference, here is the definition of the `JsonValue` type:

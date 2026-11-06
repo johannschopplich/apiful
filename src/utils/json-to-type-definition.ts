@@ -1,7 +1,5 @@
-// `JSONSchema4` matches `json-schema-to-typescript-lite`'s `compile(schema: JSONSchema4)` input contract.
-import type { JSONSchema4 } from 'json-schema'
 import type { JsonValue } from './types.ts'
-import { LINT_DISABLE_HEADER } from '../constants.ts'
+import { generateStandaloneSchemaType } from '../openapi/emit.ts'
 
 export interface TypeDefinitionOptions {
   /** @default 'Root' */
@@ -12,33 +10,30 @@ export interface TypeDefinitionOptions {
 
 export type ResolvedTypeDefinitionOptions = Required<TypeDefinitionOptions>
 
-export async function jsonToTypeDefinition(
-  data: JsonValue,
-  options: TypeDefinitionOptions = {},
-): Promise<string> {
-  let compile: typeof import('json-schema-to-typescript-lite').compile
-  try {
-    ({ compile } = await import('json-schema-to-typescript-lite'))
-  }
-  catch (error) {
-    if (
-      error instanceof Error && 'code' in error
-      && (error.code === 'ERR_MODULE_NOT_FOUND' || error.code === 'MODULE_NOT_FOUND')
-    ) {
-      throw new Error('Missing dependency "json-schema-to-typescript-lite", please install it', { cause: error })
-    }
-
-    throw error
-  }
-
-  const resolvedOptions = resolveOptions(options)
-  const schema = createJsonSchema(data, resolvedOptions)
-  const output = await compile(schema, resolvedOptions.typeName)
-
-  return `${LINT_DISABLE_HEADER}${output}\n`
+/** The subset of JSON Schema that sample data infers. */
+interface InferredSchema {
+  type?: 'null' | 'boolean' | 'number' | 'string' | 'array' | 'object'
+  items?: InferredSchema
+  properties?: Record<string, InferredSchema>
+  required?: string[]
+  additionalProperties?: false | InferredSchema
+  anyOf?: InferredSchema[]
 }
 
-function createJsonSchema(data: JsonValue, options: ResolvedTypeDefinitionOptions): JSONSchema4 {
+export function jsonToTypeDefinition(
+  data: JsonValue,
+  options: TypeDefinitionOptions = {},
+): string {
+  const resolvedOptions = resolveOptions(options)
+  const schema = createJsonSchema(data, resolvedOptions)
+  const type = generateStandaloneSchemaType(schema)
+
+  return schema.type === 'object'
+    ? `export interface ${resolvedOptions.typeName} ${type}\n`
+    : `export type ${resolvedOptions.typeName} = ${type};\n`
+}
+
+function createJsonSchema(data: JsonValue, options: ResolvedTypeDefinitionOptions): InferredSchema {
   if (data === null) {
     return { type: 'null' }
   }
@@ -105,7 +100,7 @@ function createJsonSchema(data: JsonValue, options: ResolvedTypeDefinitionOption
  * Object and array merging is invariant to sibling kinds, so a primitive
  * alongside several objects does not stop those objects from merging.
  */
-function mergeSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOptions): JSONSchema4 {
+function mergeSchemas(schemas: InferredSchema[], options: ResolvedTypeDefinitionOptions): InferredSchema {
   if (schemas.length === 0) {
     return {}
   }
@@ -120,7 +115,7 @@ function mergeSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOpt
     schema => schema.type !== 'object' && schema.type !== 'array',
   )
 
-  const variants: JSONSchema4[] = []
+  const variants: InferredSchema[] = []
 
   if (objectSchemas.length > 0) {
     variants.push(objectSchemas.length === 1 ? objectSchemas[0]! : mergeObjectSchemas(objectSchemas, options))
@@ -148,8 +143,8 @@ function mergeSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOpt
  * @remarks
  * Required properties use intersection semantics (only properties required in **all** schemas).
  */
-function mergeObjectSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOptions): JSONSchema4 {
-  const propertySchemas = new Map<string, JSONSchema4[]>()
+function mergeObjectSchemas(schemas: InferredSchema[], options: ResolvedTypeDefinitionOptions): InferredSchema {
+  const propertySchemas = new Map<string, InferredSchema[]>()
   const schemasWithProperties = schemas.filter(schema => schema.properties)
 
   for (const schema of schemasWithProperties) {
@@ -183,10 +178,10 @@ function mergeObjectSchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinit
   }
 }
 
-function mergeArraySchemas(schemas: JSONSchema4[], options: ResolvedTypeDefinitionOptions): JSONSchema4 {
+function mergeArraySchemas(schemas: InferredSchema[], options: ResolvedTypeDefinitionOptions): InferredSchema {
   const itemSchemas = schemas
     .map(schema => schema.items)
-    .filter((items): items is JSONSchema4 => Boolean(items))
+    .filter((items): items is InferredSchema => Boolean(items))
 
   return {
     type: 'array',

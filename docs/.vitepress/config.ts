@@ -99,7 +99,6 @@ export default defineConfig({
           { text: 'HTTP Status Codes', link: '/utilities/http-status-codes' },
           { text: 'HTTP Status Phrases', link: '/utilities/http-status-phrases' },
           { text: 'JSON to Type Definition', link: '/utilities/json-to-type-definition' },
-          { text: 'Schema & Validation', link: '/utilities/schema' },
         ],
       },
       {
@@ -211,7 +210,6 @@ function utilitiesGuide(): DefaultTheme.SidebarItem[] {
         { text: 'HTTP Status Codes', link: '/utilities/http-status-codes' },
         { text: 'HTTP Status Phrases', link: '/utilities/http-status-phrases' },
         { text: 'JSON to Type Definition', link: '/utilities/json-to-type-definition' },
-        { text: 'Schema & Validation', link: '/utilities/schema' },
       ],
     },
   ]

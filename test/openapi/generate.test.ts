@@ -448,6 +448,12 @@ export type components = Record<string, never>;
     expect(types).toContain('sort?: ')
   })
 
+  it('emits no mediaTypes group for an openapi of 3.1', () => {
+    const types = generateSchemaTypes({ openapi: '3.1', info: { title: 'Items', version: '1.0.0' }, components: {} })
+
+    expect(types).not.toContain('mediaTypes')
+  })
+
   it('keeps the anyOf of a schema whose oneOf restates every type of its type list', () => {
     const types = generateSchemaComponentTypes({
       Value: { type: ['string', 'null'], oneOf: [{ type: 'string' }, { type: 'null' }], anyOf: [{ type: 'number' }] },

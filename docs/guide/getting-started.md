@@ -21,7 +21,7 @@ Get started by installing `apiful` in your project:
 :::
 
 > [!TIP]
-> Your API client ships with your application, so `apiful` belongs in `dependencies`. Only [`json-schema-to-typescript-lite`](/utilities/json-to-type-definition), which `jsonToTypeDefinition` calls, is a development dependency.
+> Your API client ships with your application, so `apiful` belongs in `dependencies`.
 
 ## Your First API Client
 

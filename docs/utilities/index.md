@@ -14,10 +14,6 @@ List of all [common HTTP status reason phrases](/utilities/http-status-phrases) 
 
 Create TypeScript interfaces from JSON data using the [`jsonToTypeDefinition`](/utilities/json-to-type-definition) function. Useful for defining API response types or working with dynamic JSON structures.
 
-## Generic Schema & Validation
-
-Create and validate JSON schemas using the [`jsonSchema`](/utilities/schema) and [`validateTypes`](/utilities/schema) functions. They stand on their own – the API client never validates a response against a schema for you.
-
 ## Examples
 
 ### Nitro
