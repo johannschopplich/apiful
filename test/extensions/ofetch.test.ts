@@ -1,6 +1,6 @@
-import type { Listener } from 'listhen'
 import type { $Fetch } from 'ofetch'
 import type { ApiClient } from '../../src/client'
+import type { Listener } from '../utils'
 import { afterAll, assertType, beforeAll, describe, expect, it, vi } from 'vitest'
 import { createClient, ofetchBuilder } from '../../src/index'
 import { createListener } from '../utils'

@@ -1,7 +1,8 @@
-import type { Listener } from 'listhen'
+import type { AddressInfo } from 'node:net'
 import type { $Fetch, FetchOptions } from 'ofetch'
+import { once } from 'node:events'
+import { createServer } from 'node:http'
 import { fileURLToPath } from 'node:url'
-import { getRandomPort } from 'get-port-please'
 import {
   defineHandler,
   getQuery,
@@ -10,7 +11,6 @@ import {
   readBody,
   toNodeHandler,
 } from 'h3'
-import { listen } from 'listhen'
 import { ofetch } from 'ofetch'
 
 export const currentDir: string = fileURLToPath(new URL('.', import.meta.url))
@@ -63,6 +63,11 @@ export function createRecordingFetch(
   })
 
   return { fetch, requests }
+}
+
+export interface Listener {
+  url: string
+  close: () => Promise<void>
 }
 
 export async function createListener(): Promise<Listener> {
@@ -135,7 +140,14 @@ export async function createListener(): Promise<Listener> {
       }),
     )
 
-  return await listen(toNodeHandler(app), {
-    port: await getRandomPort(),
-  })
+  const server = createServer(toNodeHandler(app))
+  server.listen(0, '127.0.0.1')
+  await once(server, 'listening')
+
+  return {
+    url: `http://127.0.0.1:${(server.address() as AddressInfo).port}/`,
+    close: () => new Promise<void>((resolve, reject) => server.close(error => error
+      ? reject(error)
+      : resolve())),
+  }
 }
