@@ -79,7 +79,7 @@ export type OpenAPIClient<Paths> = <
   ResponseFormat extends ResponseType = 'json',
 >(
   url: ReqT,
-  options?: OpenAPIFetchOptions<Method, LowercasedMethod, Methods, ResponseFormat>,
+  ...options: OptionsArgument<OpenAPIFetchOptions<Method, LowercasedMethod, Methods, ResponseFormat>>
 ) => Promise<MappedResponseType<ResponseFormat, ResT>>
 
 type OpenAPIFetchOptions<
@@ -94,6 +94,12 @@ type OpenAPIFetchOptions<
   // Only `responseType` infers the format; a hook or `retryDelay` typed for any format would widen it.
   & Omit<FetchOptions<NoInfer<ResponseFormat>>, 'query' | 'body' | 'method' | 'responseType'>
   & { responseType?: ResponseFormat }
+
+/** Options parameter, required where the operation has a required option, such as a path parameter or a `method`. */
+type OptionsArgument<Options> = [RequiredKeys<Options>] extends [never] ? [options?: Options] : [options: Options]
+
+// eslint-disable-next-line ts/no-empty-object-type -- An empty object extends the pick of a key only where the key is optional.
+type RequiredKeys<T> = { [K in keyof T]-?: {} extends Pick<T, K> ? never : K }[keyof T]
 
 /**
  * Mapped copy of a path item. Calls check measurably faster against it than against

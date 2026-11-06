@@ -87,6 +87,25 @@ describe('createOpenAPIClient', () => {
       .toEqualTypeOf<Components['schemas']['Pet']>()
   })
 
+  it('requires the options argument where the operation has a required option', () => {
+    // @ts-expect-error: `/pet/{petId}` requires the `petId` path parameter.
+    expectTypeOf(() => petStoreClient('/pet/{petId}')).toBeFunction()
+    // @ts-expect-error: `/pet` declares no `get`, so it requires a `method`.
+    expectTypeOf(() => petStoreClient('/pet')).toBeFunction()
+  })
+
+  it('rejects a call that leaves out a required request body', () => {
+    // @ts-expect-error: `post` on `/pet` requires a body.
+    expectTypeOf(() => petStoreClient('/pet', { method: 'post' })).toBeFunction()
+  })
+
+  it('types the response of a path cast to any as any', () => {
+    expectTypeOf(() => petStoreClient('/pet/1' as any, { method: 'SEARCH', body: JSON.stringify({ name: 'Rex' }) }))
+      .returns
+      .resolves
+      .toBeAny()
+  })
+
   it('keeps the JSON response with a retryDelay typed for any response format', () => {
     const retryDelay = (_context: FetchContext) => 100
     expectTypeOf(() => petStoreClient('/pet/{petId}', { path: { petId: 1 }, retryDelay }))
@@ -158,13 +177,6 @@ describe('PetStore', () => {
       .returns
       .resolves
       .toEqualTypeOf<PetStore<'/pet/{petId}', 'delete'>['response']>()
-  })
-
-  it('types the response of a path cast to any as any and accepts any body', () => {
-    expectTypeOf(() => petStoreClient('/pet/1' as any, { method: 'SEARCH', body: JSON.stringify({ name: 'Rex' }) }))
-      .returns
-      .resolves
-      .toBeAny()
   })
 
   it('keys the responses by status code', () => {

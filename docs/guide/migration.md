@@ -178,6 +178,15 @@ Path-level parameters are merged into every operation of the path, as before.
 
 A call with a `responseType` other than `json` used to be typed as the schema's JSON body. It is now typed as what ofetch returns – `Blob` for `blob`, `string` for `text`, `ArrayBuffer` for `arrayBuffer`, and `ReadableStream<Uint8Array>` for `stream`.
 
+#### A Call With Required Options Needs Its Options
+
+The options argument used to be optional on every call, so leaving it out skipped the check of what it has to hold. Where the operation requires an option – a path parameter, a required query parameter, a request body, or the `method` of a path without `get` – the argument is now required:
+
+```ts
+await petStore('/pet/{petId}')
+//             ^^^^^^^^^^^^^^ v6: does not compile, `path` is missing
+```
+
 ### Renamed and Removed Exports
 
 Only relevant if you call the generator from your own code or build on the client types. The generator exports now come from `apiful/openapi/generate`, which the [Type Generator](/reference/type-generator) reference covers:
