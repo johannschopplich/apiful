@@ -5,7 +5,6 @@ minimumReleaseAgeExclude:
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - vite@5.4.21
-  - tinyclip@0.1.13
 
 shellEmulator: true
 

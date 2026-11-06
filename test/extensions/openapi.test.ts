@@ -60,7 +60,8 @@ describe('openAPIBuilder', () => {
       method: 'DELETE',
       path: { petId: 1 },
       headers: {
-        api_key: 'test',
+        'api_key': 'test',
+        'x-foo': 'bar',
       },
     })
 

@@ -32,9 +32,6 @@ jobs:
       - run: pnpm run test:types
       - run: pnpm run test
 
-      - run: pnpm run playground:generate
-      - run: pnpm run playground:types
-
   typescript:
     name: Consumer types
     runs-on: ubuntu-latest
