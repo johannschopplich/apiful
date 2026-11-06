@@ -60,7 +60,6 @@
       "default": "./dist/utils/index.mjs"
     }
   },
-  "types": "dist/index.d.mts",
   "bin": {
     "apiful": "bin/apiful.mjs"
   },
