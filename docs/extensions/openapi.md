@@ -10,25 +10,6 @@ To use this extension, APIful must first generate TypeScript definitions from yo
 > [!TIP]
 > Reach for this extension when the client also carries other extensions. For a client that only talks to one OpenAPI service, [`createOpenAPIClient`](/reference/create-openapi-client) is the shorter road to the same types.
 
-## Prerequisites
-
-To keep the package size small, APIful doesn't include `openapi-typescript` as a dependency. Install the package using your preferred package manager:
-
-::: code-group
-  ```bash [pnpm]
-  pnpm add -D openapi-typescript
-  ```
-  ```bash [yarn]
-  yarn add -D openapi-typescript
-  ```
-  ```bash [npm]
-  npm install -D openapi-typescript
-  ```
-:::
-
-> [!NOTE]
-> `openapi-typescript` is only needed during development for type generation. It won't be included in your production bundle.
-
 ## TypeScript Definitions Generation
 
 Before creating your type-safe API client, generate TypeScript definitions from your OpenAPI schema files. This involves creating an `apiful.config.ts` file with your API services and running the APIful CLI.
@@ -53,7 +34,7 @@ Then, run the [`generate`](/guide/cli) command in your terminal to generate the 
 npx apiful generate
 ```
 
-`openapi-typescript` parses the schema, and APIful declares the result as a module that merges into `apiful/schema`. The output is a declaration file, so nothing of it reaches your bundle. The file builds its endpoint helpers on the types APIful itself ships, which is why it imports from `apiful/openapi`.
+APIful turns the schema into types and declares them as a module that merges into `apiful/schema`. The output is a declaration file, so nothing of it reaches your bundle. The file builds its endpoint helpers on the types APIful itself ships, which is why it imports from `apiful/openapi`.
 
 You can now create a type-safe client with the `OpenAPIBuilder` extension, passing the **service name** as a generic parameter – `OpenAPIBuilder<'petStore'>()`. The [next section](#using-the-openapibuilder-extension) shows it in full.
 

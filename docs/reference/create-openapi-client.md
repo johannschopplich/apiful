@@ -6,7 +6,7 @@ Use [`createClient`](/reference/create-client) with [`OpenAPIBuilder`](/extensio
 
 ## Prerequisites
 
-Same as the [`OpenAPIBuilder`](/extensions/openapi#prerequisites) extension – you need `openapi-typescript` installed and TypeScript definitions generated using the [`generate`](/guide/cli) command.
+Same as the [`OpenAPIBuilder`](/extensions/openapi) extension – you need TypeScript definitions generated using the [`generate`](/guide/cli) command.
 
 ## Example
 

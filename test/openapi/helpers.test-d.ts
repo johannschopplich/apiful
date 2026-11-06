@@ -60,7 +60,7 @@ describe('PetStore', () => {
   })
 
   it('extracts a request body sent as a media type other than JSON', () => {
-    expectTypeOf<PetStore<'/pet/{petId}/uploadImage', 'post'>['request']>().toEqualTypeOf<string | undefined>()
+    expectTypeOf<PetStore<'/pet/{petId}/uploadImage', 'post'>['request']>().toEqualTypeOf<Blob | File | undefined>()
   })
 
   it('types the request body as undefined for an operation that declares none', () => {

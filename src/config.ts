@@ -1,8 +1,7 @@
-import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
+import type { OpenAPIDocument } from './openapi/load.ts'
 
 export interface ServiceOptions {
-  schema: string | URL | OpenAPI3 | (() => Promise<OpenAPI3>)
-  openAPITS?: OpenAPITSOptions
+  schema: string | URL | OpenAPIDocument | (() => Promise<OpenAPIDocument>)
 }
 
 export interface ApifulConfig {

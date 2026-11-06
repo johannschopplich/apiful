@@ -1,13 +1,7 @@
-import type { OpenAPI3, OpenAPITSOptions } from 'openapi-typescript'
 import type { ServiceOptions } from '../config.ts'
-import * as path from 'node:path'
-import process from 'node:process'
-import { pathToFileURL } from 'node:url'
 import { pascalCase } from 'scule'
-import { defu } from 'utilful'
-
-/** The `//` is required, so a Windows drive letter is not read as a scheme. */
-const URL_SCHEME_RE = /^[a-z][\w+.-]*:\/\//i
+import { emitSchemaTypes } from './emit.ts'
+import { loadOpenAPIDocument } from './load.ts'
 
 export interface DTSFragmentOutput {
   /** The `apiful/schema` module, importing from every fragment and exporting the type helpers. */
@@ -17,7 +11,6 @@ export interface DTSFragmentOutput {
 }
 
 export interface GenerateOptions {
-  openAPITSOptions?: OpenAPITSOptions
   /** Directory a relative schema path resolves against. Defaults to the current working directory. */
   rootDir?: string
 }
@@ -41,6 +34,8 @@ export async function generateDTSFragments(
   services: Record<string, ServiceOptions>,
   options: GenerateOptions = {},
 ): Promise<DTSFragmentOutput> {
+  assertDistinctTypeNames(Object.keys(services))
+
   const resolvedSchemaEntries = await Promise.all(
     Object.entries(services).map(async ([id, service]) => {
       const types = await generateSchemaTypes({ id, service, ...options })
@@ -67,7 +62,7 @@ export async function generateDTSFragments(
     Object.entries(resolvedSchemas).map(([id, types]) => {
       const content = `
 declare module 'apiful/schema/${id}' {
-${normalizeIndentation(types).trimEnd()}
+${applyLineIndent(types.trimEnd())}
 }
 `.trimStart()
       return [id, content]
@@ -148,22 +143,14 @@ export type ${pascalCase(id)}Model<T extends keyof ${pascalCase(id)}Components['
 `.trim()
 }
 
-/** Runs `openapi-typescript` for one service and returns its types, without a module declaration around them. */
+/** Loads the schema of one service and returns its types, without a module declaration around them. */
 export async function generateSchemaTypes(options: {
   id: string
   service: ServiceOptions
 } & GenerateOptions): Promise<string> {
-  const { default: openAPITS, astToString } = await import('openapi-typescript')
-    .catch(() => {
-      throw new Error('Missing dependency "openapi-typescript", please install it')
-    })
-
-  const schema = await resolveSchema(options.service, options.rootDir)
-  const resolvedOpenAPITSOptions = defu(options.service.openAPITS || {}, options.openAPITSOptions || {})
-
   try {
-    const ast = await openAPITS(schema, resolvedOpenAPITSOptions)
-    return astToString(ast)
+    const document = await loadOpenAPIDocument(options.service.schema, { rootDir: options.rootDir })
+    return emitSchemaTypes(document)
   }
   catch (error) {
     const reason = Error.isError(error) ? error.message : String(error)
@@ -174,40 +161,22 @@ export async function generateSchemaTypes(options: {
   }
 }
 
-async function resolveSchema(
-  { schema }: ServiceOptions,
-  rootDir = process.cwd(),
-): Promise<string | URL | OpenAPI3> {
-  if (typeof schema === 'function')
-    return await schema()
+/** Throws where two services would declare the same type in the `apiful/schema` module. */
+function assertDistinctTypeNames(serviceIds: string[]): void {
+  const serviceIdsByTypeName = new Map<string, string>()
 
-  if (typeof schema === 'string') {
-    if (URL_SCHEME_RE.test(schema)) {
-      // openapi-typescript reads a `file:` URL from disk and fetches every other one.
-      return schema.startsWith('file://') ? new URL(schema) : schema
+  for (const id of serviceIds) {
+    const helperName = pascalCase(id)
+    const typeNames = ['', 'ApiPaths', 'ApiMethods', 'Model', 'Paths', 'Components'].map(suffix => `${helperName}${suffix}`)
+    for (const typeName of typeNames) {
+      const existingId = serviceIdsByTypeName.get(typeName)
+      if (existingId !== undefined)
+        throw new SchemaGenerationError(`Services \`${existingId}\` and \`${id}\` both generate the type \`${typeName}\``)
+      serviceIdsByTypeName.set(typeName, id)
     }
-
-    const resolvedPath = path.isAbsolute(schema)
-      ? schema
-      : path.resolve(rootDir, schema)
-
-    // openapi-typescript expects file URLs for local files.
-    return pathToFileURL(resolvedPath)
   }
-
-  return schema
 }
 
 function applyLineIndent(code: string, indent = 2): string {
   return code.replace(/^/gm, ' '.repeat(indent))
-}
-
-function normalizeIndentation(code: string) {
-  // Replace each cluster of four spaces with two spaces.
-  const replacedCode = code.replace(/^( {4})+/gm, match => '  '.repeat(match.length / 4))
-
-  // Ensure each line starts with exactly two spaces.
-  const normalizedCode = replacedCode.replace(/^/gm, '  ')
-
-  return normalizedCode
 }

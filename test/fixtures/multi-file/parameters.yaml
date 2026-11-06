@@ -1,0 +1,6 @@
+PetId:
+  name: id
+  in: path
+  required: true
+  schema:
+    $ref: ./root.yaml#/components/schemas/Id

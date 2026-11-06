@@ -1,0 +1,8 @@
+oneOf:
+  - $ref: ./cat.yaml
+  - $ref: ./dog.yaml#/Dog
+discriminator:
+  propertyName: kind
+  mapping:
+    cat: ./cat.yaml
+    dog: ./dog.yaml#/Dog

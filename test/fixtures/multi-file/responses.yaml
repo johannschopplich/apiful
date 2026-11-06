@@ -1,0 +1,6 @@
+Error:
+  description: An error
+  content:
+    application/json:
+      schema:
+        $ref: ./schemas/errors.yaml#/Error

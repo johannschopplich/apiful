@@ -4,10 +4,12 @@ declare module 'apiful/schema' {
   import { OpenAPIEndpoint, OpenAPIPathMethods } from 'apiful/openapi'
   import { paths as TestEchoPaths, components as TestEchoComponents } from 'apiful/schema/testEcho'
   import { paths as PetStorePaths, components as PetStoreComponents } from 'apiful/schema/petStore'
+  import { paths as CatalogPaths, components as CatalogComponents } from 'apiful/schema/catalog'
 
   interface OpenAPISchemaRepository {
     'testEcho': TestEchoPaths
     'petStore': PetStorePaths
+    'catalog': CatalogPaths
   }
 
   /**
@@ -101,46 +103,113 @@ declare module 'apiful/schema' {
    * type User = PetStoreModel<'User'> // Get the User schema model
    */
   export type PetStoreModel<T extends keyof PetStoreComponents['schemas']> = PetStoreComponents['schemas'][T]
+  
+  /**
+   * OpenAPI endpoint type helper for the Catalog API.
+   *
+   * @example
+   * // Get path parameters for retrieving a user by ID:
+   * type UserParams = Catalog<'/users/{id}', 'get'>['path']
+   *
+   * // Get query parameters for listing users:
+   * type UsersQuery = Catalog<'/users', 'get'>['query']
+   *
+   * // Get request body type for creating a user:
+   * type CreateUserBody = Catalog<'/users', 'post'>['request']
+   *
+   * // Get success response for retrieving a user:
+   * type UserResponse = Catalog<'/users/{id}', 'get'>['response']
+   *
+   * // Get a specific status code response:
+   * type UserNotFoundResponse = Catalog<'/users/{id}', 'get'>['responses'][404]
+   *
+   * // Get complete endpoint type definition:
+   * type UserEndpoint = Catalog<'/users/{id}', 'get'>
+   */
+  export type Catalog<
+    Path extends keyof CatalogPaths,
+    Method extends OpenAPIPathMethods<CatalogPaths, Path>
+  > = OpenAPIEndpoint<CatalogPaths, Path, Method>
+  
+  /**
+   * @example
+   * type AvailablePaths = CatalogApiPaths // Returns literal union of all available paths
+   */
+  export type CatalogApiPaths = keyof CatalogPaths
+  
+  /**
+   * @example
+   * type UserMethods = CatalogApiMethods<'/users/{id}'> // Returns 'get' | 'put' | 'delete' etc.
+   */
+  export type CatalogApiMethods<Path extends keyof CatalogPaths> = OpenAPIPathMethods<CatalogPaths, Path>
+  
+  /**
+   * @example
+   * type Pet = CatalogModel<'Pet'> // Get the Pet schema model
+   * type User = CatalogModel<'User'> // Get the User schema model
+   */
+  export type CatalogModel<T extends keyof CatalogComponents['schemas']> = CatalogComponents['schemas'][T]
 }
 
 declare module 'apiful/schema/testEcho' {
   export interface paths {
     "/echo/{id}": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
       /** Echo a path parameter back */
-      get: operations["echoById"];
-      put?: never;
-      post?: never;
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      get: {
+        parameters: {
+          query?: {
+            value?: string;
+          };
+          header?: never;
+          path: {
+            id: string;
+          };
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description Successful echo of the path parameter */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["StaticResponse"];
+            };
+          };
+          404: components["responses"]["NotFound"];
+        };
+      };
     };
     "/echo/request": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      get?: never;
-      put?: never;
       /** Echo the request details back */
-      post: operations["echoRequest"];
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      post: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        requestBody: {
+          content: {
+            "application/json": components["schemas"]["EchoRequest"];
+          };
+        };
+        responses: {
+          /** @description Successful echo of the request details */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["EchoResponse"];
+            };
+          };
+          400: components["responses"]["BadRequest"];
+        };
+      };
     };
   }
-  export type webhooks = Record<string, never>;
   export interface components {
     schemas: {
       StaticResponse: {
@@ -187,332 +256,689 @@ declare module 'apiful/schema/testEcho' {
     headers: never;
     pathItems: never;
   }
-  export type $defs = Record<string, never>;
-  export interface operations {
-    echoById: {
-      parameters: {
-        query?: {
-          value?: string;
-        };
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Successful echo of the path parameter */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["StaticResponse"];
-          };
-        };
-        404: components["responses"]["NotFound"];
-      };
-    };
-    echoRequest: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["EchoRequest"];
-        };
-      };
-      responses: {
-        /** @description Successful echo of the request details */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["EchoResponse"];
-          };
-        };
-        400: components["responses"]["BadRequest"];
-      };
-    };
-  }
 }
 
 
 declare module 'apiful/schema/petStore' {
   export interface paths {
     "/pet": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      get?: never;
       /**
        * Update an existing pet
        * @description Update an existing pet by Id
        */
-      put: operations["updatePet"];
+      put: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        /** @description Update an existent pet in the store */
+        requestBody: {
+          content: {
+            "application/json": components["schemas"]["Pet"];
+            "application/xml": components["schemas"]["Pet"];
+            "application/x-www-form-urlencoded": components["schemas"]["Pet"];
+          };
+        };
+        responses: {
+          /** @description Successful operation */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/xml": components["schemas"]["Pet"];
+              "application/json": components["schemas"]["Pet"];
+            };
+          };
+          /** @description Invalid ID supplied */
+          400: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+          /** @description Pet not found */
+          404: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+          /** @description Validation exception */
+          405: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
       /**
        * Add a new pet to the store
        * @description Add a new pet to the store
        */
-      post: operations["addPet"];
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      post: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        /** @description Create a new pet in the store */
+        requestBody: {
+          content: {
+            "application/json": components["schemas"]["Pet"];
+            "application/xml": components["schemas"]["Pet"];
+            "application/x-www-form-urlencoded": components["schemas"]["Pet"];
+          };
+        };
+        responses: {
+          /** @description Successful operation */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/xml": components["schemas"]["Pet"];
+              "application/json": components["schemas"]["Pet"];
+            };
+          };
+          /** @description Invalid input */
+          405: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
     };
     "/pet/findByStatus": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
       /**
        * Finds Pets by status
        * @description Multiple status values can be provided with comma separated strings
        */
-      get: operations["findPetsByStatus"];
-      put?: never;
-      post?: never;
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      get: {
+        parameters: {
+          query?: {
+            /** @description Status values that need to be considered for filter */
+            status?: "available" | "pending" | "sold";
+          };
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description successful operation */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/xml": components["schemas"]["Pet"][];
+              "application/json": components["schemas"]["Pet"][];
+            };
+          };
+          /** @description Invalid status value */
+          400: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
     };
     "/pet/findByTags": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
       /**
        * Finds Pets by tags
        * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
        */
-      get: operations["findPetsByTags"];
-      put?: never;
-      post?: never;
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      get: {
+        parameters: {
+          query?: {
+            /** @description Tags to filter by */
+            tags?: string[];
+          };
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description successful operation */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/xml": components["schemas"]["Pet"][];
+              "application/json": components["schemas"]["Pet"][];
+            };
+          };
+          /** @description Invalid tag value */
+          400: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
     };
     "/pet/{petId}": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
       /**
        * Find pet by ID
        * @description Returns a single pet
        */
-      get: operations["getPetById"];
-      put?: never;
+      get: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path: {
+            /** @description ID of pet to return */
+            petId: number;
+          };
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description successful operation */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/xml": components["schemas"]["Pet"];
+              "application/json": components["schemas"]["Pet"];
+            };
+          };
+          /** @description Invalid ID supplied */
+          400: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+          /** @description Pet not found */
+          404: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
       /** Updates a pet in the store with form data */
-      post: operations["updatePetWithForm"];
+      post: {
+        parameters: {
+          query?: {
+            /** @description Name of pet that needs to be updated */
+            name?: string;
+            /** @description Status of pet that needs to be updated */
+            status?: string;
+          };
+          header?: never;
+          path: {
+            /** @description ID of pet that needs to be updated */
+            petId: number;
+          };
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description Invalid input */
+          405: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
       /** Deletes a pet */
-      delete: operations["deletePet"];
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      delete: {
+        parameters: {
+          query?: never;
+          header?: {
+            api_key?: string;
+          };
+          path: {
+            /** @description Pet id to delete */
+            petId: number;
+          };
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description Invalid pet value */
+          400: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
     };
     "/pet/{petId}/uploadImage": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      get?: never;
-      put?: never;
       /** uploads an image */
-      post: operations["uploadFile"];
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      post: {
+        parameters: {
+          query?: {
+            /** @description Additional Metadata */
+            additionalMetadata?: string;
+          };
+          header?: never;
+          path: {
+            /** @description ID of pet to update */
+            petId: number;
+          };
+          cookie?: never;
+        };
+        requestBody?: {
+          content: {
+            "application/octet-stream": Blob | File;
+          };
+        };
+        responses: {
+          /** @description successful operation */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["ApiResponse"];
+            };
+          };
+        };
+      };
     };
     "/store/inventory": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
       /**
        * Returns pet inventories by status
        * @description Returns a map of status codes to quantities
        */
-      get: operations["getInventory"];
-      put?: never;
-      post?: never;
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      get: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description successful operation */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": {
+                [key: string]: number;
+              };
+            };
+          };
+        };
+      };
     };
     "/store/order": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      get?: never;
-      put?: never;
       /**
        * Place an order for a pet
        * @description Place a new order in the store
        */
-      post: operations["placeOrder"];
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      post: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        requestBody?: {
+          content: {
+            "application/json": components["schemas"]["Order"];
+            "application/xml": components["schemas"]["Order"];
+            "application/x-www-form-urlencoded": components["schemas"]["Order"];
+          };
+        };
+        responses: {
+          /** @description successful operation */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["Order"];
+            };
+          };
+          /** @description Invalid input */
+          405: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
     };
     "/store/order/{orderId}": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
       /**
        * Find purchase order by ID
        * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
        */
-      get: operations["getOrderById"];
-      put?: never;
-      post?: never;
+      get: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path: {
+            /** @description ID of order that needs to be fetched */
+            orderId: number;
+          };
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description successful operation */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/xml": components["schemas"]["Order"];
+              "application/json": components["schemas"]["Order"];
+            };
+          };
+          /** @description Invalid ID supplied */
+          400: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+          /** @description Order not found */
+          404: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
       /**
        * Delete purchase order by ID
        * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
        */
-      delete: operations["deleteOrder"];
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      delete: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path: {
+            /** @description ID of the order that needs to be deleted */
+            orderId: number;
+          };
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description Invalid ID supplied */
+          400: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+          /** @description Order not found */
+          404: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
     };
     "/user": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      get?: never;
-      put?: never;
       /**
        * Create user
        * @description This can only be done by the logged in user.
        */
-      post: operations["createUser"];
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      post: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        /** @description Created user object */
+        requestBody?: {
+          content: {
+            "application/json": components["schemas"]["User"];
+            "application/xml": components["schemas"]["User"];
+            "application/x-www-form-urlencoded": components["schemas"]["User"];
+          };
+        };
+        responses: {
+          /** @description successful operation */
+          default: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["User"];
+              "application/xml": components["schemas"]["User"];
+            };
+          };
+        };
+      };
     };
     "/user/createWithList": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      get?: never;
-      put?: never;
       /**
        * Creates list of users with given input array
        * @description Creates list of users with given input array
        */
-      post: operations["createUsersWithListInput"];
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      post: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        requestBody?: {
+          content: {
+            "application/json": components["schemas"]["User"][];
+          };
+        };
+        responses: {
+          /** @description Successful operation */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/xml": components["schemas"]["User"];
+              "application/json": components["schemas"]["User"];
+            };
+          };
+          /** @description successful operation */
+          default: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
     };
     "/user/login": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
       /** Logs user into the system */
-      get: operations["loginUser"];
-      put?: never;
-      post?: never;
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      get: {
+        parameters: {
+          query?: {
+            /** @description The user name for login */
+            username?: string;
+            /** @description The password for login in clear text */
+            password?: string;
+          };
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description successful operation */
+          200: {
+            headers: {
+              /** @description calls per hour allowed by the user */
+              "X-Rate-Limit"?: number;
+              /** @description date in UTC when token expires */
+              "X-Expires-After"?: string;
+              [name: string]: unknown;
+            };
+            content: {
+              "application/xml": string;
+              "application/json": string;
+            };
+          };
+          /** @description Invalid username/password supplied */
+          400: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
     };
     "/user/logout": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
       /** Logs out current logged in user session */
-      get: operations["logoutUser"];
-      put?: never;
-      post?: never;
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      get: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description successful operation */
+          default: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
     };
     "/user/{username}": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
       /** Get user by user name */
-      get: operations["getUserByName"];
+      get: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path: {
+            /** @description The name that needs to be fetched. Use user1 for testing. */
+            username: string;
+          };
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description successful operation */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/xml": components["schemas"]["User"];
+              "application/json": components["schemas"]["User"];
+            };
+          };
+          /** @description Invalid username supplied */
+          400: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+          /** @description User not found */
+          404: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
       /**
        * Update user
        * @description This can only be done by the logged in user.
        */
-      put: operations["updateUser"];
-      post?: never;
+      put: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path: {
+            /** @description name that need to be deleted */
+            username: string;
+          };
+          cookie?: never;
+        };
+        /** @description Update an existent user in the store */
+        requestBody?: {
+          content: {
+            "application/json": components["schemas"]["User"];
+            "application/xml": components["schemas"]["User"];
+            "application/x-www-form-urlencoded": components["schemas"]["User"];
+          };
+        };
+        responses: {
+          /** @description successful operation */
+          default: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
       /**
        * Delete user
        * @description This can only be done by the logged in user.
        */
-      delete: operations["deleteUser"];
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      delete: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path: {
+            /** @description The name that needs to be deleted */
+            username: string;
+          };
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description Invalid username supplied */
+          400: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+          /** @description User not found */
+          404: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
+          };
+        };
+      };
     };
   }
-  export type webhooks = Record<string, never>;
   export interface components {
     schemas: {
       Order: {
@@ -644,600 +1070,298 @@ declare module 'apiful/schema/petStore' {
     headers: never;
     pathItems: never;
   }
-  export type $defs = Record<string, never>;
-  export interface operations {
-    updatePet: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      /** @description Update an existent pet in the store */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["Pet"];
-          "application/xml": components["schemas"]["Pet"];
-          "application/x-www-form-urlencoded": components["schemas"]["Pet"];
+}
+
+
+declare module 'apiful/schema/catalog' {
+  export interface paths {
+    "/files": {
+      /** Upload a file with metadata */
+      post: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
         };
-      };
-      responses: {
-        /** @description Successful operation */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
+        requestBody: {
           content: {
-            "application/xml": components["schemas"]["Pet"];
-            "application/json": components["schemas"]["Pet"];
+            "multipart/form-data": {
+              /** Format: binary */
+              file: Blob | File;
+              label?: string;
+            } | FormData;
           };
         };
-        /** @description Invalid ID supplied */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Pet not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Validation exception */
-        405: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    addPet: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      /** @description Create a new pet in the store */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["Pet"];
-          "application/xml": components["schemas"]["Pet"];
-          "application/x-www-form-urlencoded": components["schemas"]["Pet"];
-        };
-      };
-      responses: {
-        /** @description Successful operation */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/xml": components["schemas"]["Pet"];
-            "application/json": components["schemas"]["Pet"];
-          };
-        };
-        /** @description Invalid input */
-        405: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    findPetsByStatus: {
-      parameters: {
-        query?: {
-          /** @description Status values that need to be considered for filter */
-          status?: "available" | "pending" | "sold";
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description successful operation */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/xml": components["schemas"]["Pet"][];
-            "application/json": components["schemas"]["Pet"][];
-          };
-        };
-        /** @description Invalid status value */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    findPetsByTags: {
-      parameters: {
-        query?: {
-          /** @description Tags to filter by */
-          tags?: string[];
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description successful operation */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/xml": components["schemas"]["Pet"][];
-            "application/json": components["schemas"]["Pet"][];
-          };
-        };
-        /** @description Invalid tag value */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    getPetById: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** @description ID of pet to return */
-          petId: number;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description successful operation */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/xml": components["schemas"]["Pet"];
-            "application/json": components["schemas"]["Pet"];
-          };
-        };
-        /** @description Invalid ID supplied */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Pet not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    updatePetWithForm: {
-      parameters: {
-        query?: {
-          /** @description Name of pet that needs to be updated */
-          name?: string;
-          /** @description Status of pet that needs to be updated */
-          status?: string;
-        };
-        header?: never;
-        path: {
-          /** @description ID of pet that needs to be updated */
-          petId: number;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Invalid input */
-        405: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    deletePet: {
-      parameters: {
-        query?: never;
-        header?: {
-          api_key?: string;
-        };
-        path: {
-          /** @description Pet id to delete */
-          petId: number;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Invalid pet value */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    uploadFile: {
-      parameters: {
-        query?: {
-          /** @description Additional Metadata */
-          additionalMetadata?: string;
-        };
-        header?: never;
-        path: {
-          /** @description ID of pet to update */
-          petId: number;
-        };
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/octet-stream": string;
-        };
-      };
-      responses: {
-        /** @description successful operation */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["ApiResponse"];
-          };
-        };
-      };
-    };
-    getInventory: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description successful operation */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": {
-              [key: string]: number;
+        responses: {
+          /** @description File stored */
+          201: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["File"];
             };
           };
         };
       };
     };
-    placeOrder: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["Order"];
-          "application/xml": components["schemas"]["Order"];
-          "application/x-www-form-urlencoded": components["schemas"]["Order"];
+    "/files/{fileId}": {
+      /** Download a file */
+      get: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path: {
+            fileId: string;
+          };
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description File contents */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "image/png": Blob | File;
+            };
+          };
         };
       };
-      responses: {
-        /** @description successful operation */
-        200: {
-          headers: {
-            [name: string]: unknown;
+      /** Replace the contents of a file */
+      put: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path: {
+            fileId: string;
           };
+          cookie?: never;
+        };
+        requestBody: {
           content: {
-            "application/json": components["schemas"]["Order"];
+            "application/octet-stream": Blob | File;
           };
         };
-        /** @description Invalid input */
-        405: {
-          headers: {
-            [name: string]: unknown;
+        responses: {
+          /** @description File replaced */
+          204: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content?: never;
           };
-          content?: never;
+        };
+      };
+      /** Copy a file */
+      copy: {
+        parameters: {
+          query?: never;
+          header: {
+            Destination: string;
+          };
+          path: {
+            fileId: string;
+          };
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description File copied */
+          201: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["File"];
+            };
+          };
         };
       };
     };
-    getOrderById: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** @description ID of order that needs to be fetched */
-          orderId: number;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description successful operation */
-        200: {
-          headers: {
-            [name: string]: unknown;
+    "/items": {
+      /** List items */
+      get: {
+        parameters: {
+          query?: {
+            limit?: number;
+            filter?: components["schemas"]["ItemFilter"];
+            meta?: Record<string, unknown>;
+            ids?: string;
           };
+          header?: {
+            "X-Locale"?: string;
+          };
+          path?: never;
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description Items */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["Item"][];
+            };
+          };
+        };
+      };
+      /** Search items with a query in the body */
+      query: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        requestBody: {
           content: {
-            "application/xml": components["schemas"]["Order"];
-            "application/json": components["schemas"]["Order"];
+            "application/json": components["schemas"]["ItemFilter"];
           };
         };
-        /** @description Invalid ID supplied */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Order not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    deleteOrder: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** @description ID of the order that needs to be deleted */
-          orderId: number;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Invalid ID supplied */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Order not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    createUser: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      /** @description Created user object */
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["User"];
-          "application/xml": components["schemas"]["User"];
-          "application/x-www-form-urlencoded": components["schemas"]["User"];
-        };
-      };
-      responses: {
-        /** @description successful operation */
-        default: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["User"];
-            "application/xml": components["schemas"]["User"];
+        responses: {
+          /** @description Matching items */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["Item"][];
+            };
           };
         };
       };
     };
-    createUsersWithListInput: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["User"][];
+    "/items/{revision}": {
+      /** Get the items at a revision */
+      get: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path: {
+            revision: string;
+          };
+          cookie?: never;
         };
-      };
-      responses: {
-        /** @description Successful operation */
-        200: {
-          headers: {
-            [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+          /** @description Items */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["Item"][];
+            };
           };
-          content: {
-            "application/xml": components["schemas"]["User"];
-            "application/json": components["schemas"]["User"];
-          };
-        };
-        /** @description successful operation */
-        default: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
         };
       };
     };
-    loginUser: {
-      parameters: {
-        query?: {
-          /** @description The user name for login */
-          username?: string;
-          /** @description The password for login in clear text */
-          password?: string;
+    "/search": {
+      /** Search with a query string described as a whole */
+      get: {
+        parameters: {
+          query?: {
+            term?: string;
+            page?: number;
+          };
+          header?: never;
+          path?: never;
+          cookie?: never;
         };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description successful operation */
-        200: {
-          headers: {
-            /** @description calls per hour allowed by the user */
-            "X-Rate-Limit"?: number;
-            /** @description date in UTC when token expires */
-            "X-Expires-After"?: string;
-            [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+          /** @description Matching items */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["Item"][];
+            };
           };
-          content: {
-            "application/xml": string;
-            "application/json": string;
-          };
-        };
-        /** @description Invalid username/password supplied */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
         };
       };
     };
-    logoutUser: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description successful operation */
-        default: {
-          headers: {
-            [name: string]: unknown;
+    "/pets": {
+      /** Get a pet */
+      get: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description A pet */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["Pet"];
+            };
           };
-          content?: never;
         };
       };
     };
-    getUserByName: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** @description The name that needs to be fetched. Use user1 for testing. */
-          username: string;
-        };
-        cookie?: never;
+  }
+  export interface components {
+    schemas: {
+      File: {
+        id: string;
+        size: number;
       };
-      requestBody?: never;
-      responses: {
-        /** @description successful operation */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/xml": components["schemas"]["User"];
-            "application/json": components["schemas"]["User"];
-          };
-        };
-        /** @description Invalid username supplied */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description User not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
+      Item: {
+        id: number;
+        name: string;
       };
-    };
-    updateUser: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** @description name that need to be deleted */
-          username: string;
-        };
-        cookie?: never;
+      ItemFilter: {
+        name?: string;
+        tags?: string[];
       };
-      /** @description Update an existent user in the store */
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["User"];
-          "application/xml": components["schemas"]["User"];
-          "application/x-www-form-urlencoded": components["schemas"]["User"];
+      Pet: {
+        name?: string;
+        petType: string;
+      } & components["schemas"]["Cat"];
+      Cat: Omit<{
+        name?: string;
+        petType: string;
+      }, "petType"> & {
+        meows?: boolean;
+      } & {
+        /**
+         * @description discriminator enum property added by apiful
+         * @enum {string}
+         */
+        petType: "Cat";
+      };
+      Settings: {
+        display?: {
+          theme?: string;
         };
       };
-      responses: {
-        /** @description successful operation */
-        default: {
-          headers: {
-            [name: string]: unknown;
+      Theme: NonNullable<components["schemas"]["Settings"]["display"]>["theme"];
+      Tree: {
+        root?: NonNullable<components["schemas"]["Tree"]["$defs"]>["Node"];
+        $defs?: {
+          Node: {
+            label?: string;
+            children?: NonNullable<components["schemas"]["Tree"]["$defs"]>["Node"][];
           };
-          content?: never;
         };
       };
     };
-    deleteUser: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** @description The name that needs to be deleted */
-          username: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Invalid username supplied */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description User not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
+    mediaTypes: never;
   }
 }

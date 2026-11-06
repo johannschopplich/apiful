@@ -63,41 +63,62 @@ exports[`OpenAPI types generation > generates an entry and one fragment per serv
   "testEcho": "declare module 'apiful/schema/testEcho' {
   export interface paths {
     "/echo/{id}": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
       /** Echo a path parameter back */
-      get: operations["echoById"];
-      put?: never;
-      post?: never;
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      get: {
+        parameters: {
+          query?: {
+            value?: string;
+          };
+          header?: never;
+          path: {
+            id: string;
+          };
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          /** @description Successful echo of the path parameter */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["StaticResponse"];
+            };
+          };
+          404: components["responses"]["NotFound"];
+        };
+      };
     };
     "/echo/request": {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      get?: never;
-      put?: never;
       /** Echo the request details back */
-      post: operations["echoRequest"];
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+      post: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        requestBody: {
+          content: {
+            "application/json": components["schemas"]["EchoRequest"];
+          };
+        };
+        responses: {
+          /** @description Successful echo of the request details */
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              "application/json": components["schemas"]["EchoResponse"];
+            };
+          };
+          400: components["responses"]["BadRequest"];
+        };
+      };
     };
   }
-  export type webhooks = Record<string, never>;
   export interface components {
     schemas: {
       StaticResponse: {
@@ -143,59 +164,6 @@ exports[`OpenAPI types generation > generates an entry and one fragment per serv
     requestBodies: never;
     headers: never;
     pathItems: never;
-  }
-  export type $defs = Record<string, never>;
-  export interface operations {
-    echoById: {
-      parameters: {
-        query?: {
-          value?: string;
-        };
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Successful echo of the path parameter */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["StaticResponse"];
-          };
-        };
-        404: components["responses"]["NotFound"];
-      };
-    };
-    echoRequest: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["EchoRequest"];
-        };
-      };
-      responses: {
-        /** @description Successful echo of the request details */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": components["schemas"]["EchoResponse"];
-          };
-        };
-        400: components["responses"]["BadRequest"];
-      };
-    };
   }
 }
 ",

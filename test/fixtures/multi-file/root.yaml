@@ -1,0 +1,65 @@
+openapi: 3.1.0
+info:
+  title: Multi-File API
+  version: 2024-01-01
+paths:
+  /pets/{id}:
+    get:
+      operationId: getPet
+      x-codeSamples:
+        - lang: Shell
+          source:
+            $ref: ./code-samples/get-pet.sh
+      parameters:
+        - $ref: ./parameters.yaml#/PetId
+      responses:
+        '200':
+          description: The pet
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/pet.yaml
+        default:
+          $ref: ./responses.yaml#/Error
+  /owners:
+    get:
+      operationId: listOwners
+      responses:
+        '200':
+          description: All owners
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/owner.json
+                  description: An owner with their pets
+  /animals:
+    get:
+      operationId: listAnimals
+      responses:
+        '200':
+          description: Any animal
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/animal.yaml
+  /legacy/pets/{id}:
+    get:
+      operationId: getLegacyPet
+      parameters:
+        - $ref: ./parameters.yaml#/PetId
+      responses:
+        '200':
+          description: The pet in its legacy shape
+          content:
+            application/json:
+              schema:
+                $ref: ./legacy/pet.yaml
+        default:
+          $ref: ./legacy/responses.yaml#/Error
+components:
+  schemas:
+    Id:
+      type: string
+      format: uuid

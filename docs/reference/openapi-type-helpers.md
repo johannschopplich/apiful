@@ -125,7 +125,7 @@ type PetMethods = PetStoreApiMethods<'/pet'>
 //   ^? 'post' | 'put'
 ```
 
-Only the methods the path declares are listed. `openapi-typescript` gives every path item a key for all eight verbs and sets the unused ones aside, so reaching for `keyof` yourself would answer with all eight, plus `parameters`.
+Only the methods the path declares are listed.
 
 ## Schema Model Types
 

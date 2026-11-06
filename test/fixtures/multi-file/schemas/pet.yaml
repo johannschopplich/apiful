@@ -1,0 +1,13 @@
+type: object
+required: [id, name]
+properties:
+  id:
+    $ref: ../root.yaml#/components/schemas/Id
+  name:
+    type: string
+  owner:
+    $ref: ./owner.json
+  tags:
+    type: array
+    items:
+      $ref: ./tag.yaml

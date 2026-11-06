@@ -1,0 +1,9 @@
+Dog:
+  type: object
+  required: [kind]
+  properties:
+    kind:
+      type: string
+      const: dog
+    breed:
+      type: string

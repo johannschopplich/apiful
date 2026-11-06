@@ -25,8 +25,7 @@ export default defineApifulConfig({
 
 ```ts
 interface ServiceOptions {
-  schema: string | URL | OpenAPI3 | (() => Promise<OpenAPI3>)
-  openAPITS?: OpenAPITSOptions
+  schema: string | URL | OpenAPIDocument | (() => Promise<OpenAPIDocument>)
 }
 
 interface ApifulConfig {
@@ -37,4 +36,4 @@ declare function defineApifulConfig(config: ApifulConfig): ApifulConfig
 ```
 
 > [!NOTE]
-> [openapi-typescript](https://github.com/openapi-ts/openapi-typescript) provides the `OpenAPI3` and `OpenAPITSOptions` types and serves as the OpenAPI specification to TypeScript definitions generator.
+> `schema` takes a file path relative to the project root, a `file:` or `http(s):` URL, an OpenAPI 3.x document object, or a function resolving to one.

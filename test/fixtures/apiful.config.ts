@@ -10,6 +10,9 @@ const config: ApifulConfig = defineApifulConfig({
     petStore: {
       schema: 'pet-store-api-schema.json',
     },
+    catalog: {
+      schema: 'catalog-api-schema.yml',
+    },
   },
 })
 

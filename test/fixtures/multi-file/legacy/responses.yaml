@@ -1,0 +1,6 @@
+Error:
+  description: A legacy error
+  content:
+    application/json:
+      schema:
+        $ref: ./errors.yaml#/Error

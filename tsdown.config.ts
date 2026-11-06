@@ -13,7 +13,6 @@ const config: UserConfig = defineConfig({
     'apiful/schema',
     'json-schema',
     'json-schema-to-typescript-lite',
-    'openapi-typescript',
     '@types/json-schema',
   ],
   dts: true,

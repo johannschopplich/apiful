@@ -22,8 +22,6 @@ The CLI currently provides one primary command:
 
 Generates TypeScript definitions from OpenAPI schemas. This is the core command for enabling type-safe API clients.
 
-This command requires the `openapi-typescript` package. See the [OpenAPI extension prerequisites](/extensions/openapi#prerequisites) for installation instructions.
-
 > [!IMPORTANT]
 > You must have a valid `apiful.config.ts` file with service definitions before running this command.
 

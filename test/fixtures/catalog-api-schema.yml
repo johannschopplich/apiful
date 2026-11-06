@@ -1,0 +1,267 @@
+openapi: 3.2.0
+info:
+  title: Catalog API
+  description: An OpenAPI 3.2 API covering binary payloads, parameter defaults, custom methods, and query strings
+  version: 1.0.0
+
+paths:
+  /files:
+    post:
+      summary: Upload a file with metadata
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                label:
+                  type: string
+      responses:
+        '201':
+          description: File stored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+
+  /files/{fileId}:
+    parameters:
+      - name: fileId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Download a file
+      responses:
+        '200':
+          description: File contents
+          content:
+            image/png:
+              schema:
+                type: string
+                contentMediaType: image/png
+    put:
+      summary: Replace the contents of a file
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '204':
+          description: File replaced
+    additionalOperations:
+      COPY:
+        summary: Copy a file
+        parameters:
+          - name: Destination
+            in: header
+            required: true
+            schema:
+              type: string
+        responses:
+          '201':
+            description: File copied
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/File'
+
+  /items:
+    get:
+      summary: List items
+      parameters:
+        - name: limit
+          in: query
+          required: true
+          schema:
+            type: integer
+            default: 20
+        - name: X-Locale
+          in: header
+          required: true
+          schema:
+            type: string
+            default: en
+        - name: filter
+          in: query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemFilter'
+        - name: meta
+          in: query
+          content:
+            application/json:
+              schema:
+                type: object
+        - name: ids
+          in: query
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+      responses:
+        '200':
+          description: Items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+    query:
+      summary: Search items with a query in the body
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemFilter'
+      responses:
+        '200':
+          description: Matching items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+
+  /items/{revision}:
+    get:
+      summary: Get the items at a revision
+      parameters:
+        - name: revision
+          in: path
+          required: true
+          schema:
+            type: string
+            default: latest
+      responses:
+        '200':
+          description: Items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+
+  /search:
+    get:
+      summary: Search with a query string described as a whole
+      parameters:
+        - name: search
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  term:
+                    type: string
+                  page:
+                    type: integer
+      responses:
+        '200':
+          description: Matching items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+
+  /pets:
+    get:
+      summary: Get a pet
+      responses:
+        '200':
+          description: A pet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+
+components:
+  schemas:
+    File:
+      type: object
+      required: [id, size]
+      properties:
+        id:
+          type: string
+        size:
+          type: integer
+    Item:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ItemFilter:
+      type: object
+      properties:
+        name:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+    Pet:
+      type: object
+      required: [petType]
+      properties:
+        name:
+          type: string
+        petType:
+          type: string
+      oneOf:
+        - $ref: '#/components/schemas/Cat'
+      discriminator:
+        propertyName: petType
+    Cat:
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+        - type: object
+          properties:
+            meows:
+              type: boolean
+    Settings:
+      type: object
+      properties:
+        display:
+          type: object
+          properties:
+            theme:
+              type: string
+    Theme:
+      $ref: '#/components/schemas/Settings/properties/display/properties/theme'
+    Tree:
+      type: object
+      properties:
+        root:
+          $ref: '#/components/schemas/Tree/$defs/Node'
+      $defs:
+        Node:
+          type: object
+          properties:
+            label:
+              type: string
+            children:
+              type: array
+              items:
+                $ref: '#/components/schemas/Tree/$defs/Node'

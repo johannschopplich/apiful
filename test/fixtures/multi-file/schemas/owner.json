@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "required": ["name"],
+  "properties": {
+    "name": { "type": "string" },
+    "pets": {
+      "type": "array",
+      "items": { "$ref": "./pet.yaml" }
+    }
+  }
+}

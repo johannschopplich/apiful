@@ -1,0 +1,5 @@
+Error:
+  type: object
+  properties:
+    code:
+      type: integer

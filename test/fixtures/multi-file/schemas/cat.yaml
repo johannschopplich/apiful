@@ -1,0 +1,8 @@
+type: object
+required: [kind]
+properties:
+  kind:
+    type: string
+    const: cat
+  lives:
+    type: integer
