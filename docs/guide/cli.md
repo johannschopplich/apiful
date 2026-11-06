@@ -16,25 +16,17 @@ This displays the following output:
 
 ## Commands
 
-The CLI currently provides one primary command:
-
 ### `generate`
 
-Generates TypeScript definitions from OpenAPI schemas. This is the core command for enabling type-safe API clients.
+Generates the types the [OpenAPI extension](/extensions/openapi) reads.
 
-> [!IMPORTANT]
-> You must have a valid `apiful.config.ts` file with service definitions before running this command.
+By default, this command loads the [configuration](/reference/define-apiful-config) from the `apiful.config.{ts,mts,js,mjs}` file in the current working directory, or in the directory `--root` points to. The CLI imports the file with Node's native `import()`, so the configuration is a regular ES module: it can import other modules, branch on conditions, and read `process.env`. A TypeScript configuration runs through Node's built-in type stripping, which supports only erasable syntax – no `enum`s, no parameter properties – and a relative import names its file extension, such as `./services.ts`. In a project whose `package.json` declares no `"type"`, Node warns with `MODULE_TYPELESS_PACKAGE_JSON` as it imports an `apiful.config.ts` or `.js`, and under `"type": "commonjs"` it fails to load one – name the file `apiful.config.mts` or `.mjs` instead to mark it as an ES module.
 
-> [!TIP]
-> Read the [OpenAPI](/extensions/openapi) extension documentation to learn how to build the type-safe API client.
-
-By default, this command loads the APIful configuration from the `apiful.config.{ts,mts,js,mjs}` file in the current working directory, or in the directory `--root` points to. The CLI imports the file with Node's native `import()`, so the configuration is a regular ES module: it can import other modules, branch on conditions, and read `process.env`. A TypeScript configuration runs through Node's built-in type stripping, which supports only erasable syntax – no `enum`s, no parameter properties. In a project whose `package.json` declares no `"type": "module"`, Node warns with `MODULE_TYPELESS_PACKAGE_JSON` as it imports an `apiful.config.ts` or `.js` – name the file `apiful.config.mts` or `.mjs` instead to mark it as an ES module.
-
-The generated TypeScript types are saved as `apiful.d.ts` in the same directory. This file augments the `apiful/schema` module with your generated types, making them available to the [OpenAPI](/extensions/openapi) extension.
+The types are saved as `apiful.d.ts` in the same directory, where they augment the `apiful/schema` module. `--outfile` and `--outdir` resolve against that directory, too.
 
 A schema that cannot be read or parsed fails the whole run: the command reports the service it choked on, exits with code `1`, and writes no types, rather than leaving you with a client that compiles and is silently untyped. Calling the [type generator](/reference/type-generator) from your own code instead of the CLI, the same failure arrives as a `SchemaGenerationError`.
 
-A service with no `schema` has nothing to generate from, so the run skips it and names it in a warning. Every other service is still generated, and the run succeeds. In a TypeScript configuration the omission is a type error long before that, since `schema` is required.
+A service with no `schema` has nothing to generate from, so the run skips it and names it in a warning. Every other service is still generated, and the run succeeds. Where no service has a schema, the run does nothing: output from earlier runs stays on disk, and `--check` passes. In a TypeScript configuration the omission is a type error long before that, since `schema` is required.
 
 > [!NOTE]
 > Commit the generated `apiful.d.ts` file to version control so all team members have access to the same types, and run [`--check`](#keeping-generated-types-current) in CI so a schema change cannot land without them.
@@ -50,9 +42,6 @@ npx apiful generate --help
 This displays the following output:
 
 <<< @/snippets/generate-help.ansi
-
-> [!NOTE]
-> Although it's recommended to create an `apiful.config.ts` file with a [`defineApifulConfig`](/reference/define-apiful-config) default export, you can also write the configuration as plain JavaScript (`.js`, `.mjs`).
 
 #### Keeping Generated Types Current
 

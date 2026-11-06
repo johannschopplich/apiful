@@ -4,9 +4,6 @@ APIful provides the reason phrase of every registered HTTP status code as a cons
 
 The phrases are the ones the [IANA HTTP Status Code Registry](https://www.iana.org/assignments/http-status-codes) lists, and each constant shares its name with the matching [status code](/utilities/http-status-codes): `CONTENT_TOO_LARGE` is `'Content Too Large'`.
 
-> [!TIP]
-> You may be wondering, why not use the [http-status-codes](https://www.npmjs.com/package/http-status-codes) package directly? Because the enums exported by the package don't work well with frameworks like Hono that use the `@hono/zod-openapi` type system.
-
 ## Usage
 
 Import all named exports from `apiful/http-status-phrases` as local names, and use them as needed.
@@ -17,17 +14,14 @@ import * as HttpStatusPhrases from 'apiful/http-status-phrases'
 console.log(HttpStatusPhrases.NOT_FOUND) // 'Not Found'
 ```
 
-> [!TIP]
-> With namespace imports, bundlers like Rollup will only include the imported exports in the final bundle, which can help reduce the bundle size.
-
-For web frameworks like [Hono](https://hono.dev), you can use the status phrases in your route handlers like this:
+In a [Hono](https://hono.dev) route handler, next to the [status code](/utilities/http-status-codes) of the same name:
 
 ```ts
 import * as HttpStatusCodes from 'apiful/http-status-codes'
 import * as HttpStatusPhrases from 'apiful/http-status-phrases'
+import { Hono } from 'hono'
 
-app.get('/not-found', (c) => {
-  c.status(HttpStatusCodes.NOT_FOUND)
-  c.json({ message: HttpStatusPhrases.NOT_FOUND })
-})
+const app = new Hono()
+
+app.get('/not-found', c => c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND))
 ```

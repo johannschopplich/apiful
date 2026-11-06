@@ -70,7 +70,7 @@ const user = await client('users/1', { method: 'GET' })
 // POST request with JSON body
 const newUser = await client('users', {
   method: 'POST',
-  body: { name: 'John Doe', email: 'john@example.com' }
+  body: { name: 'John Doe', email: 'john@example.com' },
 })
 ```
 

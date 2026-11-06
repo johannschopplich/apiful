@@ -39,10 +39,10 @@ export default defineConfig({
         items: [
           { text: 'Getting Started', link: '/guide/getting-started' },
           { text: 'Using Extensions', link: '/guide/using-extensions' },
-          { text: 'Creating Extensions', link: '/guide/custom-extensions' },
+          { text: 'Custom Extensions', link: '/guide/custom-extensions' },
           { text: 'Command Line Interface', link: '/guide/cli' },
           { text: 'Migration', link: '/guide/migration' },
-          { text: 'Migrating From openapi-typescript', link: '/guide/migrating-from-openapi-typescript' },
+          { text: 'Migrating From openapi-typescript and openapi-fetch', link: '/guide/migrating-from-openapi-typescript' },
         ],
       },
       {
@@ -60,7 +60,7 @@ export default defineConfig({
         activeMatch: '^/cookbook/',
         items: [
           { text: 'Authenticating Requests', link: '/cookbook/authentication' },
-          { text: 'Typed Clients for Nitro', link: '/cookbook/typed-nitro-client' },
+          { text: 'Typed Client for Nitro Servers', link: '/cookbook/typed-nitro-client' },
         ],
       },
       {
@@ -143,10 +143,10 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       items: [
         { text: 'Getting Started', link: '/guide/getting-started' },
         { text: 'Using Extensions', link: '/guide/using-extensions' },
-        { text: 'Creating Extensions', link: '/guide/custom-extensions' },
+        { text: 'Custom Extensions', link: '/guide/custom-extensions' },
         { text: 'Command Line Interface', link: '/guide/cli' },
         { text: 'Migration', link: '/guide/migration' },
-        { text: 'Migrating From openapi-typescript', link: '/guide/migrating-from-openapi-typescript' },
+        { text: 'Migrating From openapi-typescript and openapi-fetch', link: '/guide/migrating-from-openapi-typescript' },
       ],
     },
     {
@@ -162,7 +162,7 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       text: 'Cookbook',
       items: [
         { text: 'Authenticating Requests', link: '/cookbook/authentication' },
-        { text: 'Typed Clients for Nitro', link: '/cookbook/typed-nitro-client' },
+        { text: 'Typed Client for Nitro Servers', link: '/cookbook/typed-nitro-client' },
       ],
     },
     { text: 'Utilities', link: '/utilities' },

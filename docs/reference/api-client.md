@@ -18,7 +18,7 @@ interface ApiClientBase<Handler, Methods> extends Function {
 }
 ```
 
-`Handler` is the latest handler extension and `Methods` collects every methods extension. A handler extension added with `with` takes the place of the previous one in the type, as it does at runtime, so the call signature and properties of the replaced handler are gone from the client. A bare `ApiClient` carries neither – every extended client is assignable to it.
+`Handler` is the latest handler extension – a replaced one is gone from the type, [as at runtime](/guide/using-extensions#how-extensions-work) – and `Methods` collects every methods extension. A bare `ApiClient` carries neither, so every extended client is assignable to it.
 
 `createExtension` receives the client as it stands, carrying every extension added before it – see [reaching the client](/guide/custom-extensions#reaching-the-client).
 

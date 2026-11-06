@@ -16,7 +16,7 @@ APIful now requires Node 24 or later, and its types require TypeScript 5.9 or la
 
 #### Regenerate Your Types
 
-APIful generates the types itself now, without openapi-typescript, and the output differs from what v5 wrote. Run [`apiful generate`](/guide/cli) once you have upgraded and commit the result – until you do, `--check` reports the file as out of date.
+APIful generates the types itself now, without openapi-typescript, and the output differs from what v5 wrote. Run [`apiful generate`](/guide/cli) once you have upgraded and commit the result – until you do, `--check` reports the file as out of date. The [openapi-typescript migration guide](/guide/migrating-from-openapi-typescript#where-the-generated-types-differ) lists every difference from openapi-typescript's output.
 
 Remove `openapi-typescript` and `json-schema-to-typescript-lite` from your dependencies afterwards. APIful loads neither.
 
@@ -44,17 +44,18 @@ const petStore = createClient({ baseURL: 'https://petstore3.swagger.io/api/v3' }
 
 The CLI imports `apiful.config.{ts,mts,js,mjs}` with Node's native `import()` instead of loading it through c12. What c12 added on top goes with it:
 
-- `.cjs`, `.json` and `.json5` files are no longer read. Move the configuration into an `apiful.config.ts` with a default export.
-- There is no environment variable substitution. Read `process.env` in the module instead.
+- `.cjs`, `.cts`, `.json`, `.jsonc`, `.json5`, `.yaml`, `.yml`, and `.toml` files are no longer read, and neither is a `.config/` directory. Move the configuration into an `apiful.config.ts` with a default export.
+- A default export that is a function is no longer called, and the CLI rejects it. Export the configuration object itself.
+- `extends` layers and `$development` or `$production` overrides are gone. Branch on `process.env` in the module instead.
 - A TypeScript configuration may only use erasable syntax – no `enum`s, no parameter properties – and a relative import names its file extension, such as `./services.ts`.
 
 #### The `openAPITS` Option Is Gone
 
-The service option that passed settings on to openapi-typescript is removed, and so is the `OpenAPITSOptions` type. The generator takes no options, so delete the key. If you set `rootTypes`, the next section replaces it.
+The service option that passed settings on to openapi-typescript is removed, and so is the `openAPITSOptions` field of `GenerateOptions`. The generator takes no options, so delete the key. If you set `rootTypes`, the next section replaces it.
 
 #### Name Your Schema Types Yourself
 
-Each `apiful/schema/<id>` module exports `paths` and `components`, and nothing else. The named schema types `rootTypes` generated are gone, and so are the `operations`, `webhooks` and `$defs` types. Declare an alias for each type you use, through the helpers `apiful/schema` exports for the service:
+Each `apiful/schema/<service>` module exports `paths` and `components` – plus a `WithRequired` helper where a schema needs one – and nothing else. The named schema types `rootTypes` generated are gone, and so are the `operations`, `webhooks`, and `$defs` types. Declare an alias for each type you use, through the helpers `apiful/schema` exports for the service:
 
 ```ts
 import type { PetStore, PetStoreModel } from 'apiful/schema'
@@ -95,7 +96,7 @@ The generator exports were renamed on the way – see [Renamed and Removed Expor
 
 #### The Validation Utilities Are Gone
 
-`apiful/utils` no longer exports `jsonSchema`, `validator`, `validateTypes`, `safeValidateTypes`, `isSchema`, `isValidator` or `TypeValidationError`. No part of the client used them. Validate with a dedicated library instead, such as [Ajv](https://ajv.js.org) for JSON Schema.
+`apiful/utils` no longer exports `jsonSchema`, `validator`, `validateTypes`, `safeValidateTypes`, `isSchema`, `isValidator`, `validatorSymbol`, `TypeValidationError`, or the types `Schema`, `Validator`, and `ValidationResult`. No part of the client used them. Validate with a dedicated library instead, such as [Ajv](https://ajv.js.org) for JSON Schema.
 
 #### `jsonToTypeDefinition` Returns a String
 
@@ -113,27 +114,13 @@ The [status codes](/utilities/http-status-codes) and [phrases](/utilities/http-s
 | `REQUESTED_RANGE_NOT_SATISFIABLE` | `RANGE_NOT_SATISFIABLE` |
 | `UNPROCESSABLE_ENTITY` | `UNPROCESSABLE_CONTENT` |
 
-The phrases of these five follow their names, and `NON_AUTHORITATIVE_INFORMATION` reads `'Non-Authoritative Information'`. `IM_A_TEAPOT` (`418`), `INSUFFICIENT_SPACE_ON_RESOURCE` (`419`) and `METHOD_FAILURE` (`420`) are gone, since the registry marks `418` unused and assigns neither `419` nor `420`. `ALREADY_REPORTED`, `IM_USED`, `TOO_EARLY`, `VARIANT_ALSO_NEGOTIATES`, `LOOP_DETECTED` and `NOT_EXTENDED` are new.
+The phrases of these five follow their names, and `NON_AUTHORITATIVE_INFORMATION` reads `'Non-Authoritative Information'`. `IM_A_TEAPOT` (`418`), `INSUFFICIENT_SPACE_ON_RESOURCE` (`419`), and `METHOD_FAILURE` (`420`) are gone, since the registry marks `418` unused and assigns neither `419` nor `420`.
 
 ### Behavior That Changed
 
-#### The Generated Types Follow More of the Schema
-
-The new generator types five things differently from v5 – the [openapi-typescript migration guide](/guide/migrating-from-openapi-typescript) compares its output with openapi-typescript's in full:
-
-- A `format: binary` string, or one with a non-JSON `contentMediaType`, is `Blob | File`.
-- A `multipart/form-data` request body is typed as `FormData`. ofetch sends a plain object as JSON whatever the operation declares, so an object passed for a multipart body now fails to compile – build the `FormData` yourself. An `application/x-www-form-urlencoded` body also accepts a `URLSearchParams`; an object still works once the request sets that content type.
-- A required query, header, or cookie parameter whose schema declares a `default` is optional, since the server falls back to it. A path parameter stays required.
-- A property with a `default` is optional unless the schema lists it as `required`, in responses too. JSON Schema treats `default` as an annotation, which promises no value in the response, so code reading such a property handles `undefined` now.
-- OpenAPI 3.2 operations are typed: the `query` method, custom methods from `additionalOperations` under their lowercased name, and a `querystring` parameter as the type of the whole `query` object.
-
-#### Every 2xx Status Counts as Success
-
-`response` is the body of any 2xx status the operation declares, `205`, `208` and `226` included. The `error` type, and the `data` a thrown error carries, cover every 4xx and 5xx status the operation declares and `default`, where v5 left out codes missing from its fixed list, such as `419` and `509`.
-
 #### An Object Body Is Sent as JSON for Every Method
 
-ofetch serializes an object `body` only for `PATCH`, `POST`, `PUT` and `DELETE`, so v5 sent one on any other method – `QUERY`, `SEARCH`, or a custom method – as `[object Object]`. The OpenAPI client now serializes it as JSON for every method and sets `content-type` and `accept` to `application/json` where you have not set them. A `JSON.stringify` with a hand-set `content-type` can go:
+ofetch serializes an object `body` only for `PATCH`, `POST`, `PUT`, and `DELETE`, so v5 sent one on any other method – `QUERY`, `SEARCH`, or a custom method – as `[object Object]`. The OpenAPI client now serializes it as JSON for every method and sets `content-type` and `accept` to `application/json` where you have not set them. A `JSON.stringify` with a hand-set `content-type` can go:
 
 ```ts
 // Before
@@ -146,6 +133,10 @@ await catalog('/items', {
 // After
 await catalog('/items', { method: 'QUERY', body: { name: 'lamp' } })
 ```
+
+#### A `.` or `..` Path Parameter Rejects the Call
+
+A path parameter of `.` or `..` that fills a whole segment used to go out as a dot segment, which resolves the URL to another path. The OpenAPI client now rejects the call before sending it.
 
 ### Types That Are Now Stricter
 
@@ -176,6 +167,26 @@ type PetMethods = keyof paths['/pet']
 
 Path-level parameters are merged into every operation of the path, as before.
 
+#### Binary Strings Are `Blob | File`
+
+A `format: binary` string, or one with a non-JSON `contentMediaType`, is typed as `Blob | File`, so a string passed for one no longer compiles.
+
+#### A Multipart Body Is a `FormData`
+
+A `multipart/form-data` request body is typed as `FormData`, since ofetch sends a plain object as JSON whatever the operation declares. An object passed for one no longer compiles – build the `FormData` yourself.
+
+#### A Form-Encoded Body Widens `request` With `URLSearchParams`
+
+Where an operation accepts an `application/x-www-form-urlencoded` body, `request` also includes `URLSearchParams`, so reading a property off a value typed as `PetStore<'/pet', 'put'>['request']` no longer compiles. Type the value with [`PetStoreModel`](/reference/openapi-type-helpers), or index `operation` by a media type other than the form-encoded one, such as `application/json`.
+
+#### A Property With a `default` Can Be Missing
+
+A property with a `default` used to be required outside request bodies and parameters. It is now optional unless the schema lists it as `required`, since JSON Schema treats `default` as an annotation that promises no value. Code reading such a property from a response handles `undefined` now.
+
+#### Every 2xx Status Counts as Success
+
+`response` is the body of any 2xx status the operation declares, `205`, `208`, and `226` included. The `error` type, and the `data` a thrown error carries, cover every 4xx and 5xx status the operation declares and `default`, where v5 left out codes missing from its fixed list, such as `419` and `509`. Code reading either handles the bodies of those statuses now.
+
 #### The Response Follows `responseType`
 
 A call with a `responseType` other than `json` used to be typed as the schema's JSON body. It is now typed as what ofetch returns – `Blob` for `blob`, `string` for `text`, `ArrayBuffer` for `arrayBuffer`, and `ReadableStream<Uint8Array>` for `stream`.
@@ -201,8 +212,8 @@ Only relevant if you call the generator from your own code or build on the clien
 | `generateDTS`, `joinDTSFragments` | Removed – write `entry` and `fragments` yourself |
 | `generateSchemaTypes({ id, service, rootDir })` | `generateSchemaTypes(await loadOpenAPIDocument(schema, { rootDir }))`, synchronous |
 | `generateTypeHelpers(id)` | `generateTypeHelpers(id, { paths, components })` |
-| `OpenAPI3` | `OpenAPIDocument` |
-| `createOpenAPIHandler(fetch)` | `createOpenAPIClient(defaultOptions, { fetch })` |
+| `OpenAPI3` from openapi-typescript | `OpenAPIDocument` |
+| `createOpenAPIHandler(fetch)` | `createOpenAPIClient({}, { fetch })` |
 | `ClientOptions` | `FetchOptions` from ofetch |
 | `createClient<BaseURL>()` | `createClient()` |
 | `ApiClient<BaseURL>` | `ApiClient<Handler, Methods>`, without `_handler` and `_extensions` |
@@ -305,7 +316,7 @@ type PetNotFound = PetStore<'/pet/{petId}', 'get'>['responses'][404]
 //   ^? v5: undefined
 ```
 
-**`response` is whichever 2xx status and media type the operation declares**, rather than always `200` and always JSON. An operation whose success carries no body resolves to `never`.
+**`response` is whichever 2xx status and media type the operation declares**, rather than always `200` and always JSON. It is `undefined` where the 2xx status declares no content, and `never` where the operation declares no 2xx status.
 
 **An optional request body comes back widened with `undefined`**, matching what the client accepts:
 

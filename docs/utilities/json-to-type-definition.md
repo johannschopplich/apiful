@@ -1,20 +1,8 @@
 # JSON to Type Definition
 
-APIful provides a utility for generating TypeScript interfaces from JSON data. This is especially useful if you want to create type definitions for your API responses or work with dynamic JSON structures.
-
-> [!NOTE]
-> All properties in generated interfaces are optional by default to accommodate varying JSON structures. Mark them as required as needed with the `strictProperties` option.
+`jsonToTypeDefinition` from `apiful/utils` infers a TypeScript type from a JSON value and returns its source: an interface for an object, a type alias for anything else, named after `typeName` (default `Root`). Every property is optional unless you pass `strictProperties: true`.
 
 ## Usage
-
-Import the `jsonToTypeDefinition` function from `apiful/utils`. Pass your JSON data and specify the interface name you want to generate. The function returns a string containing the TypeScript type definition.
-
-A JSON object becomes an interface, any other JSON value a type alias, named after the `typeName` option or `Root` by default. Use the `strictProperties` option to mark all properties as required.
-
-Here is an example of generating a type definition for a JSON response:
-
-> [!TIP]
-> This is particularly useful for creating types from API responses during development, then manually refining them for production use.
 
 ```ts
 import { jsonToTypeDefinition } from 'apiful/utils'
@@ -40,7 +28,7 @@ const responseTypeDefinition = jsonToTypeDefinition(
 )
 ```
 
-The `responseTypeDefinition` variable will contain the following TypeScript interface as a string:
+`responseTypeDefinition` holds this source:
 
 <!-- eslint-skip -->
 
@@ -60,9 +48,6 @@ export interface Response {
   };
 }
 ```
-
-> [!TIP]
-> You can use the generated type definitions directly in your code or save them to a `.ts` file for better type support in your TypeScript projects.
 
 ## Type Definition
 

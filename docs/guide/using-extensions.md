@@ -20,7 +20,7 @@ Extensions come in two kinds:
 - A **[handler extension](/guide/custom-extensions#handler-extension)** provides the call signature that makes requests. A client takes one – adding a second replaces the first, on the client `.with()` returns. The [built-in extensions](/extensions/) are all handler extensions.
 - A **[methods extension](/guide/custom-extensions#methods-extension)** adds named methods to the client. Add as many as you like.
 
-Every extension is handed the client, so all of them read the same `defaultOptions`. Where two provide the same name, the later one wins:
+Every extension is handed the client, so all of them read the same `defaultOptions`. Where two methods extensions provide the same name, the later one wins, and a method always shadows a property of the handler extension:
 
 ```ts
 import type { MethodsExtensionBuilder } from 'apiful'

@@ -46,7 +46,7 @@ import type { MethodsExtensionBuilder } from 'apiful'
 const logExtension = (client => ({
   logDefaults() {
     console.log('Default fetch options:', client.defaultOptions)
-  }
+  },
 })) satisfies MethodsExtensionBuilder
 
 const extendedClient = client

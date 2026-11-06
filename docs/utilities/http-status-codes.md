@@ -4,8 +4,7 @@ APIful provides every registered HTTP status code as a constant. These are indiv
 
 The constants follow the [IANA HTTP Status Code Registry](https://www.iana.org/assignments/http-status-codes) and take their names from its reason phrases – [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes)'s, for the codes that RFC defines: `413` is `CONTENT_TOO_LARGE`, `422` is `UNPROCESSABLE_CONTENT`. Codes the registry marks as unused, such as `418`, and temporary registrations have no constant. Each constant links to the RFC that defines its code, down to the section where the registry names one.
 
-> [!TIP]
-> You may be wondering, why not use the [http-status-codes](https://www.npmjs.com/package/http-status-codes) package directly? Because the enums exported by the package don't work well with frameworks like Hono that use the `@hono/zod-openapi` type system.
+Unlike the enums of the [http-status-codes](https://www.npmjs.com/package/http-status-codes) package, plain constants work with type systems such as `@hono/zod-openapi`.
 
 ## Usage
 
@@ -17,16 +16,13 @@ import * as HttpStatusCodes from 'apiful/http-status-codes'
 console.log(HttpStatusCodes.CREATED) // 201
 ```
 
-> [!TIP]
-> With namespace imports, bundlers like Rollup will only include the imported exports in the final bundle, which can help reduce the bundle size.
-
-For web frameworks like [Hono](https://hono.dev), you can use the status codes in your route handlers like this:
+Bundlers tree-shake a namespace import, so only the constants you use end up in your bundle. In a [Hono](https://hono.dev) route handler:
 
 ```ts
 import * as HttpStatusCodes from 'apiful/http-status-codes'
+import { Hono } from 'hono'
 
-app.get('/not-found', (c) => {
-  c.status(HttpStatusCodes.NOT_FOUND)
-  c.json({ message: 'Resource not found' })
-})
+const app = new Hono()
+
+app.get('/not-found', c => c.json({ message: 'Resource not found' }, HttpStatusCodes.NOT_FOUND))
 ```

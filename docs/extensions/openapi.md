@@ -5,16 +5,12 @@
 
 This extension types your requests from an OpenAPI schema: the paths your API declares, the methods each one allows, request bodies, query parameters, headers, and the response you get back. The checking is entirely compile time – the generated types add nothing to your bundle, and nothing validates a request once it leaves your code.
 
-To use this extension, APIful must first generate TypeScript definitions from your OpenAPI schema files.
-
 > [!TIP]
 > Reach for this extension when the client also carries other extensions. For a client that only talks to one OpenAPI service, [`createOpenAPIClient`](/reference/create-openapi-client) is the shorter road to the same types.
 
-## TypeScript Definitions Generation
+## Generating the Types
 
-Before creating your type-safe API client, generate TypeScript definitions from your OpenAPI schema files. This involves creating an `apiful.config.ts` file with your API services and running the APIful CLI.
-
-Create an `apiful.config.ts` file and define your API services. Here is an example using the [Swagger Petstore](https://petstore3.swagger.io) API:
+Declare your services in an `apiful.config.ts` and run [`apiful generate`](/guide/cli). This one declares the [Swagger Petstore](https://petstore3.swagger.io) as the `petStore` service:
 
 ```ts
 import { defineApifulConfig } from 'apiful/config'
@@ -28,35 +24,32 @@ export default defineApifulConfig({
 })
 ```
 
-Then, run the [`generate`](/guide/cli) command in your terminal to generate the TypeScript definitions, saved as `apiful.d.ts`.
-
 ```sh
 npx apiful generate
 ```
 
-APIful turns the schema into types and declares them as a module that merges into `apiful/schema`. The output is a declaration file, so nothing of it reaches your bundle. The file builds its endpoint helpers on the types APIful itself ships, which is why it imports from `apiful/openapi`.
-
-You can now create a type-safe client with the `openAPIBuilder` extension, passing the **service name** as a generic parameter – `openAPIBuilder<'petStore'>()`. The [next section](#using-the-openapibuilder-extension) shows it in full.
+The command writes `apiful.d.ts`, which adds the `petStore` service to the `apiful/schema` module.
 
 > [!IMPORTANT]
-> Make sure the generated `apiful.d.ts` file isn't excluded by your `tsconfig.json` configuration. TypeScript needs to find this file to provide typed definitions for your OpenAPI schema.
+> Your `tsconfig.json` has to include `apiful.d.ts`. Without it, TypeScript knows no service, and `openAPIBuilder<'petStore'>()` fails to compile.
 
 > [!TIP]
-> Run the generate command whenever your OpenAPI schema changes to keep your types up-to-date. Consider adding it to your build process or a pre-commit hook.
+> Run `apiful generate --check` in CI so a schema change cannot land without its types – see [Keeping Generated Types Current](/guide/cli#keeping-generated-types-current).
 
-## Using the `openAPIBuilder` Extension
+## Creating the Client
 
-Once you have generated the TypeScript definitions, create a type-safe API client using the `openAPIBuilder` extension:
+Pass the service name to `openAPIBuilder`:
 
 ```ts
 import { createClient, openAPIBuilder } from 'apiful'
 
-const baseURL = 'https://petstore3.swagger.io/api/v3'
-const adapter = openAPIBuilder<'petStore'>()
-const petStore = createClient({ baseURL }).with(adapter)
+const petStore = createClient({ baseURL: 'https://petstore3.swagger.io/api/v3' })
+  .with(openAPIBuilder<'petStore'>())
 ```
 
-Your client now provides full type safety based on the OpenAPI specification. Here is how to fetch a user by username:
+## Calling an Endpoint
+
+The path comes first, and the options carry the method and the parameters. This call fetches a user by username:
 
 ```ts
 const userResponse = await petStore('/user/{username}', {
@@ -80,6 +73,75 @@ declare const userResponse: {
 }
 ```
 
+`method` is optional where the path declares `get`, and leaving it out types the call as a `GET`. It takes the verb in either case, `'POST'` or `'post'`. Where the operation requires an option – a path parameter, a required query parameter, a request body, or the `method` of a path without `get` – the options argument is required, too.
+
+## Sending a Request Body
+
+The body is typed from the operation:
+
+```ts
+const pet = await petStore('/pet', {
+  method: 'POST',
+  body: { name: 'Rex', photoUrls: [] },
+})
+```
+
+ofetch serializes an object body to JSON for `PATCH`, `POST`, `PUT`, and `DELETE`, and the client does the same for every other method, such as OpenAPI 3.2's `QUERY`. Two media types take other values:
+
+- A `multipart/form-data` body is typed as `FormData`, since a plain object would be sent as JSON.
+- An `application/x-www-form-urlencoded` body takes its schema's object or a `URLSearchParams`. ofetch form-encodes the object once the request sets that content type in `headers`.
+
+## Path Parameters
+
+Pass the declared path, `/pet/{petId}`, and its parameters as `path` – the client interpolates them. A literal `/pet/10` is not a declared path and fails to compile.
+
+```ts
+const pet = await petStore('/pet/{petId}', {
+  path: { petId: 10 },
+})
+```
+
+Each value is URL-encoded, and a value of `.` or `..` for a parameter that fills a whole path segment makes the call reject, since it would resolve the URL to another path. Nothing else is checked at runtime – a parameter missing from `path` leaves its placeholder in the URL.
+
+## Serializing Query Parameters
+
+ofetch writes `query` into the URL itself: an array repeats its key, as in `?tags=tag1&tags=tag2` – OpenAPI's default `style: form` with `explode: true` – and an object is serialized to JSON. For any other style, rewrite `options.query` in an `onRequest` hook, which runs before ofetch builds the URL. This hook sends `tags` comma-separated, as a parameter declared with `explode: false` expects:
+
+```ts
+import { createClient, openAPIBuilder } from 'apiful'
+
+const petStore = createClient({
+  baseURL: 'https://petstore3.swagger.io/api/v3',
+  onRequest({ options }) {
+    const { tags } = options.query ?? {}
+    if (Array.isArray(tags))
+      options.query = { ...options.query, tags: tags.join(',') }
+  },
+})
+  .with(openAPIBuilder<'petStore'>())
+
+// GET https://petstore3.swagger.io/api/v3/pet/findByTags?tags=tag1,tag2
+const pets = await petStore('/pet/findByTags', {
+  query: { tags: ['tag1', 'tag2'] },
+})
+```
+
+The call keeps its type – `tags` is still the `string[]` the schema declares.
+
+## Request Headers
+
+`headers` takes the header parameters the operation declares, typed from the schema, or any other `HeadersInit`. It is always optional, even where the schema marks a header parameter as required:
+
+```ts
+await petStore('/pet/{petId}', {
+  method: 'DELETE',
+  path: { petId: 1 },
+  headers: { api_key: '<key>' },
+})
+```
+
+## Typing Non-JSON Responses
+
 A `responseType` other than `json` swaps the schema type for the one ofetch hands back – `Blob` for `blob`, `string` for `text`, `ArrayBuffer` for `arrayBuffer`, and `ReadableStream<Uint8Array>` for `stream`:
 
 ```ts
@@ -89,23 +151,6 @@ const rawUser = await petStore('/user/{username}', {
 })
 // ^? Blob
 ```
-
-## OpenAPI Path Parameters
-
-OpenAPI can define path parameters on given endpoints. They are typically declared as `/foo/{id}`. Unfortunately, the endpoint type isn't defined as `/foo/10`. Thus, using the latter as the path will break type inference.
-
-Instead, use the property `path` to pass an object of the parameters. You can then use the declared path for type inference, and the type checker will ensure you provide all required path parameters. The parameters will be interpolated into the path before the request is made.
-
-```ts
-const response = await petStore('/foo/{id}', {
-  path: {
-    id: 10,
-  },
-})
-```
-
-> [!WARNING]
-> Incorrect parameters won't be reported at runtime. An incomplete path will be sent to the backend _as-is_.
 
 ## Error Responses
 
@@ -127,18 +172,4 @@ catch (caught) {
 
 The cast is unavoidable: TypeScript types a `catch` binding as `unknown`, and no schema can promise what a network failure throws.
 
-`data` comes from the response bodies the schema declares for the operation's error statuses. Where a schema names a status but gives it no content – as the Petstore does throughout – `data` is `undefined`, and the status code is all you get.
-
-## Request Headers
-
-Add headers to the request using the `headers` field. All headers defined in the OpenAPI schema will be type checked. You can still add additional headers that aren't defined in the schema, which won't be type checked.
-
-```ts
-const response = await petStore('/some/endpoint', {
-  method: 'GET',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer <token>',
-  }
-})
-```
+`data` comes from the response bodies the schema declares for the operation's error statuses. Where a schema names a status but gives it no content – as the Petstore does throughout – `data` is `undefined`, and the status code is all you get. For the error body on its own, use `PetStore<'/pet/{petId}', 'get'>['error']` – the union of the bodies of every 4xx, 5xx, and `default` response the operation declares.

@@ -33,7 +33,7 @@ const settings = await api.users.profile.settings.get<SettingsResponse>()
 const comment = await api.posts.comments.post({ text: 'Hello!' })
 ```
 
-### Chain Syntax with Dynamic Segments
+### Chain Syntax With Dynamic Segments
 
 Calling a segment appends its arguments, which is how you interpolate a value:
 
@@ -74,15 +74,6 @@ const comments = await api('users', 123, 'posts', 456, 'comments').get<CommentRe
 const result = await api('api', 'v1', 'users', userId, 'profile').get()
 ```
 
-## When to Use Each Style
-
-| Style | Best For | Example |
-|-------|----------|---------|
-| **Dot notation** | Static paths, simple APIs | `api.users.profile.get()` |
-| **Chain syntax** | RESTful APIs with IDs | `api.users(123).posts(456).get()` |
-| **Bracket notation** | Special characters, variables | `api['api-v2'][endpoint].get()` |
-| **Multiple arguments** | Dynamic path construction | `api('users', id, 'posts').get()` |
-
 > [!NOTE]
 > `then`, `toString`, and `valueOf` are not path segments. `then` stays undefined so that a chain missing its final `.get()` is not mistaken for a promise, and the other two report the URL built so far, which is what appears when you log a route. Pass such a segment as an argument instead: `api('then').get()`.
 
@@ -110,12 +101,12 @@ The first parameter becomes the request body:
 // POST <baseURL>/users with JSON body
 const newUser = await api.users.post({
   name: 'John Doe',
-  email: 'john@example.com'
+  email: 'john@example.com',
 })
 
 // PUT <baseURL>/users/123 with JSON body
 const updatedUser = await api.users(123).put({
-  name: 'Jane Doe'
+  name: 'Jane Doe',
 })
 ```
 
@@ -134,11 +125,14 @@ The following methods are supported as the last method in the chain:
 Requests throw on 4xx and 5xx status codes, which is ofetch's behavior. Handle them with try-catch:
 
 ```ts
+import type { FetchError } from 'ofetch'
+
 try {
   const user = await api.users(999).get<UserResponse>()
 }
-catch (error) {
+catch (caught) {
   // Handle 404, 500, etc.
+  const error = caught as FetchError
   if (error.status === 404) {
     console.log('User not found')
   }
@@ -148,56 +142,14 @@ catch (error) {
 }
 ```
 
-## Headers Management
+## Per-Request Options
 
-### Default Headers
-
-Headers from `createClient` are automatically included:
+The second argument takes ofetch's options for that request. Its headers and query merge with the client's defaults, and every other option replaces its default. The first argument replaces any `query` (for `get`) or `body` passed in the options:
 
 ```ts
-const api = createClient({
-  baseURL: 'https://api.example.com',
-  headers: {
-    'Authorization': 'Bearer token123',
-    'Content-Type': 'application/json'
-  }
-}).with(apiRouterBuilder())
-
-// All requests include the default headers
-const users = await api.users.get()
-```
-
-### Override Headers
-
-Pass additional headers or override defaults in method calls:
-
-```ts
-// Override default headers for this request
-const response = await api.users.get(null, {
-  headers: {
-    'Authorization': 'Bearer different-token',
-    'Cache-Control': 'no-cache'
-  }
-})
-
-// Add headers to POST requests
-const newUser = await api.users.post(userData, {
-  headers: {
-    'X-Request-ID': 'abc123'
-  }
-})
-```
-
-## Override Default Options
-
-Pass custom fetch options to any method call to override defaults:
-
-```ts
-const response = await api.users.get(queryParams, {
-  headers: {
-    Authorization: 'Bearer <token>',
-  },
+const users = await api.users.get({ page: 1 }, {
+  headers: { 'Cache-Control': 'no-cache' },
   timeout: 5000,
-  retry: 3
+  retry: 3,
 })
 ```

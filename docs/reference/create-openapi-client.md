@@ -1,12 +1,8 @@
 # `createOpenAPIClient`
 
-Creates a type-safe OpenAPI client from a generated schema. This is the direct way to call an OpenAPI service, and the one to reach for by default.
+Creates a type-safe OpenAPI client from the types [`apiful generate`](/guide/cli) writes. This is the direct way to call an OpenAPI service, and the one to reach for by default.
 
 Use [`createClient`](/reference/create-client) with [`openAPIBuilder`](/extensions/openapi) instead when the same client also has to carry other extensions. Both give you the same types from the same schema – the builder adds the `.with()` chain on top.
-
-## Prerequisites
-
-Same as the [`openAPIBuilder`](/extensions/openapi) extension – you need TypeScript definitions generated using the [`generate`](/guide/cli) command.
 
 ## Example
 
@@ -25,6 +21,8 @@ const userResponse = await petStore('/user/{username}', {
   path: { username: 'user1' },
 })
 ```
+
+For a value that changes per request, such as a rotating token, see [Authenticating Requests](/cookbook/authentication).
 
 ## Type Definition
 
@@ -47,22 +45,9 @@ declare function createOpenAPIClient<
 
 A 4xx or 5xx response throws, and [`FetchResponseError`](/extensions/openapi#error-responses) types the body the error carries – from the same schema, in the same way it works with `openAPIBuilder`.
 
-## Options Resolved per Request
+## Supplying Your Own Fetch
 
-The default options are read once, when the client is created. For a value that changes between requests – a rotating token, for example – use ofetch's `onRequest` hook, which runs on every call. [Authenticating Requests](/cookbook/authentication) works this through, including refreshing after a `401`:
-
-```ts
-const client = createOpenAPIClient<'petStore'>({
-  baseURL: 'https://petstore3.swagger.io/api/v3',
-  onRequest({ options }) {
-    options.headers.set('Authorization', `Bearer ${getAuthToken()}`)
-  },
-})
-```
-
-## Bringing Your Own Fetch
-
-`createOpenAPIClient` builds its fetch function from `defaultOptions` with `ofetch.create`. To supply one yourself – an instance you already configured, or a stub in a test – pass it as `fetch`, the same option [`createClient`](/reference/create-client#supplying-your-own-fetch) takes:
+`createOpenAPIClient` builds its fetch function from `defaultOptions` with `ofetch.create`. To supply one yourself – an instance you already configured, or a stub in a test – pass it as `fetch`:
 
 ```ts
 import { createOpenAPIClient } from 'apiful/openapi'
@@ -70,6 +55,4 @@ import { createOpenAPIClient } from 'apiful/openapi'
 const petStore = createOpenAPIClient<'petStore'>({}, { fetch: myFetch })
 ```
 
-The client resolves the `path` parameters into the URL and passes every other option on to the fetch function unchanged. A fetch you supply owns its own options, so `defaultOptions` no longer reaches it.
-
-ofetch serializes a body only for `PATCH`, `POST`, `PUT` and `DELETE`. For an object body with any other method, such as OpenAPI 3.2's `QUERY`, the client derives an instance from your fetch with `create` and `native` that serializes the body the same way – so a stub that receives such a request needs both.
+The client resolves the `path` parameters and passes every other option to your fetch unchanged – `defaultOptions` don't reach it, [as with `createClient`](/reference/create-client#supplying-your-own-fetch). A stub that receives an object body on a method other than `PATCH`, `POST`, `PUT`, and `DELETE`, such as OpenAPI 3.2's `QUERY`, also needs `create` and `native`: the client derives a body-serializing instance from it.

@@ -1,30 +1,14 @@
 # OpenAPI Type Helpers
 
-When building clients with the [`openAPIBuilder` extension](/extensions/openapi), you may want to extract TypeScript types from your OpenAPI schema. APIful generates a comprehensive type system that lets you access request and response types for any endpoint without manually defining them.
+[`apiful generate`](/guide/cli) declares a set of type helpers per service in `apiful/schema`. They name the request and response types of one operation, so you never write them by hand.
 
-## Why Use Type Helpers?
+## One Helper per Operation
 
-Instead of writing types manually for each API endpoint, you can extract them directly from your OpenAPI schema:
-
-```ts
-// ❌ Manual type definition (error-prone, out of sync)
-interface CreateUserRequest {
-  name: string
-  email: string
-}
-
-// ✅ Extract from OpenAPI schema (always up-to-date)
-type CreateUserRequest = PetStore<'/user', 'post'>['request']
-```
-
-## The Unified Type Interface
-
-APIful generates a unified type interface for each service that provides comprehensive access to all endpoint information. This interface follows the pattern `Service<Path, Method>` and serves as your single source of truth for API type information:
+The helper named after the service – `PetStore` for `petStore` – takes a path and a method, following the pattern `Service<Path, Method>`, and holds every type of that operation:
 
 ```ts
 import type { PetStore } from 'apiful/schema'
 
-// The unified interface: Service<Path, Method>
 type UserEndpoint = PetStore<'/user/{username}', 'get'>
 
 // Extract any part of the endpoint
@@ -39,7 +23,7 @@ Both parameters are required, and both are checked against the schema. A path th
 
 ## Core Type Properties
 
-Every endpoint type provides these essential properties that give you complete control over API interactions. These properties are automatically inferred from your OpenAPI schema:
+Each property is one type of the operation:
 
 | Property | Description | Example |
 |----------|-------------|---------|
@@ -53,13 +37,11 @@ Every endpoint type provides these essential properties that give you complete c
 | `method` | HTTP method verb for the operation | `'get'` |
 | `operation` | Complete OpenAPI operation object with all metadata | Complete operation object |
 
-Where an operation declares nothing at all for a property, the type says so rather than inventing an empty object: `path` and `query` are `never`, `request` is `undefined`, and `response` is `never` for an operation whose success carries no body.
+Where an operation declares nothing at all for a property, the type says so rather than inventing an empty object: `path` and `query` are `never`, `request` is `undefined`, and `response` is `undefined` where the 2xx status declares no content and `never` where the operation declares no 2xx status.
 
 `request` and `response` resolve through the same helpers a request resolves through, so a value annotated with `Service<Path, Method>['response']` is exactly what the client hands back for that call.
 
-## Practical Examples
-
-The following sections showcase common patterns for extracting type information from your OpenAPI schema. These examples demonstrate how to leverage the unified type interface for different use cases:
+## Examples
 
 ### Basic Type Extraction
 
@@ -112,7 +94,7 @@ This is the body a status maps to. To type the error a failed request actually t
 
 ## Schema Discovery
 
-APIful generates helper types for exploring your API structure programmatically. These types are useful for building dynamic UI components or API documentation:
+`PetStoreApiPaths` lists every path of the service, and `PetStoreApiMethods` the methods of one path:
 
 ```ts
 import type { PetStoreApiMethods, PetStoreApiPaths } from 'apiful/schema'
@@ -130,7 +112,7 @@ Only the methods the path declares are listed.
 
 ## Schema Model Types
 
-APIful also generates a dedicated helper for extracting OpenAPI schema models directly. This provides access to your data models without needing to reference specific endpoints:
+`PetStoreModel` reads a schema from `components` by name, without going through an operation:
 
 ```ts
 import type { PetStoreModel } from 'apiful/schema'
@@ -145,5 +127,3 @@ type Category = PetStoreModel<'Category'>
 type User = PetStoreModel<'User'>
 //   ^? { id?: number; username?: string; firstName?: string; lastName?: string; email?: string; password?: string; phone?: string; userStatus?: number }
 ```
-
-This is particularly useful when you need to work with schema models independently of specific endpoints, such as for creating reusable components, utility functions, or when the same model is used across multiple API operations.

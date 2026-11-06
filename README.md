@@ -2,9 +2,9 @@
 
 # APIful
 
-APIful provides a unified interface to manage all your API interactions by setting up a client with default fetch options, such as the base API URL and headers. Extensions add a variety of features to the client to match your favorite flavor of API management.
+An APIful client is a set of default fetch options – a base URL, headers, retries – plus the extensions you add to it. The extensions decide how you write a request and how much of it TypeScript knows: plain `fetch`-style calls, a chain of path segments, or paths and responses typed from an OpenAPI schema.
 
-You can use one of the [built-in extensions](https://apiful.land/guide/using-extensions#built-in-extensions) to get started right away, or create your own [custom extension](https://apiful.land/guide/custom-extensions) to meet your specific needs.
+Start with one of the [built-in extensions](https://apiful.land/extensions/), or [write your own](https://apiful.land/guide/custom-extensions).
 
 ## Setup
 
@@ -12,7 +12,7 @@ You can use one of the [built-in extensions](https://apiful.land/guide/using-ext
 > [📖 Read the documentation](https://apiful.land)
 
 > [!NOTE]
-> Upgrading from v5? See the [migration guide](https://apiful.land/guide/migration). Coming from openapi-typescript and openapi-fetch? See [Migrating from openapi-typescript and openapi-fetch](https://apiful.land/guide/migrating-from-openapi-typescript).
+> Upgrading from v5? See the [migration guide](https://apiful.land/guide/migration). Coming from openapi-typescript and openapi-fetch? See [Migrating From openapi-typescript and openapi-fetch](https://apiful.land/guide/migrating-from-openapi-typescript).
 
 ```bash
 # pnpm
@@ -51,11 +51,10 @@ const client = createClient({
 ```ts
 import { createClient, ofetchBuilder } from 'apiful'
 
-const baseURL = 'https://api.example.com'
-const adapter = ofetchBuilder()
-const api = createClient({ baseURL }).with(adapter)
+const api = createClient({ baseURL: 'https://api.example.com' })
+  .with(ofetchBuilder())
 
-// GET request to <baseURL>/users/1
+// GET request to https://api.example.com/users/1
 await api('users/1', { method: 'GET' })
 ```
 
@@ -72,13 +71,12 @@ The `ofetchBuilder` wraps [ofetch](https://github.com/unjs/ofetch) to handle API
 ```ts
 import { apiRouterBuilder, createClient } from 'apiful'
 
-const baseURL = 'https://api.example.com'
-const adapter = apiRouterBuilder()
-const api = createClient({ baseURL }).with(adapter)
+const api = createClient({ baseURL: 'https://api.example.com' })
+  .with(apiRouterBuilder())
 
-// GET request to <baseURL>/users/1
-await api.users.get(1)
-// POST request to <baseURL>/users with payload
+// GET request to https://api.example.com/users/1
+await api.users(1).get()
+// POST request to https://api.example.com/users with payload
 await api.users.post({ name: 'foo' })
 ```
 
@@ -95,10 +93,9 @@ The `apiRouterBuilder` provides a jQuery-like and Axios-style API for building a
 ```ts
 import { createClient, openAPIBuilder } from 'apiful'
 
-const baseURL = 'https://petstore3.swagger.io/api/v3'
-// Pass pre-generated schema type ID to adapter
-const adapter = openAPIBuilder<'petStore'>()
-const api = createClient({ baseURL }).with(adapter)
+const api = createClient({ baseURL: 'https://petstore3.swagger.io/api/v3' })
+  // Pass the service name from apiful.config.ts
+  .with(openAPIBuilder<'petStore'>())
 
 // Typed parameters and response
 const response = await api('/user/{username}', {
@@ -123,7 +120,7 @@ const response: {
 }
 ```
 
-Follow the [OpenAPI extension documentation](https://apiful.land/extensions/openapi) to learn more about how to generate TypeScript definitions from your OpenAPI schema files.
+Follow the [OpenAPI extension documentation](https://apiful.land/extensions/openapi) to learn more about how to generate types from your OpenAPI schema files.
 
 </td></tr></table>
 
@@ -139,7 +136,7 @@ import type { MethodsExtensionBuilder } from 'apiful'
 const logExtension = (client => ({
   logDefaults() {
     console.log('Default fetch options:', client.defaultOptions)
-  }
+  },
 })) satisfies MethodsExtensionBuilder
 
 const extendedClient = client

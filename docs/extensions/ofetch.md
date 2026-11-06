@@ -10,12 +10,7 @@ Import the `ofetchBuilder` extension and add it to your client:
 ```ts
 import { createClient, ofetchBuilder } from 'apiful'
 
-const client = createClient({
-  baseURL: 'https://jsonplaceholder.typicode.com',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
+const client = createClient({ baseURL: 'https://jsonplaceholder.typicode.com' })
   .with(ofetchBuilder())
 ```
 
@@ -25,13 +20,13 @@ The `client` now has the same API as [ofetch](https://github.com/unjs/ofetch), a
 // GET request with query parameters
 const users = await client('users', {
   method: 'GET',
-  query: { page: 1, limit: 10 }
+  query: { page: 1, limit: 10 },
 })
 
 // POST request with JSON body
 const newUser = await client('users', {
   method: 'POST',
-  body: { name: 'John Doe', email: 'john@example.com' }
+  body: { name: 'John Doe', email: 'john@example.com' },
 })
 ```
 

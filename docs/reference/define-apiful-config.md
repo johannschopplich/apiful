@@ -1,9 +1,6 @@
 # `defineApifulConfig`
 
-Defines the configuration for all services in the APIful application.
-
-> [!NOTE]
-> For now, this only makes sense with the [`npx apiful generate`](/guide/cli) command to generate TypeScript definitions from OpenAPI schemas and the [OpenAPI](/extensions/openapi) extension to build the type-safe API client.
+Declares the services [`apiful generate`](/guide/cli) generates types for.
 
 ## Example
 
@@ -36,4 +33,4 @@ declare function defineApifulConfig(config: ApifulConfig): ApifulConfig
 ```
 
 > [!NOTE]
-> `schema` takes a file path relative to the project root, a `file:` or `http(s):` URL, an OpenAPI 3.x document object, or a function resolving to one.
+> `schema` takes a file path relative to the project root, a `file:` or `http(s):` URL, an OpenAPI 3.x document object, or a function resolving to one. Swagger 2.0 is not supported – convert it to OpenAPI 3.x first.

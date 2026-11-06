@@ -37,10 +37,10 @@ features:
     title: Typed Extensibility
     details: Add methods to your API client with full type safety.
     link: /guide/custom-extensions
-    linkText: Create Extensions
+    linkText: Custom Extensions
   - icon: <span class="i-carbon:terminal"></span>
     title: CLI Tooling
-    details: Keep TypeScript definitions up-to-date with the CLI.
+    details: Keep the generated types up-to-date with the CLI.
     link: /guide/cli
     linkText: CLI Reference
   - icon: <span class="i-devicon-plain:openapi"></span>
@@ -52,7 +52,7 @@ features:
     title: UnJS Integration
     details: Create typed clients for Nitro servers. Designed on top of ofetch.
     link: /cookbook/typed-nitro-client
-    linkText: Typed Clients for Nitro
+    linkText: Typed Client for Nitro Servers
   - icon: <span class="i-carbon:application"></span>
     title: Server-Side Utilities
     details: Framework-agnostic HTTP status codes and phrases for your server code.
@@ -60,7 +60,7 @@ features:
     linkText: Import Utilities
   - icon: <span class="i-carbon:code"></span>
     title: TypeScript-First
-    details: Enjoy full TypeScript support with robust type inference.
+    details: Each extension types the client it returns, without generated client code.
     link: /reference
     linkText: Reference
 ---

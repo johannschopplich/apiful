@@ -27,7 +27,7 @@ Install APIful, and remove `openapi-typescript` and `openapi-fetch` once nothing
   ```
 :::
 
-APIful supports Node 24 or later, and its types require TypeScript 5.9 or later.
+APIful supports Node 24 or later, and its types require TypeScript 5.9 or later. `apiful generate` never loads the `typescript` package, so it runs the same with TypeScript 5.9, 6.0, or 7.0 installed, and both the generated types and the ones APIful ships check against all three.
 
 APIful reads its schemas from an `apiful.config.ts` rather than the command line. Each one is a service with a name, and your imports and clients refer to it by that name:
 
@@ -56,13 +56,9 @@ npx apiful generate
 
 `schema` takes a file path, a URL, a document object, or a function resolving to one. The command writes `apiful.d.ts` next to the configuration – commit it, and run `apiful generate --check` in CI to catch a schema change that landed without it. The [CLI guide](/guide/cli) covers both, and how to split the output into one file per service.
 
-The generator takes no options. Flags such as `--enum`, `--immutable` or `--root-types` have no counterpart, and the output follows openapi-typescript's defaults, apart from the [differences](#where-the-generated-types-differ) listed at the end of this page.
+The generator takes no options. Flags such as `--enum`, `--immutable`, or `--root-types` have no counterpart, and the output follows openapi-typescript's defaults, apart from the [differences](#where-the-generated-types-differ) listed at the end of this page.
 
-### Generate With TypeScript 7 Installed
-
-openapi-typescript builds its output through the compiler API of the `typescript` package. `apiful generate` writes its output as text and never loads `typescript`, so it runs the same whether TypeScript 5.9, 6.0 or 7.0 is installed. The generated types, and the ones APIful ships, type-check with all three.
-
-## Import `paths` and `components` From `apiful/schema/<id>`
+## Import `paths` and `components` From `apiful/schema/<service>`
 
 Each service's types live in a module named after it, so imports change their source and nothing else:
 
@@ -76,7 +72,7 @@ import type { components, paths } from './types/pet-store'
 import type { components, paths } from 'apiful/schema/petStore'
 ```
 
-`paths` keeps openapi-typescript's shape – `paths['/pet/{petId}']['get']['parameters']['path']` resolves as it did. The generated module exports no `operations`, `webhooks` or `$defs` types.
+`paths` keeps openapi-typescript's shape – `paths['/pet/{petId}']['get']['parameters']['path']` resolves as it did. The generated module exports no `operations`, `webhooks`, or `$defs` types.
 
 ## Reach for the Type Helpers
 
@@ -155,10 +151,10 @@ const pet = await petStore('/pet/{petId}', {
 | `params.cookie` | No counterpart – set a `Cookie` header |
 | `body` | `body` |
 | `parseAs` | [`responseType`](#read-other-formats-with-responsetype) |
-| `querySerializer` | [`onRequest` hook](#serialize-query-parameters-in-onrequest) |
+| `querySerializer` | [`onRequest` hook](/extensions/openapi#serializing-query-parameters) |
 | `client.use(middleware)` | [ofetch hooks](#move-middleware-to-ofetch-hooks) |
 
-`method` is optional where the path declares `get`, and leaving it out types the call as a `GET`. It takes the verb in either case, `'POST'` or `'post'`. A request body is typed from the operation and serialized to JSON by ofetch:
+`method` can go where the path declares `get`, and a body is typed from the operation – the OpenAPI extension covers [which options a call needs](/extensions/openapi#calling-an-endpoint) and [how a body is sent](/extensions/openapi#sending-a-request-body):
 
 ```ts
 const pets = await petStore('/pet/findByStatus', {
@@ -170,8 +166,6 @@ const pet = await petStore('/pet', {
   body: { name: 'Rex', photoUrls: [] },
 })
 ```
-
-A `multipart/form-data` body is typed as `FormData`, since ofetch sends a plain object as JSON. An `application/x-www-form-urlencoded` body takes its schema's object or a `URLSearchParams` – ofetch form-encodes the object once the request sets that content type in `headers`.
 
 ## Catch Errors Instead of Reading `error`
 
@@ -200,7 +194,7 @@ catch (caught) {
 }
 ```
 
-The cast is unavoidable: TypeScript types a `catch` binding as `unknown`, and a network failure throws without a response. For the error body on its own – what openapi-fetch typed as `error` – use `PetStore<'/pet/{petId}', 'get'>['error']`, the union of the bodies of every 4xx, 5xx, and `default` response the operation declares.
+For the error body on its own – what openapi-fetch typed as `error` – use `PetStore<'/pet/{petId}', 'get'>['error']`. The OpenAPI extension explains [the cast and the error types](/extensions/openapi#error-responses).
 
 ## Move Middleware to ofetch Hooks
 
@@ -229,33 +223,11 @@ const petStore = createOpenAPIClient<'petStore'>({
 })
 ```
 
-ofetch has four hooks: `onRequest`, `onRequestError`, `onResponse` and `onResponseError`. A hook passed to a single call replaces the client's hook of the same name rather than running after it. [Authenticating Requests](/cookbook/authentication) builds a token refresh on them.
-
-## Serialize Query Parameters in `onRequest`
-
-ofetch writes `query` into the URL itself: an array repeats its key, as in `?tags=tag1&tags=tag2` – OpenAPI's default `style: form` with `explode: true` – and an object is serialized to JSON. For any other style, which openapi-fetch configured through `querySerializer`, rewrite `options.query` in an `onRequest` hook, which runs before ofetch builds the URL. This hook sends `tags` comma-separated, as a parameter declared with `explode: false` expects:
-
-```ts
-const petStore = createOpenAPIClient<'petStore'>({
-  baseURL: 'https://petstore3.swagger.io/api/v3',
-  onRequest({ options }) {
-    const { tags } = options.query ?? {}
-    if (Array.isArray(tags))
-      options.query = { ...options.query, tags: tags.join(',') }
-  },
-})
-
-// GET https://petstore3.swagger.io/api/v3/pet/findByTags?tags=tag1,tag2
-const pets = await petStore('/pet/findByTags', {
-  query: { tags: ['tag1', 'tag2'] },
-})
-```
-
-The call keeps its type – `tags` is still the `string[]` the schema declares.
+ofetch has four hooks: `onRequest`, `onRequestError`, `onResponse`, and `onResponseError`. A hook passed to a single call replaces the client's hook of the same name rather than running after it. [Authenticating Requests](/cookbook/authentication) builds a token refresh on them.
 
 ## Read Other Formats With `responseType`
 
-`parseAs` becomes ofetch's `responseType`, and the return type follows it – `Blob` for `blob`, `string` for `text`, `ArrayBuffer` for `arrayBuffer`, and `ReadableStream<Uint8Array>` for `stream`:
+`parseAs` becomes ofetch's `responseType`, and the return type [follows it](/extensions/openapi#typing-non-json-responses):
 
 ```ts
 const rawPet = await petStore('/pet/{petId}', {
@@ -277,3 +249,11 @@ APIful starts from openapi-typescript's default output and changes the parts bel
 - A property with a `default` is optional unless the schema lists it as `required`, where openapi-typescript makes it required outside request bodies and parameters.
 - A query parameter with `application/json` content and an object schema is typed as that schema – pass the object, and ofetch serializes it.
 - OpenAPI 3.2 operations are typed: the `query` method, custom methods from `additionalOperations` under their lowercased name, and a `querystring` parameter as the type of the `query` object.
+- `components` of an OpenAPI 3.2 document has a `mediaTypes` group, `never` where the document declares none.
+- A discriminator child inlines the parent's members into its `Omit<…>` rather than referencing the parent.
+- A `$ref` into a member of a schema that may be absent indexes through `NonNullable<…>`, and one to an optional property excludes `undefined`.
+- An `anyOf` beside `properties` is intersected with them, as `oneOf` is, and a branch that only lists `required` keys makes those properties required.
+- A schema of `type: null` beside a `oneOf` or `anyOf` is a union with `null`.
+- A schema that contains itself as an array item without an object in between, such as a JSON value, types that array as `unknown[]` – openapi-typescript's output fails to compile there.
+- A `prefixItems` tuple takes further elements of the `items` schema, or `unknown` without one, unless `items: false` or `maxItems` closes it.
+- A schema's own `$defs` is optional.
