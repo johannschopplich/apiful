@@ -104,6 +104,26 @@ export interface components {
     });`)
   })
 
+  it('keeps the properties of a discriminated parent that is open or nullable in its allOf child', () => {
+    const types = generateSchemaComponentTypes({
+      OpenBase: {
+        type: 'object',
+        required: ['kind', 'id'],
+        properties: { kind: { type: 'string' }, id: { type: 'string' } },
+        additionalProperties: true,
+        discriminator: { propertyName: 'kind' },
+      },
+      OpenChild: { allOf: [{ $ref: '#/components/schemas/OpenBase' }, { type: 'object', properties: { x: { type: 'integer' } } }] },
+      NullBase: { type: 'object', nullable: true, properties: { kind: { type: 'string' } }, discriminator: { propertyName: 'kind' } },
+      NullChild: { allOf: [{ $ref: '#/components/schemas/NullBase' }] },
+    })
+
+    expect(types).toContain(`    OpenChild: {
+      kind: "OpenChild";
+    } & (components["schemas"]["OpenBase"] & {`)
+    expect(types).toContain('Omit<NonNullable<components["schemas"]["NullBase"]>, "kind">')
+  })
+
   it('adds the discriminator value to an allOf child whose discriminated parent follows another ref', () => {
     const types = generateSchemaComponentTypes({
       Base: { type: 'object', properties: { id: { type: 'string' } } },
@@ -193,6 +213,50 @@ export interface components {
     } & (components["schemas"]["Circle"] | components["schemas"]["Square"]);`)
   })
 
+  it('intersects the properties beside an anyOf with its union, typing a branch that lists required keys by those properties', () => {
+    const types = generateSchemaComponentTypes({
+      Update: {
+        type: 'object',
+        properties: { a: { type: 'string' }, b: { type: 'integer' } },
+        anyOf: [{ required: ['a'] }, { required: ['b'] }],
+      },
+      Tagged: {
+        type: 'object',
+        required: ['kind'],
+        properties: { kind: { type: 'string' } },
+        anyOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+      },
+      A: { type: 'object', properties: { x: { type: 'string' } } },
+      B: { type: 'object', properties: { y: { type: 'string' } } },
+    })
+
+    expect(types).toContain(`    Update: {
+      a?: string;
+      b?: number;
+    } & ({
+      a: string;
+    } | {
+      b: number;
+    });`)
+    expect(types).toContain(`    Tagged: {
+      kind: string;
+    } & (components["schemas"]["A"] | components["schemas"]["B"]);`)
+  })
+
+  it('types a null type beside a oneOf of objects as nullable', () => {
+    const types = generateSchemaComponentTypes({
+      Objects: {
+        type: 'null',
+        oneOf: [{ type: 'object', properties: { a: { type: 'string' } } }, { $ref: '#/components/schemas/B' }],
+      },
+      B: { type: 'object', properties: { b: { type: 'string' } } },
+    })
+
+    expect(types).toContain(`    Objects: null | {
+      a?: string;
+    } | components["schemas"]["B"];`)
+  })
+
   it('folds an allOf member that lists required keys, an annotation, and an x- extension into the ref beside it', () => {
     const types = generateSchemaComponentTypes({
       Base: { type: 'object', properties: { id: { type: 'string' } } },
@@ -204,6 +268,26 @@ export interface components {
 
     expect(types).toContain('    Extended: components["schemas"]["Base"];')
     expect(types).toContain('    Identified: WithRequired<components["schemas"]["Base"], "id">;')
+
+    const annotated = generateSchemaComponentTypes({
+      Name: { type: 'string' },
+      Tagged: { allOf: [{ $ref: '#/components/schemas/Name' }, { xml: { name: 'tag' }, default: 'none' }] },
+    })
+    expect(annotated).toContain('    Tagged: components["schemas"]["Name"];')
+  })
+
+  it('requires keys on a nullable parent or an optional property that an allOf references', () => {
+    const types = generateSchemaComponentTypes({
+      Base: { type: 'object', nullable: true, properties: { a: { type: 'string' } } },
+      Child: { allOf: [{ $ref: '#/components/schemas/Base' }], required: ['a'] },
+      Devices: { type: 'object', properties: { entity: { type: 'object', properties: { id: { type: 'integer' } } } } },
+      Entity: { $ref: '#/components/schemas/Devices/properties/entity' },
+      Body: { allOf: [{ $ref: '#/components/schemas/Devices/properties/entity' }], required: ['id'] },
+    })
+
+    expect(types).toContain('type WithRequired<T, K extends keyof NonNullable<T>> = NonNullable<T> & {')
+    expect(types).toContain('    Entity: Exclude<components["schemas"]["Devices"]["entity"], undefined>;')
+    expect(types).toContain('    Body: WithRequired<Exclude<components["schemas"]["Devices"]["entity"], undefined>, "id">;')
   })
 
   it('makes a property required that an allOf member of its schema requires', () => {
@@ -319,12 +403,12 @@ export type components = Record<string, never>;
       B: { $ref: '#/components/schemas/Foo/properties/a/properties/b' },
     })
 
-    expect(types).toContain('    B: NonNullable<components["schemas"]["Foo"]["a"]>["b"];')
+    expect(types).toContain('    B: Exclude<NonNullable<components["schemas"]["Foo"]["a"]>["b"], undefined>;')
   })
 
   it('types a ref through a required nullable property as an indexed access on its non-nullable type', () => {
     const types = generateSchemaComponentTypes({
-      Foo: { type: 'object', required: ['a'], properties: { a: { type: 'object', nullable: true, properties: { b: { type: 'string' } } } } },
+      Foo: { type: 'object', required: ['a'], properties: { a: { type: 'object', nullable: true, required: ['b'], properties: { b: { type: 'string' } } } } },
       B: { $ref: '#/components/schemas/Foo/properties/a/properties/b' },
     })
 
@@ -335,9 +419,12 @@ export type components = Record<string, never>;
     const types = generateSchemaComponentTypes({
       Value: { properties: { a: { type: 'string' } }, oneOf: [{ type: 'string' }, { type: 'number' }] },
       A: { $ref: '#/components/schemas/Value/properties/a' },
+      Wrapped: { properties: { b: { type: 'string' } }, oneOf: [{ allOf: [{ type: 'string' }] }, { type: 'number' }] },
+      B: { $ref: '#/components/schemas/Wrapped/properties/b' },
     })
 
     expect(types).toContain('    A: string;')
+    expect(types).toContain('    B: string;')
   })
 
   it('types a ref to a property that a component does not declare as unknown', () => {
@@ -382,6 +469,48 @@ export type components = Record<string, never>;
     };`)
   })
 
+  it('types a ref that reaches back to its own schema through no object as unknown', () => {
+    const types = generateSchemaComponentTypes({
+      JsonValue: { oneOf: [{ type: 'string' }, { type: 'array', items: { $ref: '#/components/schemas/JsonValue' } }] },
+      Matrix: { type: 'array', items: { type: 'array', items: { $ref: '#/components/schemas/Matrix' } } },
+      Tags: { anyOf: [{ type: 'string' }, { type: 'array', items: { $ref: '#/components/schemas/TagList' } }] },
+      TagList: { type: 'array', items: { $ref: '#/components/schemas/Tags' } },
+      Node: { type: 'object', properties: { children: { type: 'array', items: { $ref: '#/components/schemas/Node' } } } },
+    })
+
+    expect(types).toContain('    JsonValue: string | unknown[];')
+    expect(types).toContain('    Matrix: unknown[][];')
+    expect(types).toContain('    Tags: string | unknown[];')
+    expect(types).toContain('    TagList: unknown[];')
+    expect(types).toContain('      children?: components["schemas"]["Node"][];')
+  })
+
+  it('types prefixItems as a tuple that items extends unless it is false or maxItems closes it', () => {
+    const types = generateSchemaComponentTypes({
+      Row: { type: 'array', prefixItems: [{ type: 'string' }, { type: 'integer' }], items: { type: 'boolean' } },
+      OpenRow: { type: 'array', prefixItems: [{ type: 'string' }] },
+      ClosedRow: { type: 'array', prefixItems: [{ type: 'string' }], items: false },
+      Pair: { type: 'array', prefixItems: [{ type: 'string' }, { type: 'string' }], maxItems: 2 },
+    })
+
+    expect(types).toContain(`    Row: [
+      string,
+      number,
+      ...boolean[]
+    ];`)
+    expect(types).toContain(`    OpenRow: [
+      string,
+      ...unknown[]
+    ];`)
+    expect(types).toContain(`    ClosedRow: [
+      string
+    ];`)
+    expect(types).toContain(`    Pair: [
+      string,
+      string
+    ];`)
+  })
+
   it('makes the $defs of a schema optional', () => {
     const types = generateSchemaComponentTypes({
       Tree: { type: 'object', properties: { leaf: { $ref: '#/components/schemas/Tree/$defs/Leaf' } }, $defs: { Leaf: { type: 'string' } } },
@@ -394,6 +523,10 @@ export type components = Record<string, never>;
     const types = generateSchemaComponentTypes({ Order: { type: 'object', properties: { größe: { type: 'string' } } } })
 
     expect(types).toContain('      "gr\\u00F6\\u00DFe"?: string;')
+  })
+
+  it('escapes a line or paragraph separator in a string const', () => {
+    expect(generateSchemaComponentTypes({ Separated: { const: 'a\u2028b\u2029c' } })).toContain('Separated: "a\\u2028b\\u2029c";')
   })
 
   it('types a null const as null', () => {

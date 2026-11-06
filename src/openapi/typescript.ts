@@ -18,8 +18,9 @@ export const STRING = 'string'
 const UNDEFINED = 'undefined'
 export const UNKNOWN = 'unknown'
 
-export const WITH_REQUIRED_HELPER: string = `type WithRequired<T, K extends keyof T> = T & {
-${INDENT}[P in K]-?: T[P];
+// A nullable parent or an optional property drops out of the type that requires its keys.
+export const WITH_REQUIRED_HELPER: string = `type WithRequired<T, K extends keyof NonNullable<T>> = NonNullable<T> & {
+${INDENT}[P in K]-?: NonNullable<T>[P];
 };`
 
 interface AnnotatedObject {
@@ -133,10 +134,13 @@ export function tupleType(elements: TSNode[], indent = ''): TSNode {
   return `[\n${elements.map(element => `${elementIndent}${element}`).join(',\n')}\n${indent}]`
 }
 
-/** Builds the literal type of a JSON value, keeping non-ASCII characters of a string as they are. */
+/**
+ * Builds the literal type of a JSON value, keeping non-ASCII characters of a string as they are
+ * but for the line and paragraph separators, which would break the lines of the source.
+ */
 export function tsLiteral(value: unknown, indent = ''): TSNode {
   if (typeof value === 'string')
-    return JSON.stringify(value)
+    return JSON.stringify(value).replace(/[\u2028\u2029]/g, character => ESCAPED_CHARACTERS[character]!)
   if (typeof value === 'number') {
     // A YAML `.inf` or `.nan` has no literal type.
     if (!Number.isFinite(value))

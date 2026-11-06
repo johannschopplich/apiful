@@ -60,6 +60,8 @@ interface EmitContext {
   resolve: <T = any>($ref: string) => T | undefined
   /** Returns the node a ref points to as it stands, even where that node is itself a ref, which `resolve` would follow. */
   resolveOneHop: <T = any>($ref: string) => T | undefined
+  /** Memo of `collectEagerMembers`. */
+  eagerMembers: WeakMap<object, Set<object>>
 }
 
 interface TransformOptions {
@@ -67,6 +69,11 @@ interface TransformOptions {
   ref?: string
   /** Refs inlined on the way to the node, so a ref already among them recurses. */
   inlinedRefs?: string[]
+  /**
+   * Schema of the member whose type the node is part of, up to the closest object literal.
+   * TypeScript resolves that type in one go, so a ref leading back to the member is circular.
+   */
+  member?: object
   context: EmitContext
 }
 
@@ -84,11 +91,13 @@ const REQUIRED_ONLY_KEYS = new Set([
   'description',
   'example',
   'examples',
+  'default',
   'deprecated',
   'nullable',
   'readOnly',
   'writeOnly',
   'externalDocs',
+  'xml',
   '$comment',
 ])
 const PRIMITIVE_TYPES = ['boolean', 'string', 'number', 'integer', 'null']
@@ -119,6 +128,7 @@ export function generateSchemaTypes(document: OpenAPIDocument): string {
     hasMediaTypesGroup: hasMediaTypesGroup(schema.openapi),
     resolve: $ref => resolveRef(schema, $ref),
     resolveOneHop: $ref => resolveRefOneHop(schema, $ref),
+    eagerMembers: new WeakMap(),
   }
   context.discriminators = scanDiscriminators(schema, context)
 
@@ -152,6 +162,7 @@ export function generateStandaloneSchemaType(schemaObject: SchemaObject): string
     hasMediaTypesGroup: false,
     resolve: () => undefined,
     resolveOneHop: () => undefined,
+    eagerMembers: new WeakMap(),
   }
   return transformSchemaObject(schemaObject, { context }, '')
 }
@@ -199,7 +210,7 @@ function transformComponentsObject(componentsObject: Record<string, any>, contex
       let type: TSNode
       switch (componentGroup) {
         case 'schemas':
-          type = transformSchemaObject(item, options, itemIndent)
+          type = transformSchemaObject(item, { ...options, member: item }, itemIndent)
           break
         case 'responses':
           type = transformResponseObject(item, options, itemIndent)
@@ -561,8 +572,23 @@ function transformSchemaObject(
     }
   }
 
+  const siblingProperties: unknown = schemaObject.properties
   const collectUnionCompositions = (items: (SchemaObject | ReferenceObject)[], unionKey: 'anyOf' | 'oneOf'): TSNode[] =>
-    items.map((item, index) => transformSchemaObject(item, { ...options, ref: createRef([options.ref, unionKey, String(index)]) }, indent))
+    items.map((item, index) => {
+      const itemOptions: TransformOptions = { ...options, ref: createRef([options.ref, unionKey, String(index)]) }
+      // A member that only lists required keys requires them of the properties beside it.
+      if (isRequiredOnlySchema(item) && item.required?.length && isObject(siblingProperties)) {
+        const memberIndent = `${indent}${INDENT}`
+        return typeLiteral(item.required.map((key: string) => propertySignature({
+          name: tsPropertyIndex(key),
+          type: Object.hasOwn(siblingProperties, key)
+            ? transformSchemaObject(siblingProperties[key], { ...itemOptions, member: undefined }, memberIndent)
+            : UNKNOWN,
+          indent: memberIndent,
+        })), indent)
+      }
+      return transformSchemaObject(item, itemOptions, indent)
+    })
 
   const collectAllOfCompositions = (items: (SchemaObject | ReferenceObject)[], required: string[] = []): TSNode[] => {
     return items.map((item) => {
@@ -595,7 +621,14 @@ function transformSchemaObject(
       }
 
       const discriminator = ('$ref' in item && options.context.discriminators.objects[item.$ref]) || item.discriminator
-      return discriminator ? tsOmit(itemType, [discriminator.propertyName]) : itemType
+      if (!discriminator)
+        return itemType
+      const parentSchema = '$ref' in item ? options.context.resolve<SchemaObject>(item.$ref) : item
+      // `Omit` keeps only the index signature of a type that has one, so such a parent keeps its
+      // discriminator property, which the value of the schema narrows.
+      if (isObject(parentSchema) && (parentSchema.additionalProperties || parentSchema.patternProperties))
+        return itemType
+      return tsOmit(isObject(parentSchema) && isNullableSchema(parentSchema) ? `NonNullable<${itemType}>` : itemType, [discriminator.propertyName])
     })
   }
 
@@ -616,17 +649,14 @@ function transformSchemaObject(
   // A union is closer to `anyOf` than to `oneOf`, since TypeScript has no exclusive union.
   const anyOfTypes = appliesCompositionsPerType ? [] : collectUnionCompositions(schemaObject.anyOf ?? [], 'anyOf')
   if (anyOfTypes.length)
-    finalType = tsUnion([...(finalType ? [finalType] : []), ...anyOfTypes])
+    finalType = applyUnionComposition(finalType, anyOfTypes)
 
   const oneOfTypes = collectUnionCompositions(
     schemaObject.oneOf || (schemaObject.type === 'object' && schemaObject.enum) || [],
     'oneOf',
   )
-  if (oneOfTypes.length) {
-    finalType = oneOfTypes.every(tsIsPrimitive)
-      ? tsUnion([...(finalType ? [finalType] : []), ...oneOfTypes])
-      : tsIntersection([...(finalType ? [finalType] : []), tsUnion(oneOfTypes)])
-  }
+  if (oneOfTypes.length)
+    finalType = applyUnionComposition(finalType, oneOfTypes)
 
   // An object schema without a `properties` or `additionalProperties` key admits any properties.
   if (!finalType && schemaObject.type === 'object' && !('properties' in schemaObject) && !('additionalProperties' in schemaObject))
@@ -641,6 +671,18 @@ function transformSchemaObject(
 }
 
 /**
+ * Combines the type of a schema with the union of its `anyOf` or `oneOf` members: intersected,
+ * unless the members are all primitive or the schema is typed `null`, which both read as a union.
+ */
+function applyUnionComposition(type: TSNode | undefined, unionTypes: TSNode[]): TSNode {
+  if (!type)
+    return tsUnion(unionTypes)
+  return type === NULL || unionTypes.every(tsIsPrimitive)
+    ? tsUnion([type, ...unionTypes])
+    : tsIntersection([type, tsUnion(unionTypes)])
+}
+
+/**
  * Types a schema ref as an indexed access where it names a member of the generated types. Any
  * other ref – into `items` or `allOf`, or under `paths` – is inlined, following a ref it lands on
  * one hop at a time so that each hop can still index, and is `unknown` where it recurses or
@@ -648,8 +690,14 @@ function transformSchemaObject(
  */
 function transformSchemaRef(ref: string, options: TransformOptions, indent: string): TSNode {
   const indexedType = schemaRefToType(ref, options.context)
-  if (indexedType)
+  if (indexedType) {
+    const { member, context } = options
+    const target = context.resolveOneHop<unknown>(ref)
+    // A type made of itself outside any object literal fails to compile (TS2502), as in `string | JsonValue[]`.
+    if (member && isObject(target) && (target === member || collectEagerMembers(target, context).has(member)))
+      return UNKNOWN
     return indexedType
+  }
 
   const targetSchema = options.context.resolveOneHop<SchemaObject | boolean>(ref)
   if (targetSchema === undefined || options.inlinedRefs?.includes(ref))
@@ -661,7 +709,7 @@ function transformSchemaRef(ref: string, options: TransformOptions, indent: stri
  * Indexes the generated types along a schema ref that names a component, or a `properties` or
  * `$defs` entry of one at any depth, or returns `undefined` where a step passes through a schema
  * that holds no members to index. A step out of a member that may be absent or `null` indexes
- * into that member's `NonNullable` type.
+ * into that member's `NonNullable` type, and an optional member at the end leaves out `undefined`.
  */
 function schemaRefToType(ref: string, context: EmitContext): TSNode | undefined {
   const { segments } = parseRef(ref)
@@ -689,7 +737,61 @@ function schemaRefToType(ref: string, context: EmitContext): TSNode | undefined 
     schemaObject = members[memberName]
   }
 
-  return type
+  // The schema of an optional property describes its value, never its absence.
+  return isOptional ? `Exclude<${type}, undefined>` : type
+}
+
+/**
+ * Collects the schemas of the members whose types TypeScript resolves along with the type of
+ * a schema: those its refs index, outside of an object literal, and theirs in turn.
+ */
+function collectEagerMembers(schemaObject: object, context: EmitContext): Set<object> {
+  const memoized = context.eagerMembers.get(schemaObject)
+  if (memoized)
+    return memoized
+  const members = new Set<object>()
+  // Set before the walk, so a member reached again while collecting counts as collected.
+  context.eagerMembers.set(schemaObject, members)
+
+  const inlinedNodes = new Set<object>()
+  const walk = (node: unknown, owner: object): void => {
+    if (!isObject(node))
+      return
+    if (typeof node.$ref === 'string') {
+      const target = context.resolveOneHop<unknown>(node.$ref)
+      if (!isObject(target))
+        return
+      if (schemaRefToType(node.$ref, context)) {
+        members.add(target)
+        for (const member of collectEagerMembers(target, context))
+          members.add(member)
+      }
+      else if (!inlinedNodes.has(target)) {
+        inlinedNodes.add(target)
+        walk(target, target)
+      }
+      return
+    }
+    for (const item of Array.isArray(node.allOf) ? node.allOf : []) {
+      // A parent whose `oneOf` lists the schema back is inlined without that `oneOf`.
+      const parent = isObject(item) && typeof item.$ref === 'string' ? context.resolve<unknown>(item.$ref) : undefined
+      if (isObject(parent) && Array.isArray(parent.oneOf) && parent.oneOf.some((member: unknown) => isObject(member) && typeof member.$ref === 'string' && context.resolveOneHop(member.$ref) === owner))
+        walk({ ...parent, oneOf: undefined }, parent)
+      else
+        walk(item, owner)
+    }
+    for (const key of ['anyOf', 'oneOf', 'prefixItems'] as const) {
+      for (const item of Array.isArray(node[key]) ? node[key] : [])
+        walk(item, owner)
+    }
+    if (Array.isArray(node.items))
+      node.items.forEach(item => walk(item, owner))
+    else
+      walk(node.items, owner)
+  }
+  walk(schemaObject, schemaObject)
+
+  return members
 }
 
 /**
@@ -716,6 +818,11 @@ function isObjectType(type: unknown): boolean {
 function isPrimitiveSchema(schemaObject: unknown): boolean {
   if (!isObject(schemaObject) || '$ref' in schemaObject)
     return false
+  // A schema without a type takes the type of its compositions.
+  if (schemaObject.type === undefined) {
+    const members: unknown[] = [schemaObject.allOf, schemaObject.anyOf, schemaObject.oneOf].flatMap(items => Array.isArray(items) ? items : [])
+    return members.length > 0 && members.every(isPrimitiveSchema)
+  }
   const types: unknown[] = Array.isArray(schemaObject.type) ? schemaObject.type : [schemaObject.type]
   return types.every(type => PRIMITIVE_TYPES.includes(type as string))
 }
@@ -780,7 +887,16 @@ function transformSchemaObjectCore(schemaObject: SchemaObject, options: Transfor
       // Only `prefixItems` and the legacy array form of `items` describe a tuple.
       if (schemaObject.prefixItems || Array.isArray(schemaObject.items)) {
         const prefixItems: (SchemaObject | ReferenceObject)[] = schemaObject.prefixItems ?? schemaObject.items
-        return tupleType(prefixItems.map(item => transformSchemaObject(item, options, `${indent}${INDENT}`)), indent)
+        const elementTypes = prefixItems.map(item => transformSchemaObject(item, options, `${indent}${INDENT}`))
+        // `items` beside `prefixItems` types the elements after them, which `false` or `maxItems` rule out.
+        const isClosed = !schemaObject.prefixItems
+          || schemaObject.items === false
+          || (typeof schemaObject.maxItems === 'number' && schemaObject.maxItems <= prefixItems.length)
+        if (!isClosed) {
+          const restType = isObject(schemaObject.items) ? transformSchemaObject(schemaObject.items, options, `${indent}${INDENT}`) : UNKNOWN
+          elementTypes.push(`...${tsArray(restType)}`)
+        }
+        return tupleType(elementTypes, indent)
       }
       return tsArray(schemaObject.items ? transformSchemaObject(schemaObject.items, options, indent) : UNKNOWN)
     }
@@ -828,7 +944,7 @@ function transformSchemaObjectCore(schemaObject: SchemaObject, options: Transfor
       const isReadOnly = typeof value === 'object' && !!value.readOnly
       const isRequired = !!schemaObject.required?.includes(key)
 
-      const propertyType = transformSchemaObject(value, { ...options, ref: createRef([options.ref, key]) }, memberIndent)
+      const propertyType = transformSchemaObject(value, { ...options, ref: createRef([options.ref, key]), member: value }, memberIndent)
       propertyTypes.push(propertyType)
       coreMembers.push(propertySignature({
         name: tsPropertyIndex(key),
@@ -845,7 +961,7 @@ function transformSchemaObjectCore(schemaObject: SchemaObject, options: Transfor
     const defsIndent = `${memberIndent}${INDENT}`
     const defMembers = Object.entries<any>(schemaObject.$defs).map(([key, value]) => propertySignature({
       name: tsPropertyIndex(key),
-      type: transformSchemaObject(value, { ...options, ref: createRef([options.ref, '$defs', key]) }, defsIndent),
+      type: transformSchemaObject(value, { ...options, ref: createRef([options.ref, '$defs', key]), member: value }, defsIndent),
       readonly: !!value?.readOnly,
       comment: createJSDocComment(value, defsIndent),
       indent: defsIndent,
@@ -857,12 +973,12 @@ function transformSchemaObjectCore(schemaObject: SchemaObject, options: Transfor
   const { additionalProperties, patternProperties } = schemaObject
   const indexTypes: TSNode[] = []
   if (isObject(additionalProperties) && Object.keys(additionalProperties).length)
-    indexTypes.push(transformSchemaObject(additionalProperties, options, memberIndent))
+    indexTypes.push(transformSchemaObject(additionalProperties, { ...options, member: undefined }, memberIndent))
   if (additionalProperties === true || (isObject(additionalProperties) && !Object.keys(additionalProperties).length))
     indexTypes.push(UNKNOWN)
   if (isObject(patternProperties)) {
     for (const value of Object.values<any>(patternProperties))
-      indexTypes.push(transformSchemaObject(value, options, memberIndent))
+      indexTypes.push(transformSchemaObject(value, { ...options, member: undefined }, memberIndent))
   }
 
   if (!indexTypes.length)

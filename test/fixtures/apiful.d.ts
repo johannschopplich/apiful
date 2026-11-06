@@ -1342,7 +1342,7 @@ declare module 'apiful/schema/catalog' {
           theme?: string;
         };
       };
-      Theme: NonNullable<components["schemas"]["Settings"]["display"]>["theme"];
+      Theme: Exclude<NonNullable<components["schemas"]["Settings"]["display"]>["theme"], undefined>;
       Tree: {
         root?: NonNullable<components["schemas"]["Tree"]["$defs"]>["Node"];
         $defs?: {
