@@ -10,7 +10,8 @@ const config: UserConfig = defineConfig({
     'src/cli/entry.ts',
   ],
   deps: {
-    neverBundle: ['apiful/schema'],
+    // The CLI reads its name and version from the published package.json, which bundling would copy whole.
+    neverBundle: ['apiful/package.json', 'apiful/schema'],
   },
   dts: true,
   unbundle: true,

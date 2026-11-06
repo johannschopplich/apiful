@@ -24,6 +24,7 @@ import { OK } from 'apiful/http-status-codes'
 import { OK as OK_PHRASE } from 'apiful/http-status-phrases'
 import { generateDeclarations } from 'apiful/openapi/generate'
 import { jsonToTypeDefinition } from 'apiful/utils'
+import packageJson from 'apiful/package.json' with { type: 'json' }
 
 type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2) ? true : false
 declare function expectTrue<T extends true>(): void
@@ -50,6 +51,7 @@ export const config = defineApifulConfig({ services: { petStore: { schema: 'pet-
 export const okStatus: [200, 'OK'] = [OK, OK_PHRASE]
 export const declarations: Promise<{ entry: string }> = generateDeclarations({})
 export const definition: string = jsonToTypeDefinition({ id: 1 })
+export const packageVersion: string = packageJson.version
 `
 
 const consumerDir = fs.mkdtempSync(path.join(os.tmpdir(), 'apiful-consumer-'))

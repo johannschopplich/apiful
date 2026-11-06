@@ -58,7 +58,8 @@
     "./utils": {
       "types": "./dist/utils/index.d.mts",
       "default": "./dist/utils/index.mjs"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "bin": {
     "apiful": "bin/apiful.mjs"
