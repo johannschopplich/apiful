@@ -43,13 +43,8 @@ const command: CommandDef<typeof args> = defineCommand({
       throw new CliError('Cannot use both --outfile and --outdir. Use --outfile for single-file output or --outdir for fragmented output.')
     }
 
-    const { config } = await loadConfig(rootDir)
-
-    if (Object.keys(config).length === 0) {
-      throw new CliError('Configuration file `apiful.config.{js,ts,mjs,cjs,json}` is empty or does not exist')
-    }
-
-    const services = Object.entries(config?.services ?? {})
+    const config = await loadConfig(rootDir)
+    const services = Object.entries(config.services ?? {})
     const servicesWithSchema = services.filter(([, service]) => Boolean(service.schema))
     const servicesWithoutSchema = services.filter(([, service]) => !service.schema)
 

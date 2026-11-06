@@ -23,6 +23,8 @@ Get started by installing `apiful` in your project:
 > [!TIP]
 > Your API client ships with your application, so `apiful` belongs in `dependencies`.
 
+APIful supports Node 24 or later.
+
 ## Your First API Client
 
 Start by creating your first API client with a base URL and authorization headers:

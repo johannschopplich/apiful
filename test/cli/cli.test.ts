@@ -48,6 +48,37 @@ describe('apiful CLI', () => {
       expect(types).toContain('/pets/{id}')
     })
 
+    it('picks up a configuration file changed since the previous run', async () => {
+      const directory = createDirectory({
+        'apiful.config.ts': CONFIG,
+        'schemas/pet-store.json': SCHEMA,
+      })
+
+      await runCli(['generate', `--root=${directory}`])
+      await fsp.writeFile(
+        path.join(directory, 'apiful.config.ts'),
+        `export default { services: { renamedStore: { schema: 'schemas/pet-store.json' } } }\n`,
+      )
+      await runCli(['generate', `--root=${directory}`])
+      const types = await fsp.readFile(path.join(directory, 'apiful.d.ts'), 'utf-8')
+
+      expect(types).toContain(`declare module 'apiful/schema/renamedStore'`)
+    })
+
+    it('reads an apiful.config.mjs file', async () => {
+      const directory = createDirectory({
+        'apiful.config.mjs': CONFIG,
+        'schemas/pet-store.json': SCHEMA,
+      })
+
+      const { exitCode } = await runCli(['generate', `--root=${directory}`])
+
+      expect(exitCode).toBe(0)
+      await expect(fsp.readFile(path.join(directory, 'apiful.d.ts'), 'utf-8'))
+        .resolves
+        .toContain(`declare module 'apiful/schema/petStore'`)
+    })
+
     it('reads a schema given as a file URL', async () => {
       const directory = createDirectory({ 'schemas/pet-store.json': SCHEMA })
       const schemaUrl = pathToFileURL(path.join(directory, 'schemas/pet-store.json')).href
@@ -73,6 +104,33 @@ describe('apiful CLI', () => {
       expect(exitCode).toBe(1)
       expect(stderr).toContain('petStore')
       await expect(fsp.readFile(path.join(directory, 'apiful.d.ts'), 'utf-8')).rejects.toThrow()
+    })
+
+    it('exits with code 1 for a configuration file without a default export', async () => {
+      const directory = createDirectory({ 'apiful.config.ts': `export const services = {}\n` })
+
+      const { exitCode, stderr } = await runCli(['generate', `--root=${directory}`])
+
+      expect(exitCode).toBe(1)
+      expect(stderr).toContain('has no default export')
+    })
+
+    it('exits with code 1 for a configuration file exporting a function', async () => {
+      const directory = createDirectory({ 'apiful.config.ts': `export default () => ({ services: {} })\n` })
+
+      const { exitCode, stderr } = await runCli(['generate', `--root=${directory}`])
+
+      expect(exitCode).toBe(1)
+      expect(stderr).toContain('exports a function')
+    })
+
+    it('skips generation for a configuration without services', async () => {
+      const directory = createDirectory({ 'apiful.config.ts': `export default {}\n` })
+
+      const { exitCode, stderr } = await runCli(['generate', `--root=${directory}`])
+
+      expect(exitCode).toBe(0)
+      expect(stderr).toContain('No OpenAPI schemas found')
     })
 
     it('warns about a service configured without a schema', async () => {

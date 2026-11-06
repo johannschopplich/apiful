@@ -173,9 +173,6 @@ importers:
 
   .:
     dependencies:
-      c12:
-        specifier: ^4.0.0-beta.5
-        version: 4.0.0-beta.5(chokidar@5.0.0)(jiti@2.7.0)
       confbox:
         specifier: ^0.2.4
         version: 0.2.4
@@ -1668,26 +1665,6 @@ packages:
     engines: {node: ^22.18.0 || ^24.11.0 || >=26.0.0}
     hasBin: true
 
-  c12@4.0.0-beta.5:
-    resolution: {integrity: sha512-yWGCPCQGJeFq4R0mFg5HOhC3Rg+B0PCdM+ldXWUhughoGgeeq8/tjRmXh4/lmhKWyhf+KOFxB/JMXf0Yv1Fd5A==}
-    peerDependencies:
-      chokidar: ^5
-      dotenv: '*'
-      giget: '*'
-      jiti: '*'
-      magicast: '*'
-    peerDependenciesMeta:
-      chokidar:
-        optional: true
-      dotenv:
-        optional: true
-      giget:
-        optional: true
-      jiti:
-        optional: true
-      magicast:
-        optional: true
-
   cac@7.0.0:
     resolution: {integrity: sha512-tixWYgm5ZoOD+3g6UTea91eow5z6AAHaho3g0V9CNSNb45gM8SmflpAc+GRd1InC4AqN/07Unrgp56Y94N9hJQ==}
     engines: {node: '>=20.19.0'}
@@ -2760,9 +2737,6 @@ packages:
 
   radix3@1.1.2:
     resolution: {integrity: sha512-b484I/7b8rDEdSDKckSSBA8knMpcdsXudlE/LNL639wFoHKwLbEkQFZHWEYwDC0wa0FKUcCY+GAF73Z7wxNVFA==}
-
-  rc9@3.0.1:
-    resolution: {integrity: sha512-gMDyleLWVE+i6Sgtc0QbbY6pEKqYs97NGi6isHQPqYlLemPoO8dxQ3uGi0f4NiP98c+jMW6cG1Kx9dDwfvqARQ==}
 
   readdirp@5.0.0:
     resolution: {integrity: sha512-9u/XQ1pvrQtYyMpZe7DXKv2p5CNvyVwzUB6uhLAnQwHMSgKMBR62lc7AHljaeteeHXn11XTAaLLUVZYVZyuRBQ==}
@@ -4612,18 +4586,6 @@ snapshots:
       verkit: 0.3.2
       yaml: 2.9.0
 
-  c12@4.0.0-beta.5(chokidar@5.0.0)(jiti@2.7.0):
-    dependencies:
-      confbox: 0.2.4
-      defu: 6.1.7
-      exsolve: 1.1.1
-      pathe: 2.0.3
-      pkg-types: 2.3.1
-      rc9: 3.0.1
-    optionalDependencies:
-      chokidar: 5.0.0
-      jiti: 2.7.0
-
   cac@7.0.0: {}
 
   caniuse-lite@1.0.30001806: {}
@@ -5895,11 +5857,6 @@ snapshots:
   quote-js-string@0.1.0: {}
 
   radix3@1.1.2: {}
-
-  rc9@3.0.1:
-    dependencies:
-      defu: 6.1.7
-      destr: 2.0.5
 
   readdirp@5.0.0: {}
 
