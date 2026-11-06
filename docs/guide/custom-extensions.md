@@ -80,9 +80,9 @@ const pet = await api.pet(1)
 A builder declared on its own has no chain to read from, and both builder types describe their client as a bare `ApiClient`. Annotate the parameter with what the builder actually needs instead, and `with` accepts it wherever the client offers at least that much:
 
 ```ts
-import type { OpenAPIClient, SchemaPaths } from 'apiful/openapi'
+import type { OpenAPIClient, ServicePaths } from 'apiful/openapi'
 
-function petMethods(client: OpenAPIClient<SchemaPaths<'petStore'>>) {
+function petMethods(client: OpenAPIClient<ServicePaths<'petStore'>>) {
   return {
     pet: (petId: number) => client('/pet/{petId}', {
       method: 'GET',

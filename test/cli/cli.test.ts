@@ -48,7 +48,7 @@ const createDirectory = useTemporaryDirectories()
 
 describe('apiful CLI', () => {
   describe('generate', () => {
-    it('writes type definitions for a local OpenAPI schema', async () => {
+    it('writes the generated types for a local OpenAPI document', async () => {
       const directory = createDirectory({
         'apiful.config.ts': CONFIG,
         'schemas/pet-store.json': SCHEMA,
@@ -144,7 +144,7 @@ describe('apiful CLI', () => {
       const { exitCode, stderr } = await runCli(['generate', `--root=${directory}`])
 
       expect(exitCode).toBe(0)
-      expect(stderr).toContain('No OpenAPI schemas found')
+      expect(stderr).toContain('No service sets a `schema`')
     })
 
     it('warns about a service configured without a schema', async () => {

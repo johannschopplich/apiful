@@ -133,40 +133,40 @@ const EMPTY_PATHS = `export type paths = ${tsRecord(STRING, NEVER)};`
 const EMPTY_COMPONENTS = `export type components = ${tsRecord(STRING, NEVER)};`
 
 /**
- * Stand-in for the types of a schema that failed to load, declaring `paths` and `components`
+ * Stand-in for the types of a document that failed to load, declaring `paths` and `components`
  * without members, so the helpers and clients typed after them still compile.
  */
-export const EMPTY_SCHEMA_TYPES: string = `${EMPTY_PATHS}\n${EMPTY_COMPONENTS}\n`
+export const EMPTY_DOCUMENT_TYPES: string = `${EMPTY_PATHS}\n${EMPTY_COMPONENTS}\n`
 
 /**
  * Emits the `paths` and `components` declarations for a bundled OpenAPI document. Operations
  * are inlined into `paths` rather than collected in an `operations` interface; each path item
  * lists only the methods it declares, with path-level parameters folded into its operations.
  */
-export function generateSchemaTypes(document: OpenAPIDocument): string {
+export function generateDocumentTypes(document: OpenAPIDocument): string {
   // Discriminator handling patches the schemas it maps, which must not reach the caller's document.
-  const schema = structuredClone(document)
+  const clonedDocument = structuredClone(document)
   const context: EmitContext = {
     discriminators: { objects: {}, refsHandled: [] },
     hasWithRequired: false,
-    hasMediaTypesGroup: hasMediaTypesGroup(schema.openapi),
-    resolve: $ref => resolveRef(schema, $ref),
-    resolveOneHop: $ref => resolveRefOneHop(schema, $ref),
+    hasMediaTypesGroup: hasMediaTypesGroup(clonedDocument.openapi),
+    resolve: $ref => resolveRef(clonedDocument, $ref),
+    resolveOneHop: $ref => resolveRefOneHop(clonedDocument, $ref),
     eagerMembers: new WeakMap(),
   }
-  context.discriminators = scanDiscriminators(schema, context)
+  context.discriminators = scanDiscriminators(clonedDocument, context)
 
   const declarations: TSNode[] = []
 
-  const pathMembers = isObject(schema.paths)
-    ? transformPathsObject(schema.paths, context)
+  const pathMembers = isObject(clonedDocument.paths)
+    ? transformPathsObject(clonedDocument.paths, context)
     : []
   declarations.push(pathMembers.length
     ? `export interface paths {\n${pathMembers.join('\n')}\n}`
     : EMPTY_PATHS)
 
-  declarations.push(isObject(schema.components)
-    ? `export interface components {\n${transformComponentsObject(schema.components, context).join('\n')}\n}`
+  declarations.push(isObject(clonedDocument.components)
+    ? `export interface components {\n${transformComponentsObject(clonedDocument.components, context).join('\n')}\n}`
     : EMPTY_COMPONENTS)
 
   if (context.hasWithRequired)

@@ -1,13 +1,13 @@
 import type { CommandDef, RunMainOptions } from 'utilful/cli'
 import pkg from 'apiful/package.json' with { type: 'json' }
 import { defineCommand } from 'utilful/cli'
-import { SchemaGenerationError } from '../openapi/generate.ts'
+import { GenerationError } from '../openapi/generate.ts'
 import generateCommand from './commands/generate.ts'
 
 const { name, version } = pkg
 
 export const cliOptions: RunMainOptions = {
-  expectedErrors: [SchemaGenerationError],
+  expectedErrors: [GenerationError],
 }
 
 export const mainCommand: CommandDef = defineCommand({

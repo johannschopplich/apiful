@@ -1,1 +1,1 @@
-export interface OpenAPISchemaRepository {}
+export interface OpenAPIServiceRepository {}

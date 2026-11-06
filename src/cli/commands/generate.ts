@@ -4,7 +4,7 @@ import * as fsp from 'node:fs/promises'
 import * as path from 'node:path'
 import process from 'node:process'
 import { CliError, defineCommand, log } from 'utilful/cli'
-import { generateDeclarations } from '../../openapi/generate.ts'
+import { generateTypes } from '../../openapi/generate.ts'
 import { findDrift, fragmentDirectoryFor, planGeneration } from '../plan.ts'
 import { loadConfig } from '../utils.ts'
 
@@ -16,7 +16,7 @@ const args = {
   },
   outdir: {
     type: 'string',
-    description: 'Directory for fragmented output (entry + per-service files)',
+    description: 'Directory to write the entry and one fragment per service to',
     required: false,
   },
   check: {
@@ -33,14 +33,14 @@ const args = {
 const command: CommandDef<typeof args> = defineCommand({
   meta: {
     name: 'generate',
-    description: 'Generates TypeScript definitions from OpenAPI schemas',
+    description: 'Generates types from the OpenAPI document of each service',
   },
   args,
   async run({ args }) {
     const rootDir = args.root || process.cwd()
 
     if (args.outfile && args.outdir) {
-      throw new CliError('Cannot use both --outfile and --outdir. Use --outfile for single-file output or --outdir for fragmented output.')
+      throw new CliError('Cannot use both --outfile and --outdir. Use --outfile for one file, or --outdir for the entry and one fragment per service.')
     }
 
     const config = await loadConfig(rootDir)
@@ -54,13 +54,13 @@ const command: CommandDef<typeof args> = defineCommand({
     }
 
     if (servicesWithSchema.length === 0) {
-      log.info('No OpenAPI schemas found, skipping generation')
+      log.info('No service sets a `schema`, skipping generation')
       return
     }
 
-    const declarations = await generateDeclarations(Object.fromEntries(servicesWithSchema), { rootDir })
+    const generatedTypes = await generateTypes(Object.fromEntries(servicesWithSchema), { rootDir })
 
-    const plan = planGeneration(declarations, {
+    const plan = planGeneration(generatedTypes, {
       rootDir,
       outfile: args.outfile,
       outdir: args.outdir,
@@ -76,11 +76,11 @@ const command: CommandDef<typeof args> = defineCommand({
 
       if (drift.length > 0) {
         throw new CliError(
-          `OpenAPI types are stale – run \`apiful generate\` to update them:\n${drift.map(line => `  ${line}`).join('\n')}`,
+          `Generated types are stale – run \`apiful generate\` to update them:\n${drift.map(line => `  ${line}`).join('\n')}`,
         )
       }
 
-      log.success('OpenAPI types are up to date')
+      log.success('Generated types are up to date')
       return
     }
 

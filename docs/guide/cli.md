@@ -24,7 +24,7 @@ By default, this command loads the [configuration](/reference/define-apiful-conf
 
 The types are saved as `apiful.d.ts` in the same directory, where they augment the `apiful/schema` module. `--outfile` and `--outdir` resolve against that directory, too.
 
-A schema that cannot be read or parsed fails the whole run: the command reports the service it choked on, exits with code `1`, and writes no types, rather than leaving you with a client that compiles and is silently untyped. Calling the [type generator](/reference/type-generator) from your own code instead of the CLI, the same failure arrives as a `SchemaGenerationError`.
+A schema that cannot be read or parsed fails the whole run: the command reports the service it choked on, exits with code `1`, and writes no types, rather than leaving you with a client that compiles and is silently untyped. Calling the [type generator](/reference/type-generator) from your own code instead of the CLI, the same failure arrives as a `GenerationError`.
 
 A service with no `schema` has nothing to generate from, so the run skips it and names it in a warning. Every other service is still generated, and the run succeeds. Where no service has a schema, the run does nothing: output from earlier runs stays on disk, and `--check` passes. In a TypeScript configuration the omission is a type error long before that, since `schema` is required.
 

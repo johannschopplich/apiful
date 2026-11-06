@@ -5,6 +5,6 @@ APIful CLI: Extensible & Type-Safe API Tooling
 
 [1mCOMMANDS[22m
 
-  [36mgenerate[39m  Generates TypeScript definitions from OpenAPI schemas
+  [36mgenerate[39m  Generates types from the OpenAPI document of each service
 
 Use [36mapiful <command> --help[39m for more information about a command.

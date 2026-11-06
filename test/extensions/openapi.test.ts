@@ -1,9 +1,9 @@
-import type { OpenAPISchemaRepository, PetStore } from 'apiful/schema'
+import type { OpenAPIServiceRepository, PetStore } from 'apiful/schema'
 import type { components } from 'apiful/schema/petStore'
 import type { $Fetch } from 'ofetch'
 import type { ApiClient } from '../../src/client'
 import type { OpenAPIClient } from '../../src/extensions/openapi'
-import type { SchemaPaths } from '../../src/openapi/client'
+import type { ServicePaths } from '../../src/openapi/client'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createClient, openAPIBuilder } from '../../src/index'
 
@@ -25,23 +25,23 @@ describe('openAPIBuilder', () => {
 
     const client = {} as ApiClient
     const openApiClient = builder(client)
-    expectTypeOf(openApiClient).toEqualTypeOf<OpenAPIClient<SchemaPaths<'petStore'>>>()
+    expectTypeOf(openApiClient).toEqualTypeOf<OpenAPIClient<ServicePaths<'petStore'>>>()
   })
 
-  it('types the client from the schema name it was given', () => {
+  it('types the client from the service name it was given', () => {
     const petStoreBuilder = openAPIBuilder<'petStore'>()
     const client = {} as ApiClient
     const petStoreClient = petStoreBuilder(client)
 
-    expectTypeOf(petStoreClient).toEqualTypeOf<OpenAPIClient<OpenAPISchemaRepository['petStore']>>()
+    expectTypeOf(petStoreClient).toEqualTypeOf<OpenAPIClient<OpenAPIServiceRepository['petStore']>>()
 
     const secondPetStoreBuilder = openAPIBuilder<'petStore'>()
     const secondPetStoreClient = secondPetStoreBuilder(client)
 
-    expectTypeOf(secondPetStoreClient).toEqualTypeOf<OpenAPIClient<OpenAPISchemaRepository['petStore']>>()
+    expectTypeOf(secondPetStoreClient).toEqualTypeOf<OpenAPIClient<OpenAPIServiceRepository['petStore']>>()
   })
 
-  it('rejects an unknown schema name', () => {
+  it('rejects an unknown service name', () => {
     // @ts-expect-error: No service is named `petStroe`.
     expectTypeOf(openAPIBuilder<'petStroe'>).toBeFunction()
   })
@@ -144,7 +144,7 @@ describe('openAPIBuilder', () => {
 
     await expect(() => {
       return client(
-        // @ts-expect-error: Path not defined in the OpenAPI schema.
+        // @ts-expect-error: Path not defined in the OpenAPI document.
         '/invalid/endpoint',
       )
     }).rejects.toThrow()

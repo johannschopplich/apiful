@@ -1,4 +1,4 @@
-import type { GeneratedDeclarations } from '../../src/openapi/generate.ts'
+import type { GeneratedTypes } from '../../src/openapi/generate.ts'
 import * as path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { findDrift, planGeneration } from '../../src/cli/plan.ts'
@@ -6,7 +6,7 @@ import { GENERATED_FILE_HEADER } from '../../src/constants.ts'
 
 const ROOT = path.resolve('/projects/app')
 
-const DTS: GeneratedDeclarations = {
+const DTS: GeneratedTypes = {
   entry: `declare module 'apiful/schema' {}\n`,
   fragments: {
     petStore: `declare module 'apiful/schema/petStore' {}\n`,
@@ -14,7 +14,7 @@ const DTS: GeneratedDeclarations = {
   },
 }
 
-const SINGLE_SERVICE_DTS: GeneratedDeclarations = {
+const SINGLE_SERVICE_DTS: GeneratedTypes = {
   entry: DTS.entry,
   fragments: { petStore: DTS.fragments.petStore! },
 }
@@ -54,9 +54,9 @@ describe('planGeneration', () => {
 
   it('summarizes the outfile path with the service count pluralized', () => {
     expect(planGeneration(DTS, { rootDir: ROOT }).summary)
-      .toBe('OpenAPI types generated in `apiful.d.ts` (2 services)')
+      .toBe('Generated types written to `apiful.d.ts` (2 services)')
     expect(planGeneration(SINGLE_SERVICE_DTS, { rootDir: ROOT }).summary)
-      .toBe('OpenAPI types generated in `apiful.d.ts` (1 service)')
+      .toBe('Generated types written to `apiful.d.ts` (1 service)')
   })
 
   it('writes one fragment per service with --outdir', () => {
@@ -87,14 +87,14 @@ describe('planGeneration', () => {
   })
 
   it('names the output directory rather than the fragment directory when no service is listed', () => {
-    const empty: GeneratedDeclarations = { entry: DTS.entry, fragments: {} }
+    const empty: GeneratedTypes = { entry: DTS.entry, fragments: {} }
     const { files, directories, summary } = planGeneration(empty, { rootDir: ROOT, outdir: 'generated' })
 
     expect(directories).toEqual([
       path.join(ROOT, 'generated'),
     ])
     expect(files.get(path.join(ROOT, 'generated/apiful.d.ts'))).toBe(`${GENERATED_FILE_HEADER}${DTS.entry}`)
-    expect(summary).toBe('OpenAPI types generated in `generated/` (entry + 0 services)')
+    expect(summary).toBe('Generated types written to `generated/` (entry + 0 services)')
   })
 
   it('removes a fragment carrying the generated header that no service claims', () => {

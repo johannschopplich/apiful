@@ -6,7 +6,7 @@ declare module 'apiful/schema' {
   import { paths as PetStorePaths, components as PetStoreComponents } from 'apiful/schema/petStore'
   import { paths as CatalogPaths, components as CatalogComponents } from 'apiful/schema/catalog'
 
-  interface OpenAPISchemaRepository {
+  interface OpenAPIServiceRepository {
     'testEcho': TestEchoPaths
     'petStore': PetStorePaths
     'catalog': CatalogPaths

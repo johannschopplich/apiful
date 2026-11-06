@@ -1,27 +1,27 @@
 import type { ServiceOptions } from '../config.ts'
 import { pascalCase } from 'scule'
-import { generateSchemaTypes } from './emit.ts'
+import { generateDocumentTypes } from './emit.ts'
 import { getErrorMessage, loadOpenAPIDocument } from './load.ts'
 import { isIdentifier } from './typescript.ts'
 
-export { EMPTY_SCHEMA_TYPES, generateSchemaTypes } from './emit.ts'
+export { EMPTY_DOCUMENT_TYPES, generateDocumentTypes } from './emit.ts'
 export { loadOpenAPIDocument } from './load.ts'
 export type { LoadOpenAPIDocumentOptions, OpenAPIDocument, OpenAPIDocumentSource } from './load.ts'
 
 const ENTRY_IMPORTED_TYPE_NAMES = ['OpenAPIEndpoint', 'OpenAPIPathMethods']
-const SCHEMA_REPOSITORY_TYPE_NAME = 'OpenAPISchemaRepository'
+const SERVICE_REPOSITORY_TYPE_NAME = 'OpenAPIServiceRepository'
 /** Types the `apiful/schema` entry declares itself, which no service may generate. */
-const ENTRY_TYPE_NAMES = [...ENTRY_IMPORTED_TYPE_NAMES, SCHEMA_REPOSITORY_TYPE_NAME]
+const ENTRY_TYPE_NAMES = [...ENTRY_IMPORTED_TYPE_NAMES, SERVICE_REPOSITORY_TYPE_NAME]
 const SERVICE_NAME_RE = /^[\p{L}\p{N}$_.-]+$/u
 
-export interface GeneratedDeclarations {
+export interface GeneratedTypes {
   /** The `apiful/schema` module, importing from every fragment and exporting the type helpers. */
   entry: string
   /** One `apiful/schema/<service>` module per service, keyed by service name. */
   fragments: Record<string, string>
 }
 
-export interface GenerateDeclarationsOptions {
+export interface GenerateTypesOptions {
   /** Directory a relative schema path resolves against. Defaults to the current working directory. */
   rootDir?: string
 }
@@ -33,18 +33,15 @@ export interface TypeHelperIdentifiers {
   components: string
 }
 
-export class SchemaGenerationError extends Error {
-  override name = 'SchemaGenerationError'
+export class GenerationError extends Error {
+  override name = 'GenerationError'
 }
 
-/**
- * Loads the schema of every service and generates the `apiful/schema` module declarations:
- * one fragment per service carrying its types, and an entry carrying the type helpers.
- */
-export async function generateDeclarations(
+/** Loads the OpenAPI document of every service and generates the entry and one fragment per service from them. */
+export async function generateTypes(
   services: Record<string, ServiceOptions>,
-  options: GenerateDeclarationsOptions = {},
-): Promise<GeneratedDeclarations> {
+  options: GenerateTypesOptions = {},
+): Promise<GeneratedTypes> {
   assertDeclarableTypeNames(Object.keys(services))
 
   const fragmentEntries = await Promise.all(
@@ -66,7 +63,7 @@ export async function generateDeclarations(
     .map(([serviceName, typeNames]) => `import { paths as ${typeNames.paths}, components as ${typeNames.components} } from 'apiful/schema/${serviceName}'`)
     .join('\n')
 
-  const schemaRepositoryEntries = serviceTypeNames
+  const serviceRepositoryEntries = serviceTypeNames
     .map(([serviceName, typeNames]) => `  '${serviceName}': ${typeNames.paths}`)
     .join('\n')
 
@@ -78,8 +75,8 @@ export async function generateDeclarations(
 import { ${ENTRY_IMPORTED_TYPE_NAMES.join(', ')} } from 'apiful/openapi'
 ${servicePathImports}
 
-interface ${SCHEMA_REPOSITORY_TYPE_NAME} {
-${schemaRepositoryEntries}
+interface ${SERVICE_REPOSITORY_TYPE_NAME} {
+${serviceRepositoryEntries}
 }
 
 ${typeHelpers}
@@ -165,34 +162,34 @@ function assertDeclarableTypeNames(serviceNames: string[]): void {
   for (const serviceName of serviceNames) {
     // The name also ends a module specifier and names the file of its fragment.
     if (!SERVICE_NAME_RE.test(serviceName))
-      throw new SchemaGenerationError(`Service \`${serviceName}\` may only hold letters, digits, \`_\`, \`$\`, \`.\`, and \`-\``)
+      throw new GenerationError(`Service \`${serviceName}\` may only hold letters, digits, \`_\`, \`$\`, \`.\`, and \`-\``)
     const typeNames = createTypeNames(serviceName)
     if (!isIdentifier(typeNames.endpoint))
-      throw new SchemaGenerationError(`Service \`${serviceName}\` generates the type \`${typeNames.endpoint}\`, which is not a valid identifier`)
+      throw new GenerationError(`Service \`${serviceName}\` generates the type \`${typeNames.endpoint}\`, which is not a valid identifier`)
 
     for (const typeName of Object.values(typeNames)) {
       if (ENTRY_TYPE_NAMES.includes(typeName))
-        throw new SchemaGenerationError(`Service \`${serviceName}\` generates the type \`${typeName}\`, which the \`apiful/schema\` module declares itself`)
+        throw new GenerationError(`Service \`${serviceName}\` generates the type \`${typeName}\`, which the \`apiful/schema\` module declares itself`)
       const existingServiceName = serviceNamesByTypeName.get(typeName)
       if (existingServiceName !== undefined)
-        throw new SchemaGenerationError(`Services \`${existingServiceName}\` and \`${serviceName}\` both generate the type \`${typeName}\``)
+        throw new GenerationError(`Services \`${existingServiceName}\` and \`${serviceName}\` both generate the type \`${typeName}\``)
       serviceNamesByTypeName.set(typeName, serviceName)
     }
   }
 }
 
-/** Loads the schema of one service and returns its types, naming the service in any failure. */
+/** Loads the OpenAPI document of one service and returns its types, naming the service in any failure. */
 async function generateServiceTypes(
   serviceName: string,
   service: ServiceOptions,
-  { rootDir }: GenerateDeclarationsOptions,
+  { rootDir }: GenerateTypesOptions,
 ): Promise<string> {
   try {
     const document = await loadOpenAPIDocument(service.schema, { rootDir })
-    return generateSchemaTypes(document)
+    return generateDocumentTypes(document)
   }
   catch (error) {
-    throw new SchemaGenerationError(
+    throw new GenerationError(
       `Failed to generate types for service \`${serviceName}\` – ${getErrorMessage(error)}`,
       { cause: error },
     )

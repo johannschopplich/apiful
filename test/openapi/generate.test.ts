@@ -3,11 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { defineApifulConfig } from '../../src/config'
 import {
   declareModule,
-  EMPTY_SCHEMA_TYPES,
-  generateDeclarations,
-  generateSchemaTypes,
+  EMPTY_DOCUMENT_TYPES,
+  generateDocumentTypes,
   generateTypeHelpers,
-  SchemaGenerationError,
+  generateTypes,
+  GenerationError,
 } from '../../src/openapi/generate'
 import { currentDir } from '../utils'
 
@@ -19,9 +19,9 @@ const config = defineApifulConfig({
   },
 })
 
-describe('generateDeclarations', () => {
+describe('generateTypes', () => {
   it('generates an entry and one fragment per service', async () => {
-    const { entry, fragments } = await generateDeclarations(config.services)
+    const { entry, fragments } = await generateTypes(config.services)
 
     expect(entry).toMatchSnapshot()
     expect(fragments).toMatchSnapshot()
@@ -30,42 +30,42 @@ describe('generateDeclarations', () => {
   it('rejects services whose generated type names collide', async () => {
     const service = config.services.testEcho!
 
-    await expect(generateDeclarations({ foo: service, fooModel: service }))
+    await expect(generateTypes({ foo: service, fooModel: service }))
       .rejects
-      .toThrow(new SchemaGenerationError('Services `foo` and `fooModel` both generate the type `FooModel`'))
-    await expect(generateDeclarations({ foo: service, fooModel: service }))
+      .toThrow(new GenerationError('Services `foo` and `fooModel` both generate the type `FooModel`'))
+    await expect(generateTypes({ foo: service, fooModel: service }))
       .rejects
-      .toHaveProperty('name', 'SchemaGenerationError')
+      .toHaveProperty('name', 'GenerationError')
   })
 
   it('rejects a service whose generated type name is no identifier', async () => {
-    await expect(generateDeclarations({ '1password': config.services.testEcho! }))
+    await expect(generateTypes({ '1password': config.services.testEcho! }))
       .rejects
-      .toThrow(new SchemaGenerationError('Service `1password` generates the type `1password`, which is not a valid identifier'))
+      .toThrow(new GenerationError('Service `1password` generates the type `1password`, which is not a valid identifier'))
   })
 
   it('rejects a service whose name holds a path separator', async () => {
-    await expect(generateDeclarations({ 'a/b': config.services.testEcho! }))
+    await expect(generateTypes({ 'a/b': config.services.testEcho! }))
       .rejects
-      .toThrow(new SchemaGenerationError('Service `a/b` may only hold letters, digits, `_`, `$`, `.`, and `-`'))
+      .toThrow(new GenerationError('Service `a/b` may only hold letters, digits, `_`, `$`, `.`, and `-`'))
   })
 
   it('accepts a service whose generated type name starts with a non-ASCII letter', async () => {
-    const { entry } = await generateDeclarations({ über: config.services.testEcho! })
+    const { entry } = await generateTypes({ über: config.services.testEcho! })
 
     expect(entry).toContain('export type Über<')
   })
 
   it('rejects a service whose generated type name is OpenAPIEndpoint', async () => {
-    await expect(generateDeclarations({ openAPIEndpoint: config.services.testEcho! }))
+    await expect(generateTypes({ openAPIEndpoint: config.services.testEcho! }))
       .rejects
-      .toThrow(new SchemaGenerationError('Service `openAPIEndpoint` generates the type `OpenAPIEndpoint`, which the `apiful/schema` module declares itself'))
+      .toThrow(new GenerationError('Service `openAPIEndpoint` generates the type `OpenAPIEndpoint`, which the `apiful/schema` module declares itself'))
   })
 })
 
-describe('generateSchemaTypes', () => {
+describe('generateDocumentTypes', () => {
   it('emits the types of a document at the top level', () => {
-    const types = generateSchemaTypes({
+    const types = generateDocumentTypes({
       openapi: '3.1.0',
       info: { title: 'Pets', version: '1.0.0' },
       components: {
@@ -97,11 +97,11 @@ export interface components {
 `)
   })
 
-  it('returns EMPTY_SCHEMA_TYPES for a document declaring no paths or components', () => {
-    expect(generateSchemaTypes({
+  it('returns EMPTY_DOCUMENT_TYPES for a document declaring no paths or components', () => {
+    expect(generateDocumentTypes({
       openapi: '3.1.0',
       info: { title: 'Empty', version: '1.0.0' },
-    })).toBe(EMPTY_SCHEMA_TYPES)
+    })).toBe(EMPTY_DOCUMENT_TYPES)
   })
 
   it('types an allOf child of a discriminated parent as its discriminator value and the parent without it', () => {
@@ -582,7 +582,7 @@ export interface components {
   })
 
   it('skips an additionalOperations method that a fixed field already declares', () => {
-    const types = generateSchemaTypes({
+    const types = generateDocumentTypes({
       openapi: '3.2.0',
       info: { title: 'Items', version: '1.0.0' },
       paths: {
@@ -662,7 +662,7 @@ export type components = Record<string, never>;
   })
 
   it('inlines a component ref that points into an operation', () => {
-    const types = generateSchemaTypes({
+    const types = generateDocumentTypes({
       openapi: '3.1.0',
       info: { title: 'Items', version: '1.0.0' },
       paths: {
@@ -999,7 +999,7 @@ export type components = Record<string, never>;
   })
 
   it('makes a required query parameter optional where its content schema declares a default', () => {
-    const types = generateSchemaTypes({
+    const types = generateDocumentTypes({
       openapi: '3.1.0',
       info: { title: 'Items', version: '1.0.0' },
       paths: {
@@ -1027,7 +1027,7 @@ export type components = Record<string, never>;
   })
 
   it('makes a required query parameter optional where the schema of its content media type ref declares a default', () => {
-    const types = generateSchemaTypes({
+    const types = generateDocumentTypes({
       openapi: '3.2.0',
       info: { title: 'Items', version: '1.0.0' },
       paths: {
@@ -1060,7 +1060,7 @@ export type components = Record<string, never>;
   })
 
   it('emits no mediaTypes group for an openapi of 3.1', () => {
-    const types = generateSchemaTypes({
+    const types = generateDocumentTypes({
       openapi: '3.1',
       info: { title: 'Items', version: '1.0.0' },
       components: {},
@@ -1088,7 +1088,7 @@ export type components = Record<string, never>;
 
   it('types an OpenAPI 3.2 media type ref by its components.mediaTypes entry', () => {
     const mediaType = { $ref: '#/components/mediaTypes/Item' }
-    const types = generateSchemaTypes({
+    const types = generateDocumentTypes({
       openapi: '3.2.0',
       info: { title: 'Items', version: '1.0.0' },
       paths: {
@@ -1139,7 +1139,7 @@ describe('declareModule', () => {
 })
 
 function generateSchemaComponentTypes(schemas: Record<string, unknown>): string {
-  return generateSchemaTypes({
+  return generateDocumentTypes({
     openapi: '3.1.0',
     info: { title: 'Schemas', version: '1.0.0' },
     components: { schemas },

@@ -2,67 +2,67 @@
 
 The [`generate`](/guide/cli) command is the type generator most projects need. Its building blocks are exported from `apiful/openapi/generate` for tools that write the types themselves – a framework module generating them on startup, for example. The subpath is Node.js only; the runtime client stays in `apiful/openapi`, which runs anywhere.
 
-## `generateDeclarations`
+## `generateTypes`
 
 Loads the schema of every service and returns the declarations the `generate` command writes: the `apiful/schema` entry with the type helpers, and one `apiful/schema/<service>` fragment per service.
 
 ```ts
-import { generateDeclarations } from 'apiful/openapi/generate'
+import { generateTypes } from 'apiful/openapi/generate'
 
-const { entry, fragments } = await generateDeclarations({
+const { entry, fragments } = await generateTypes({
   petStore: { schema: 'openapi/pet-store.yaml' },
 })
 ```
 
-A schema that cannot be loaded rejects with a `SchemaGenerationError` naming the service, and so does a service whose name makes no valid identifier, such as `1password`, or whose type names collide with another service's, such as `foo` and `fooModel`, or with the module's own, such as `openAPIEndpoint`.
+A schema that cannot be loaded rejects with a `GenerationError` naming the service, and so does a service whose name makes no valid identifier, such as `1password`, or whose type names collide with another service's, such as `foo` and `fooModel`, or with the module's own, such as `openAPIEndpoint`.
 
 ```ts
-interface GeneratedDeclarations {
+interface GeneratedTypes {
   entry: string
   fragments: Record<string, string>
 }
 
-interface GenerateDeclarationsOptions {
+interface GenerateTypesOptions {
   /** Directory a relative schema path resolves against. Defaults to the current working directory. */
   rootDir?: string
 }
 
-declare class SchemaGenerationError extends Error {}
+declare class GenerationError extends Error {}
 
-declare function generateDeclarations(
+declare function generateTypes(
   services: Record<string, ServiceOptions>,
-  options?: GenerateDeclarationsOptions
-): Promise<GeneratedDeclarations>
+  options?: GenerateTypesOptions
+): Promise<GeneratedTypes>
 ```
 
 ## Generating One Schema
 
-To place the types of a schema under a module name of your own, take the steps `generateDeclarations` takes one at a time: load the document, generate its types, and wrap them in a module declaration.
+To place the types of a schema under a module name of your own, take the steps `generateTypes` takes one at a time: load the document, generate its types, and wrap them in a module declaration.
 
 ```ts
 import {
   declareModule,
-  EMPTY_SCHEMA_TYPES,
-  generateSchemaTypes,
+  EMPTY_DOCUMENT_TYPES,
+  generateDocumentTypes,
   loadOpenAPIDocument,
 } from 'apiful/openapi/generate'
 
 let types: string
 try {
   const document = await loadOpenAPIDocument('openapi/pet-store.yaml')
-  types = generateSchemaTypes(document)
+  types = generateDocumentTypes(document)
 }
 catch (error) {
   console.error('Failed to generate the Pet Store types', error)
-  types = EMPTY_SCHEMA_TYPES
+  types = EMPTY_DOCUMENT_TYPES
 }
 
 const declaration = declareModule('#api/pet-store', types)
 ```
 
 - `loadOpenAPIDocument` accepts everything a service's [`schema`](/reference/define-apiful-config) does and bundles external `$ref`s into the document.
-- `generateSchemaTypes` returns the `paths` and `components` types of a document – plus a `WithRequired` helper where a schema needs one – unindented. It is synchronous and reads nothing but the document.
-- `EMPTY_SCHEMA_TYPES` declares `paths` and `components` without members – a stand-in that keeps the code typed against a schema compiling while that schema fails to load.
+- `generateDocumentTypes` returns the `paths` and `components` types of a document – plus a `WithRequired` helper where a schema needs one – unindented. It is synchronous and reads nothing but the document.
+- `EMPTY_DOCUMENT_TYPES` declares `paths` and `components` without members – a stand-in that keeps the code typed against a schema compiling while that schema fails to load.
 - `declareModule` wraps the types in `declare module '<specifier>' { … }` and indents them.
 
 ```ts
@@ -78,9 +78,9 @@ declare function loadOpenAPIDocument(
   options?: LoadOpenAPIDocumentOptions
 ): Promise<OpenAPIDocument>
 
-declare function generateSchemaTypes(document: OpenAPIDocument): string
+declare function generateDocumentTypes(document: OpenAPIDocument): string
 
-declare const EMPTY_SCHEMA_TYPES: string
+declare const EMPTY_DOCUMENT_TYPES: string
 
 declare function declareModule(specifier: string, body: string): string
 ```
@@ -100,7 +100,7 @@ ${generateTypeHelpers('petStore', { paths: 'PetStorePaths', components: 'PetStor
 `
 ```
 
-Helpers placed this way type `PetStore<…>` and the rest, but `createOpenAPIClient<'petStore'>` and `openAPIBuilder<'petStore'>` only accept a service the `OpenAPISchemaRepository` interface of `apiful/schema` lists – and only the entry from `generateDeclarations` adds to it.
+Helpers placed this way type `PetStore<…>` and the rest, but `createOpenAPIClient<'petStore'>` and `openAPIBuilder<'petStore'>` only accept a service the `OpenAPIServiceRepository` interface of `apiful/schema` lists – and only the entry from `generateTypes` adds to it.
 
 ```ts
 interface TypeHelperIdentifiers {

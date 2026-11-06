@@ -28,8 +28,8 @@ For a value that changes per request, such as a rotating token, see [Authenticat
 
 ```ts
 declare function createOpenAPIClient<
-  Schema extends keyof OpenAPISchemaRepository,
-  Paths = SchemaPaths<Schema>,
+  Service extends keyof OpenAPIServiceRepository,
+  Paths = ServicePaths<Service>,
 >(
   defaultOptions?: FetchOptions,
   factoryOptions?: ClientFactoryOptions

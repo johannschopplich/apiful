@@ -1,10 +1,10 @@
-import type { OpenAPISchemaRepository } from 'apiful/schema'
+import type { OpenAPIServiceRepository } from 'apiful/schema'
 import type { $Fetch, FetchOptions } from 'ofetch'
 import type { ClientFactoryOptions } from '../client.ts'
 import type { OpenAPIClient } from './types.ts'
 import { ofetch } from 'ofetch'
 
-export type SchemaPaths<K extends keyof OpenAPISchemaRepository> = OpenAPISchemaRepository[K]
+export type ServicePaths<Service extends keyof OpenAPIServiceRepository> = OpenAPIServiceRepository[Service]
 
 interface OpenAPIRequestOptions extends FetchOptions {
   path?: Record<string, string>
@@ -18,8 +18,8 @@ const PAYLOAD_METHODS = new Set(['PATCH', 'POST', 'PUT', 'DELETE'])
  * interpolated into the URL rather than passed on as fetch options.
  */
 export function createOpenAPIClient<
-  Schema extends keyof OpenAPISchemaRepository,
-  Paths = SchemaPaths<Schema>,
+  Service extends keyof OpenAPIServiceRepository,
+  Paths = ServicePaths<Service>,
 >(
   defaultOptions: FetchOptions = {},
   { fetch = ofetch.create(defaultOptions) }: ClientFactoryOptions = {},

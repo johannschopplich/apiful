@@ -1,4 +1,4 @@
-import type { GeneratedDeclarations } from '../openapi/generate.ts'
+import type { GeneratedTypes } from '../openapi/generate.ts'
 import * as path from 'node:path'
 import { DEFAULT_OUTFILE, GENERATED_FILE_HEADER } from '../constants.ts'
 
@@ -33,12 +33,12 @@ export function fragmentDirectoryFor(rootDir: string, outdir: string): string {
 }
 
 /** Decides everything a run would change on disk, without touching any of it. */
-export function planGeneration(declarations: GeneratedDeclarations, options: PlanOptions): GenerationPlan {
+export function planGeneration(generatedTypes: GeneratedTypes, options: PlanOptions): GenerationPlan {
   const { outdir } = options
 
   return outdir
-    ? planFragmentedOutput(declarations, { ...options, outdir })
-    : planSingleFileOutput(declarations, options)
+    ? planFragmentedOutput(generatedTypes, { ...options, outdir })
+    : planSingleFileOutput(generatedTypes, options)
 }
 
 /**
@@ -68,24 +68,24 @@ export function findDrift(
   return drift
 }
 
-function planSingleFileOutput(declarations: GeneratedDeclarations, { rootDir, outfile }: PlanOptions): GenerationPlan {
+function planSingleFileOutput(generatedTypes: GeneratedTypes, { rootDir, outfile }: PlanOptions): GenerationPlan {
   const outfilePath = path.resolve(rootDir, outfile || DEFAULT_OUTFILE)
-  const serviceCount = Object.keys(declarations.fragments).length
+  const serviceCount = Object.keys(generatedTypes.fragments).length
 
   return {
     files: new Map([
-      [outfilePath, `${GENERATED_FILE_HEADER}${joinDeclarations(declarations)}`],
+      [outfilePath, `${GENERATED_FILE_HEADER}${joinGeneratedTypes(generatedTypes)}`],
     ]),
     removals: [],
     directories: [
       path.dirname(outfilePath),
     ],
-    summary: `OpenAPI types generated in \`${path.relative(rootDir, outfilePath)}\` (${serviceCount} ${pluralizeServices(serviceCount)})`,
+    summary: `Generated types written to \`${path.relative(rootDir, outfilePath)}\` (${serviceCount} ${pluralizeServices(serviceCount)})`,
   }
 }
 
 /** Joins the entry and the per-service fragments into the single file an `outfile` run writes. */
-function joinDeclarations({ entry, fragments }: GeneratedDeclarations): string {
+function joinGeneratedTypes({ entry, fragments }: GeneratedTypes): string {
   const fragmentContent = Object.values(fragments).join('\n\n')
   return fragmentContent
     ? `${entry}\n${fragmentContent}`
@@ -93,7 +93,7 @@ function joinDeclarations({ entry, fragments }: GeneratedDeclarations): string {
 }
 
 function planFragmentedOutput(
-  { entry, fragments }: GeneratedDeclarations,
+  { entry, fragments }: GeneratedTypes,
   { rootDir, outdir, existingFragments }: PlanOptions & { outdir: string },
 ): GenerationPlan {
   const outputDir = path.resolve(rootDir, outdir)
@@ -126,7 +126,7 @@ function planFragmentedOutput(
     directories: fragmentCount > 0
       ? [fragmentDir]
       : [outputDir],
-    summary: `OpenAPI types generated in \`${relativeOutdir}/\` (entry + ${fragmentCount} ${pluralizeServices(fragmentCount)})`,
+    summary: `Generated types written to \`${relativeOutdir}/\` (entry + ${fragmentCount} ${pluralizeServices(fragmentCount)})`,
   }
 }
 

@@ -22,7 +22,7 @@ import { apiRouterBuilder, createClient, ofetchBuilder, openAPIBuilder } from 'a
 import { defineApifulConfig } from 'apiful/config'
 import { OK } from 'apiful/http-status-codes'
 import { OK as OK_PHRASE } from 'apiful/http-status-phrases'
-import { generateDeclarations } from 'apiful/openapi/generate'
+import { generateTypes } from 'apiful/openapi/generate'
 import { jsonToTypeDefinition } from 'apiful/utils'
 import packageJson from 'apiful/package.json' with { type: 'json' }
 
@@ -49,7 +49,7 @@ export const fetchClient = createClient().with(ofetchBuilder())
 export const routerClient = createClient().with(apiRouterBuilder())
 export const config = defineApifulConfig({ services: { petStore: { schema: 'pet-store.json' } } })
 export const okStatus: [200, 'OK'] = [OK, OK_PHRASE]
-export const declarations: Promise<{ entry: string }> = generateDeclarations({})
+export const generatedTypes: Promise<{ entry: string }> = generateTypes({})
 export const definition: string = jsonToTypeDefinition({ id: 1 })
 export const packageVersion: string = packageJson.version
 `

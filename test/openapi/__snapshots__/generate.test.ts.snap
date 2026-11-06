@@ -1,11 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`generateDeclarations > generates an entry and one fragment per service 1`] = `
+exports[`generateTypes > generates an entry and one fragment per service 1`] = `
 "declare module 'apiful/schema' {
   import { OpenAPIEndpoint, OpenAPIPathMethods } from 'apiful/openapi'
   import { paths as TestEchoPaths, components as TestEchoComponents } from 'apiful/schema/testEcho'
 
-  interface OpenAPISchemaRepository {
+  interface OpenAPIServiceRepository {
     'testEcho': TestEchoPaths
   }
 
@@ -58,7 +58,7 @@ exports[`generateDeclarations > generates an entry and one fragment per service 
 "
 `;
 
-exports[`generateDeclarations > generates an entry and one fragment per service 2`] = `
+exports[`generateTypes > generates an entry and one fragment per service 2`] = `
 {
   "testEcho": "declare module 'apiful/schema/testEcho' {
   export interface paths {
