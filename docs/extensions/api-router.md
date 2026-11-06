@@ -1,11 +1,8 @@
 # `apiRouterBuilder`
 
-> [!NOTE]
-> This is a [handler extension](/guide/custom-extensions#handler-extension) that wraps [ofetch](https://github.com/unjs/ofetch) under the hood.
+This [handler extension](/guide/custom-extensions#write-a-handler-extension) builds the request from property access: each property adds a path segment, and the HTTP method at the end of the chain sends the request – which reads well for REST APIs with deep, predictable paths such as `/api/v1/organizations/123/projects/456/tasks`.
 
-The API Router extension gives you a jQuery-like and Axios-style API to construct your API calls. Each property access adds a path segment, and the HTTP method at the end of the chain sends the request – which reads well for REST APIs with deep, predictable paths such as `/api/v1/organizations/123/projects/456/tasks`.
-
-Get started by adding the `apiRouterBuilder` extension to your client:
+Add it to your client:
 
 ```ts
 import { apiRouterBuilder, createClient } from 'apiful'
@@ -23,7 +20,7 @@ There are four ways to build a path, and they mix freely within one chain.
 
 ### Dot Notation
 
-Every property that isn't an HTTP method becomes a segment:
+Every property that is not an HTTP method becomes a segment:
 
 ```ts
 // GET request to <baseURL>/users/profile/settings
@@ -50,7 +47,7 @@ const response = await api.categories('tech').posts(postId).comments.get()
 
 ### Bracket Notation
 
-The same as dot notation, for segments that aren't valid identifiers or aren't known ahead of time:
+The same as dot notation, for segments that are not valid identifiers or are not known ahead of time:
 
 ```ts
 const userId = 123
@@ -79,7 +76,7 @@ const result = await api('api', 'v1', 'users', userId, 'profile').get()
 
 ## Request Parameters and Payloads
 
-How parameters are handled depends on the HTTP method:
+The method at the end of the chain takes the request data first and ofetch's options second.
 
 ### GET Requests
 
@@ -112,7 +109,7 @@ const updatedUser = await api.users(123).put({
 
 ## HTTP Request Methods
 
-The following methods are supported as the last method in the chain:
+The chain ends in one of these methods:
 
 - `get(<query>, <fetchOptions>)`
 - `post(<payload>, <fetchOptions>)`
@@ -120,9 +117,9 @@ The following methods are supported as the last method in the chain:
 - `delete(<payload>, <fetchOptions>)`
 - `patch(<payload>, <fetchOptions>)`
 
-## Error Handling
+## Handle Errors
 
-Requests throw on 4xx and 5xx status codes, which is ofetch's behavior. Handle them with try-catch:
+A 4xx or 5xx response throws ofetch's `FetchError`, which carries the status:
 
 ```ts
 import type { FetchError } from 'ofetch'

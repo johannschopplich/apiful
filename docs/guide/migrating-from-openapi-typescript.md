@@ -27,14 +27,9 @@ Install APIful, and remove `openapi-typescript` and `openapi-fetch` once nothing
   ```
 :::
 
-APIful supports Node 24 or later, and its types require TypeScript 5.9 or later. `apiful generate` never loads the `typescript` package, so it runs the same with TypeScript 5.9, 6.0, or 7.0 installed, and both the generated types and the ones APIful ships check against all three.
+APIful requires Node 24 or later, and its types require TypeScript 5.9 or later – see [Install APIful](/guide/getting-started#install-apiful).
 
-APIful reads its schemas from an `apiful.config.ts` rather than the command line. Each one is a service with a name, and your imports and clients refer to it by that name:
-
-```sh
-# Before
-npx openapi-typescript ./openapi/pet-store.yaml -o ./src/types/pet-store.d.ts
-```
+APIful reads each OpenAPI document from an `apiful.config.ts` rather than the command line. Each document belongs to a service with a name, and your imports and clients refer to it by that name:
 
 ```ts
 // apiful.config.ts
@@ -49,30 +44,33 @@ export default defineApifulConfig({
 })
 ```
 
-```sh
-# After
-npx apiful generate
-```
+`apiful generate` then replaces the openapi-typescript call:
 
-`schema` takes a file path, a URL, a document object, or a function resolving to one. The command writes `apiful.d.ts` next to the configuration – commit it, and run `apiful generate --check` in CI to catch a schema change that landed without it. The [CLI guide](/guide/cli) covers both, and how to split the output into one file per service.
+::: code-group
+  ```sh [openapi-typescript]
+  npx openapi-typescript ./openapi/pet-store.yaml -o ./src/types/pet-store.d.ts
+  ```
+  ```sh [APIful]
+  npx apiful generate
+  ```
+:::
+
+`schema` takes a file path, a URL, a document object, or a function resolving to one. The command writes `apiful.d.ts` next to the configuration – commit it, and [run `--check` in CI](/guide/cli#keep-generated-types-current) to catch it going stale. `--outdir` [writes the entry and each fragment to a file of its own](/guide/cli#split-the-output-into-files).
 
 The generator takes no options. Flags such as `--enum`, `--immutable`, or `--root-types` have no counterpart, and the output follows openapi-typescript's defaults, apart from the [differences](#where-the-generated-types-differ) listed at the end of this page.
 
 ## Import `paths` and `components` From `apiful/schema/<service>`
 
-Each service's types live in a module named after it, so imports change their source and nothing else:
+The fragment of each service is a module named after it, so an import changes its source and nothing else:
+
+<!-- eslint-skip -->
 
 ```ts
-// Before
-import type { components, paths } from './types/pet-store'
+import type { components, paths } from './types/pet-store' // [!code --]
+import type { components, paths } from 'apiful/schema/petStore' // [!code ++]
 ```
 
-```ts
-// After
-import type { components, paths } from 'apiful/schema/petStore'
-```
-
-`paths` keeps openapi-typescript's shape – `paths['/pet/{petId}']['get']['parameters']['path']` resolves as it did. The generated module exports no `operations`, `webhooks`, or `$defs` types.
+`paths` keeps openapi-typescript's shape – `paths['/pet/{petId}']['get']['parameters']['path']` resolves as it did. The fragment exports no `operations`, `webhooks`, or `$defs` types.
 
 ## Reach for the Type Helpers
 
@@ -87,7 +85,7 @@ import type { components, paths } from 'apiful/schema/petStore'
 | `paths['/pet/{petId}']['get']['responses'][200]['content']['application/json']` | `PetStore<'/pet/{petId}', 'get'>['response']` |
 | `operations['getPetById']` | `PetStore<'/pet/{petId}', 'get'>['operation']` |
 
-`response` is the body of whichever media type and 2xx status the operation declares, so it needs no status code or content type. `request` is likewise the union of the bodies of every media type the operation accepts – index `operation` by its media type for one alone, as the table does for `/pet`. [OpenAPI Type Helpers](/reference/openapi-type-helpers) covers the rest, such as `PetStoreApiPaths` for the union of every path.
+`response` and `request` take no status code or media type – `request` unites the bodies of every media type the operation accepts, so the table indexes `operation` for the JSON body of `/pet` alone. [OpenAPI Type Helpers](/reference/openapi-type-helpers#core-type-properties) covers what each property resolves to, and the other helpers, such as `PetStoreApiPaths` for the union of every path.
 
 ## Declare Your Own Aliases Instead of `--root-types`
 
@@ -104,45 +102,43 @@ export type Category = PetStoreModel<'Category'>
 
 [`createOpenAPIClient`](/reference/create-openapi-client) takes the service name where openapi-fetch took the `paths` type:
 
-```ts
-// Before
-import type { paths } from './types/pet-store'
-import createClient from 'openapi-fetch'
+::: code-group
+  ```ts [openapi-fetch]
+  import type { paths } from './types/pet-store'
+  import createClient from 'openapi-fetch'
 
-const client = createClient<paths>({ baseUrl: 'https://petstore3.swagger.io/api/v3' })
-```
+  const client = createClient<paths>({ baseUrl: 'https://petstore3.swagger.io/api/v3' })
+  ```
+  ```ts [APIful]
+  import { createOpenAPIClient } from 'apiful/openapi'
 
-```ts
-// After
-import { createOpenAPIClient } from 'apiful/openapi'
+  const petStore = createOpenAPIClient<'petStore'>({
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+  })
+  ```
+:::
 
-const petStore = createOpenAPIClient<'petStore'>({
-  baseURL: 'https://petstore3.swagger.io/api/v3',
-})
-```
-
-The options are ofetch's, so `baseUrl` becomes `baseURL`. A name that is not in your configuration fails to compile. For a client that also carries other extensions, add [`openAPIBuilder`](/extensions/openapi) to `createClient` instead – the types are the same.
+The options are ofetch's, so `baseUrl` becomes `baseURL`. A name that is not in your configuration fails to compile. For a client that also carries other extensions, chain the [OpenAPI extension](/extensions/openapi) onto `createClient` with `openAPIBuilder<'petStore'>()` instead – the types are the same.
 
 ## Call an Endpoint
 
 The client is a function. The path comes first, the method moves into the options, and the parameters move up a level:
 
-```ts
-// Before
-const { data } = await client.GET('/pet/{petId}', {
-  params: {
-    path: { petId: 1 }
-  },
-})
-```
-
-```ts
-// After
-const pet = await petStore('/pet/{petId}', {
-  method: 'GET',
-  path: { petId: 1 },
-})
-```
+::: code-group
+  ```ts [openapi-fetch]
+  const { data } = await client.GET('/pet/{petId}', {
+    params: {
+      path: { petId: 1 }
+    },
+  })
+  ```
+  ```ts [APIful]
+  const pet = await petStore('/pet/{petId}', {
+    method: 'GET',
+    path: { petId: 1 },
+  })
+  ```
+:::
 
 | openapi-fetch | APIful |
 | --- | --- |
@@ -153,10 +149,10 @@ const pet = await petStore('/pet/{petId}', {
 | `params.cookie` | No counterpart – set a `Cookie` header |
 | `body` | `body` |
 | `parseAs` | [`responseType`](#read-other-formats-with-responsetype) |
-| `querySerializer` | [`onRequest` hook](/extensions/openapi#serializing-query-parameters) |
+| `querySerializer` | [`onRequest` hook](/extensions/openapi#serialize-query-parameters) |
 | `client.use(middleware)` | [ofetch hooks](#move-middleware-to-ofetch-hooks) |
 
-`method` can go where the path declares `get`, and a body is typed from the operation – the OpenAPI extension covers [which options a call needs](/extensions/openapi#calling-an-endpoint) and [how a body is sent](/extensions/openapi#sending-a-request-body):
+`method` can be left out where the path declares `get`, and a body is typed from the operation – the OpenAPI extension covers [which options a call needs](/extensions/openapi#call-an-endpoint) and [how a body is sent](/extensions/openapi#send-a-request-body):
 
 ```ts
 const pets = await petStore('/pet/findByStatus', {
@@ -171,88 +167,89 @@ const pet = await petStore('/pet', {
 
 ## Catch Errors Instead of Reading `error`
 
-openapi-fetch resolves a request to `{ data, error, response }`. An APIful client resolves to the body of the success response, and a 4xx or 5xx response throws a `FetchError` from ofetch, with the parsed body on `data`. `FetchResponseError` types that body from the schema:
+openapi-fetch resolves a request to `{ data, error, response }`. An APIful client resolves to the body of the success response, and a 4xx or 5xx response throws a `FetchError` from ofetch, with the parsed body on `data`. `FetchResponseError` types that body from the OpenAPI document:
 
-```ts
-// Before
-const { data, error } = await client.GET('/pet/{petId}', {
-  params: {
-    path: { petId: 1 }
-  },
-})
-if (error) {
-  // …
-}
-```
-
-```ts
-// After
-import type { FetchResponseError } from 'apiful/openapi'
-import type { PetStore } from 'apiful/schema'
-
-try {
-  const pet = await petStore('/pet/{petId}', {
-    path: { petId: 1 }
+::: code-group
+  ```ts [openapi-fetch]
+  const { data, error } = await client.GET('/pet/{petId}', {
+    params: {
+      path: { petId: 1 }
+    },
   })
-}
-catch (caught) {
-  const { status, data } = caught as FetchResponseError<PetStore<'/pet/{petId}', 'get'>['operation']>
-}
-```
+  if (error) {
+    // …
+  }
+  ```
+  ```ts [APIful]
+  import type { FetchResponseError } from 'apiful/openapi'
+  import type { PetStore } from 'apiful/schema'
 
-For the error body on its own – what openapi-fetch typed as `error` – use `PetStore<'/pet/{petId}', 'get'>['error']`. The OpenAPI extension explains [the cast and the error types](/extensions/openapi#error-responses).
+  try {
+    const pet = await petStore('/pet/{petId}', {
+      path: { petId: 1 }
+    })
+  }
+  catch (caught) {
+    const { status, data } = caught as FetchResponseError<PetStore<'/pet/{petId}', 'get'>['operation']>
+  }
+  ```
+:::
+
+For the error body on its own – what openapi-fetch typed as `error` – use `PetStore<'/pet/{petId}', 'get'>['error']`. The OpenAPI extension explains [the cast and the error types](/extensions/openapi#catch-error-responses).
 
 ## Move Middleware to ofetch Hooks
 
-openapi-fetch middleware becomes ofetch hooks in the client options, which run on every request. A hook mutates the request options in place rather than returning a new `Request`:
+Hooks go into the client options rather than through `client.use()`, and run on every request. A hook mutates the request options in place rather than returning a new `Request`:
 
-```ts
-// Before
-client.use({
-  onRequest({ request }) {
-    request.headers.set('Authorization', `Bearer ${getAuthToken()}`)
-    return request
-  },
-})
-```
-
-```ts
-// After
-const petStore = createOpenAPIClient<'petStore'>({
-  baseURL: 'https://petstore3.swagger.io/api/v3',
-  onRequest({ options }) {
-    options.headers.set('Authorization', `Bearer ${getAuthToken()}`)
-  },
-  onResponseError({ response }) {
-    console.error(response.status, response._data)
-  },
-})
-```
+::: code-group
+  ```ts [openapi-fetch]
+  client.use({
+    onRequest({ request }) {
+      request.headers.set('Authorization', `Bearer ${getAuthToken()}`)
+      return request
+    },
+  })
+  ```
+  ```ts [APIful]
+  const petStore = createOpenAPIClient<'petStore'>({
+    baseURL: 'https://petstore3.swagger.io/api/v3',
+    onRequest({ options }) {
+      options.headers.set('Authorization', `Bearer ${getAuthToken()}`)
+    },
+    onResponseError({ response }) {
+      console.error(response.status, response._data)
+    },
+  })
+  ```
+:::
 
 ofetch has four hooks: `onRequest`, `onRequestError`, `onResponse`, and `onResponseError`. A hook passed to a single call replaces the client's hook of the same name rather than running after it. [Authenticating Requests](/cookbook/authentication) builds a token refresh on them.
 
 ## Read Other Formats With `responseType`
 
-`parseAs` becomes ofetch's `responseType`, and the return type [follows it](/extensions/openapi#typing-non-json-responses):
+`parseAs` becomes ofetch's `responseType`, and the return type [follows it](/extensions/openapi#type-non-json-responses):
 
 ```ts
 const rawPet = await petStore('/pet/{petId}', {
+//    ^? Blob
   path: { petId: 1 },
   responseType: 'blob',
 })
-// ^? Blob
 ```
 
 ## Where the Generated Types Differ
 
-APIful starts from openapi-typescript's default output and changes the parts below:
+APIful starts from openapi-typescript's default output and changes the parts below. These three break code that compiled against openapi-typescript most often:
 
 - A path item holds only the methods the path declares, without the other verbs set to `never` or a path-level `parameters` key. Path-level parameters are merged into each operation.
-- An operation sits in `paths` itself rather than in a separate `operations` interface.
 - A `format: binary` string, or one with a non-JSON `contentMediaType`, is `Blob | File`.
-- A `multipart/form-data` request body is typed as `FormData`, which ofetch sends as is, and an `application/x-www-form-urlencoded` one also accepts a `URLSearchParams`.
-- A required query, header, or cookie parameter whose schema declares a `default` is optional. A path parameter stays required.
 - A property with a `default` is optional unless the schema lists it as `required`, where openapi-typescript makes it required outside request bodies and parameters.
+
+The other changes:
+
+- An operation sits in `paths` itself rather than in a separate `operations` interface.
+- A `multipart/form-data` request body is `FormData`, and an `application/x-www-form-urlencoded` one also accepts a `URLSearchParams` – [Send a Request Body](/extensions/openapi#send-a-request-body) explains why.
+- A required query, header, or cookie parameter whose schema declares a `default` is optional. A path parameter stays required.
 - A query parameter with `application/json` content and an object schema is typed as that schema – pass the object, and ofetch serializes it.
 - OpenAPI 3.2 operations are typed: the `query` method, custom methods from `additionalOperations` under their lowercased name, and a `querystring` parameter as the type of the `query` object.
 - `components` of an OpenAPI 3.2 document has a `mediaTypes` group, `never` where the document declares none.

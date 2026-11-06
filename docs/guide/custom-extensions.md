@@ -2,17 +2,17 @@
 
 When none of the [built-in extensions](/extensions/) fits, write your own. An extension builder is a function that takes the [`ApiClient`](/reference/api-client) and returns one of two kinds of extension:
 
-- A [handler extension](#handler-extension) returns a function, which becomes the client's call signature.
-- A [methods extension](#methods-extension) returns an object, whose entries become methods on the client.
+- A [handler extension](#write-a-handler-extension) is a function, which becomes the client's call signature.
+- A [methods extension](#write-a-methods-extension) is an object, whose entries become methods on the client.
 
 Both are added with `with`, and the rules for combining them are in [how extensions work](/guide/using-extensions#how-extensions-work).
 
 > [!IMPORTANT]
-> Use `satisfies HandlerExtensionBuilder` or `satisfies MethodsExtensionBuilder` rather than annotating the variable with the type directly. `satisfies` checks the shape while preserving the exact return type, which is what lets the next `.with()` in the chain see your methods. Both type the client as a bare `ApiClient` – to reach the extensions added before yours, see [reaching the client](#reaching-the-client).
+> Use `satisfies HandlerExtensionBuilder` or `satisfies MethodsExtensionBuilder` rather than annotating the variable with the type directly. `satisfies` checks the shape while preserving the exact return type, which is what lets the next `.with()` in the chain see your methods. Both type the client as a bare `ApiClient` – to reach the extensions added before yours, [annotate the parameter instead](#reach-earlier-extensions).
 
-## Handler Extension
+## Write a Handler Extension
 
-A handler extension returns the function that the client becomes. [ofetch](https://github.com/unjs/ofetch) already has the right shape, which is all the built-in [`ofetchBuilder`](/extensions/ofetch) makes use of:
+A handler extension is the function the client becomes. [ofetch](https://github.com/unjs/ofetch) already has the right shape, which is all the built-in [`ofetchBuilder`](/extensions/ofetch) makes use of:
 
 ```ts
 import type { HandlerExtensionBuilder } from 'apiful'
@@ -36,9 +36,9 @@ const response = await client('/users')
 
 See [`HandlerExtensionBuilder`](/reference/handler-extension-builder) for the type definition.
 
-## Methods Extension
+## Write a Methods Extension
 
-A methods extension returns an object, and every entry becomes a method on the client. This one logs the client's default options:
+A methods extension is an object, and every entry becomes a method on the client. This one logs the client's default options:
 
 ```ts
 import type { MethodsExtensionBuilder } from 'apiful'
@@ -57,9 +57,9 @@ extendedClient.logDefaults() // { baseURL: 'https://api.example.com', headers: {
 
 See [`MethodsExtensionBuilder`](/reference/methods-extension-builder) for the type definition.
 
-## Reaching the Client
+## Reach Earlier Extensions
 
-`with` hands the builder the client as it stands, carrying every extension added before it. Written inline, the types follow along – this method calls through the [`openAPIBuilder`](/extensions/openapi) handler one line above it and is typed from the schema:
+`with` hands the builder the client as it stands, carrying every extension added before it. Written inline, the types follow along – this method calls through the [OpenAPI extension](/extensions/openapi) added one line above it and is typed from the OpenAPI document:
 
 ```ts
 import { createClient, openAPIBuilder } from 'apiful'

@@ -2,7 +2,7 @@
 
 Where the credential goes depends on how often it changes. A key that is fixed for the life of the process belongs in the client's default options; anything that expires has to be read per request.
 
-Every example here uses [`createClient`](/reference/create-client) with [`ofetchBuilder`](/extensions/ofetch), but nothing about them is specific to that extension – all three built-in extensions wrap ofetch, so the same options and hooks apply.
+Every example here uses [`createClient`](/reference/create-client) with [`ofetchBuilder`](/extensions/ofetch), but nothing about them is specific to the ofetch extension – all three built-in extensions wrap ofetch, so the same options and hooks apply.
 
 ## A Credential That Does Not Change
 
@@ -36,7 +36,7 @@ const client = createClient({
 
 `options.headers` is a `Headers` instance, so `set` replaces any value already there and `append` adds to it.
 
-## Refreshing After a 401
+## Refresh After a 401
 
 A hook cannot answer a request – `onResponseError` returns nothing, so it has no way to hand back a second response. What it can do is invalidate the token and let ofetch's retry make the second attempt, because a retried request runs `onRequest` again:
 

@@ -1,12 +1,10 @@
-# HTTP Status Reason Phrases
+# HTTP Status Phrases
 
-APIful provides the reason phrase of every registered HTTP status code as a constant. These are individually typed exports that you can use wherever you need a status phrase instead of hardcoding raw strings.
+`apiful/http-status-phrases` exports a constant for the reason phrase of each status code the IANA registry assigns, typed with its literal string, such as `NOT_FOUND` for `'Not Found'`.
 
 The phrases are the ones the [IANA HTTP Status Code Registry](https://www.iana.org/assignments/http-status-codes) lists, and each constant shares its name with the matching [status code](/utilities/http-status-codes): `CONTENT_TOO_LARGE` is `'Content Too Large'`.
 
 ## Usage
-
-Import all named exports from `apiful/http-status-phrases` as local names, and use them as needed.
 
 ```ts
 import * as HttpStatusPhrases from 'apiful/http-status-phrases'

@@ -25,12 +25,12 @@ hero:
 features:
   - icon: <span class="i-carbon:build-tool"></span>
     title: Extensible API Client
-    details: Unified <code>createClient</code> interface foundation to build custom API clients.
+    details: Start from default fetch options and add the call signature and methods you need.
     link: /guide/getting-started
     linkText: Get Started
   - icon: <span class="i-carbon:plug"></span>
     title: Built-in Extensions
-    details: Includes an ofetch adapter, OpenAPI support, and API router extension.
+    details: Ships the ofetch, OpenAPI, and API router extensions.
     link: /extensions/
     linkText: Explore Extensions
   - icon: <span class="i-carbon:connect"></span>
@@ -40,11 +40,11 @@ features:
     linkText: Custom Extensions
   - icon: <span class="i-carbon:terminal"></span>
     title: CLI Tooling
-    details: Keep the generated types up-to-date with the CLI.
+    details: Keep the generated types up to date with the CLI.
     link: /guide/cli
     linkText: CLI Reference
   - icon: <span class="i-devicon-plain:openapi"></span>
-    title: Typed API Clients from OpenAPI Schemas
+    title: Typed API Clients from OpenAPI Documents
     details: Runtime-free types instead of runtime-generated code.
     link: /extensions/openapi
     linkText: OpenAPI Integration
@@ -60,7 +60,7 @@ features:
     linkText: Import Utilities
   - icon: <span class="i-carbon:code"></span>
     title: TypeScript-First
-    details: Each extension types the client it returns, without generated client code.
+    details: Each extension types the client that carries it, without generated client code.
     link: /reference
     linkText: Reference
 ---

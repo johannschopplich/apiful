@@ -1,12 +1,12 @@
 # Getting Started
 
-An APIful client is a set of default fetch options – a base URL, headers, retries – plus the extensions you add to it. The extensions decide how you write a request and how much of it TypeScript knows: plain `fetch`-style calls, a chain of path segments, or paths and responses typed from an OpenAPI schema.
+An APIful client is a set of default fetch options – a base URL, headers, retries – plus the extensions you add to it. The extensions decide how you write a request and how much of it TypeScript knows: plain `fetch`-style calls, a chain of path segments, or paths and responses typed from an OpenAPI document.
 
 Start with one of the [built-in extensions](/extensions/), or [write your own](/guide/custom-extensions). Either way the client stays one callable object, which is [how extensions work](/guide/using-extensions#how-extensions-work).
 
-## Installation
+## Install APIful
 
-Get started by installing `apiful` in your project:
+APIful requires Node 24 or later, and its types require TypeScript 5.9 or later. `apiful generate` never loads the `typescript` package, so it runs the same whichever version is installed, and both the generated types and the ones APIful ships check against TypeScript 5.9, 6.0, and 7.0.
 
 ::: code-group
   ```bash [pnpm]
@@ -23,11 +23,9 @@ Get started by installing `apiful` in your project:
 > [!TIP]
 > Your API client ships with your application, so `apiful` belongs in `dependencies`.
 
-APIful supports Node 24 or later, and its types require TypeScript 5.9 or later.
+## Create a Client
 
-## Your First API Client
-
-Start by creating your first API client with a base URL and authorization headers:
+`createClient` takes the default options every request of the client starts from:
 
 ```ts
 import { createClient } from 'apiful'
@@ -77,11 +75,11 @@ const newUser = await client('users', {
 Each request inherits the client's default options and can override them individually. JSON serialization, response parsing, and thrown errors for 4xx and 5xx responses come from ofetch.
 
 > [!TIP]
-> If your API publishes an OpenAPI schema, the [OpenAPI extension](/extensions/openapi) types paths, bodies, and responses for you from that schema.
+> If your API publishes an OpenAPI document, the [OpenAPI extension](/extensions/openapi) types paths, bodies, and responses for you from it.
 
-## Chaining Extensions
+## Chain More Extensions
 
-A client can carry more than one extension. Chain `with` calls to add them:
+Every `with` call returns the extended client, so the next one adds to it:
 
 ```ts
 const client = createClient({ baseURL: 'https://api.example.com' })

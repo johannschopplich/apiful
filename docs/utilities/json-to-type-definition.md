@@ -65,7 +65,7 @@ declare function jsonToTypeDefinition(
 ): string
 ```
 
-The input parameter `data` is a JSON object or any other valid JSON value. For reference, here is the definition of the `JsonValue` type:
+`data` takes any JSON value:
 
 ```ts
 type JsonObject = { [Key in string]: JsonValue } & { [Key in string]?: JsonValue | undefined }

@@ -127,9 +127,9 @@ export default defineConfig({
             ],
           },
           {
-            text: 'Extensions',
+            text: 'Type Helpers',
             items: [
-              { text: 'OpenAPI Type Helpers', link: '/reference/openapi-type-helpers' },
+              { text: 'OpenAPI', link: '/reference/openapi-type-helpers' },
             ],
           },
         ],
@@ -236,9 +236,9 @@ function referenceGuide(): DefaultTheme.SidebarItem[] {
       ],
     },
     {
-      text: 'Extensions',
+      text: 'Type Helpers',
       items: [
-        { text: 'OpenAPI Type Helpers', link: '/reference/openapi-type-helpers' },
+        { text: 'OpenAPI', link: '/reference/openapi-type-helpers' },
       ],
     },
   ]

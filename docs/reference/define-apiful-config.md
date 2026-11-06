@@ -4,7 +4,7 @@ Declares the services [`apiful generate`](/guide/cli) generates types for.
 
 ## Example
 
-Import the `defineApifulConfig` function from `apiful/config` and define a `petStore` service using the OpenAPI schema from the [Swagger Petstore](https://petstore3.swagger.io) API:
+Each key of `services` names a service, and its `schema` points at the service's OpenAPI document – here the one the [Swagger Petstore](https://petstore3.swagger.io) publishes:
 
 ```ts
 import { defineApifulConfig } from 'apiful/config'
@@ -17,6 +17,8 @@ export default defineApifulConfig({
   },
 })
 ```
+
+The name keys everything generated for the service – `petStore` yields the `PetStore` type helpers and the `apiful/schema/petStore` fragment – and the [type generator](/reference/type-generator#generatetypes) lists the names it rejects.
 
 ## Type Definition
 

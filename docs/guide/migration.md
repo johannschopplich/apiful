@@ -59,7 +59,7 @@ Remove `openapi-typescript` and `json-schema-to-typescript-lite` from your depen
 
 #### `OpenAPIBuilder` Is Now `openAPIBuilder`
 
-The extension builder is now spelled like `ofetchBuilder` and `apiRouterBuilder`:
+The export is now spelled like `ofetchBuilder` and `apiRouterBuilder`:
 
 ```ts
 import {
@@ -335,7 +335,7 @@ Where this bites, the OpenAPI document is the place to look: the method you were
 
 #### Request and Response Resolve the Way the Client Does
 
-`request` and `response` used to be hardcoded to `application/json` and to status `200`. They now resolve through the same helpers a call resolves through, so what the type says and what a request hands back cannot drift apart. Three things follow from that:
+`request` and `response` used to be hardcoded to `application/json` and to status `200`. They now resolve through the same types a call resolves through, so what the type says and what a request hands back cannot drift apart. Three things follow from that:
 
 **A status with no body is `undefined`, not an empty object.**
 
