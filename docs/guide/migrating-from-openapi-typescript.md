@@ -130,7 +130,9 @@ The client is a function. The path comes first, the method moves into the option
 ```ts
 // Before
 const { data } = await client.GET('/pet/{petId}', {
-  params: { path: { petId: 1 } },
+  params: {
+    path: { petId: 1 }
+  },
 })
 ```
 
@@ -174,7 +176,9 @@ openapi-fetch resolves a request to `{ data, error, response }`. An APIful clien
 ```ts
 // Before
 const { data, error } = await client.GET('/pet/{petId}', {
-  params: { path: { petId: 1 } },
+  params: {
+    path: { petId: 1 }
+  },
 })
 if (error) {
   // …
@@ -187,7 +191,9 @@ import type { FetchResponseError } from 'apiful/openapi'
 import type { PetStore } from 'apiful/schema'
 
 try {
-  const pet = await petStore('/pet/{petId}', { path: { petId: 1 } })
+  const pet = await petStore('/pet/{petId}', {
+    path: { petId: 1 }
+  })
 }
 catch (caught) {
   const { status, data } = caught as FetchResponseError<PetStore<'/pet/{petId}', 'get'>['operation']>

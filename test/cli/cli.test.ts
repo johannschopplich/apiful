@@ -13,12 +13,26 @@ const SCHEMA = JSON.stringify({
       get: {
         operationId: 'getPet',
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
         ],
         responses: {
           200: {
             description: 'A pet',
-            content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } } } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -193,7 +207,12 @@ describe('apiful CLI', () => {
       })
 
       await runCli(['generate', `--root=${directory}`, '--outfile=types/api.d.ts'])
-      const { exitCode } = await runCli(['generate', `--root=${directory}`, '--outfile=types/api.d.ts', '--check'])
+      const { exitCode } = await runCli([
+        'generate',
+        `--root=${directory}`,
+        '--outfile=types/api.d.ts',
+        '--check',
+      ])
 
       expect(exitCode).toBe(0)
     })
@@ -222,7 +241,12 @@ describe('apiful CLI', () => {
       const stalePath = path.join(directory, 'generated/schema/removedService.d.ts')
       await fsp.writeFile(stalePath, `${GENERATED_FILE_HEADER}declare module 'apiful/schema/removedService' {}\n`)
 
-      const { exitCode, stderr } = await runCli(['generate', `--root=${directory}`, '--outdir=generated', '--check'])
+      const { exitCode, stderr } = await runCli([
+        'generate',
+        `--root=${directory}`,
+        '--outdir=generated',
+        '--check',
+      ])
 
       expect(exitCode).toBe(1)
       expect(stderr).toContain('removedService.d.ts')

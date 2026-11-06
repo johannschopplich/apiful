@@ -17,22 +17,74 @@ describe('resolvePathParams', () => {
     { path: '/users/{id}', params: undefined },
     { path: '/users/{id}', params: {} },
     // Replacement
-    { path: '/users/{id}', params: { id: '123' }, out: '/users/123' },
-    { path: '/users/{userId}/posts/{postId}', params: { userId: '123', postId: '456' }, out: '/users/123/posts/456' },
-    { path: '/api/{version}/users/{version}', params: { version: 'v1' }, out: '/api/v1/users/v1' },
-    { path: '/users/{id}', params: { id: '123', extra: 'ignored' }, out: '/users/123' },
-    { path: '/users/{id}', params: { id: '' }, out: '/users/' },
+    {
+      path: '/users/{id}',
+      params: { id: '123' },
+      out: '/users/123',
+    },
+    {
+      path: '/users/{userId}/posts/{postId}',
+      params: { userId: '123', postId: '456' },
+      out: '/users/123/posts/456',
+    },
+    {
+      path: '/api/{version}/users/{version}',
+      params: { version: 'v1' },
+      out: '/api/v1/users/v1',
+    },
+    {
+      path: '/users/{id}',
+      params: { id: '123', extra: 'ignored' },
+      out: '/users/123',
+    },
+    {
+      path: '/users/{id}',
+      params: { id: '' },
+      out: '/users/',
+    },
     // Percent-encoding
-    { path: '/users/{id}', params: { id: 'user@example.com' }, out: '/users/user%40example.com' },
-    { path: '/search/{query}', params: { query: 'hello world' }, out: '/search/hello%20world' },
-    { path: '/files/{path}', params: { path: 'folder/file.txt' }, out: '/files/folder%2Ffile.txt' },
-    { path: '/items/{id}', params: { id: '!@#$%^&*()' }, out: '/items/!%40%23%24%25%5E%26*()' },
+    {
+      path: '/users/{id}',
+      params: { id: 'user@example.com' },
+      out: '/users/user%40example.com',
+    },
+    {
+      path: '/search/{query}',
+      params: { query: 'hello world' },
+      out: '/search/hello%20world',
+    },
+    {
+      path: '/files/{path}',
+      params: { path: 'folder/file.txt' },
+      out: '/files/folder%2Ffile.txt',
+    },
+    {
+      path: '/items/{id}',
+      params: { id: '!@#$%^&*()' },
+      out: '/items/!%40%23%24%25%5E%26*()',
+    },
     // A dot value that shares its segment
-    { path: '/files/{name}.json', params: { name: '..' }, out: '/files/...json' },
+    {
+      path: '/files/{name}.json',
+      params: { name: '..' },
+      out: '/files/...json',
+    },
     // Coercion of a value the OpenAPI types allow but the URL cannot carry
-    { path: '/users/{id}', params: { id: 123 as unknown as string }, out: '/users/123' },
-    { path: '/items/{active}', params: { active: true as unknown as string }, out: '/items/true' },
-    { path: '/data/{value}', params: { value: null as unknown as string }, out: '/data/null' },
+    {
+      path: '/users/{id}',
+      params: { id: 123 as unknown as string },
+      out: '/users/123',
+    },
+    {
+      path: '/items/{active}',
+      params: { active: true as unknown as string },
+      out: '/items/true',
+    },
+    {
+      path: '/data/{value}',
+      params: { value: null as unknown as string },
+      out: '/data/null',
+    },
   ])('resolves $path with $params', ({ path, params, out = path }) => {
     expect(resolvePathParams(path, params)).toBe(out)
   })
@@ -75,7 +127,9 @@ describe('createOpenAPIClient', () => {
   it('issues requests through the fetch it was given instead of creating one', async () => {
     const fetch = vi.fn().mockResolvedValue({})
     const client = createOpenAPIClient<'petStore'>({}, { fetch: fetch as unknown as $Fetch })
-    await client('/pet/{petId}', { path: { petId: 1 } })
+    await client('/pet/{petId}', {
+      path: { petId: 1 },
+    })
 
     expect(fetch).toHaveBeenCalledWith('/pet/1', {})
     expect(mockCreate).not.toHaveBeenCalled()
@@ -91,7 +145,10 @@ describe('createOpenAPIClient', () => {
     mockFetch.mockResolvedValue(mockPet)
 
     const client = createOpenAPIClient<'petStore'>({ baseURL: 'https://petstore3.swagger.io/api/v3' })
-    await client('/pet/{petId}', { path: { petId: 123 }, method: 'GET' })
+    await client('/pet/{petId}', {
+      path: { petId: 123 },
+      method: 'GET',
+    })
 
     expect(mockFetch).toHaveBeenCalledWith('/pet/123', { method: 'GET' })
   })
@@ -104,14 +161,21 @@ describe('createOpenAPIClient', () => {
     await client('/pet', { method: 'POST', body: newPet })
     expect(mockFetch).toHaveBeenCalledWith('/pet', { method: 'POST', body: newPet })
 
-    await client('/pet/findByStatus', { query: { status: 'available' } })
-    expect(mockFetch).toHaveBeenCalledWith('/pet/findByStatus', { query: { status: 'available' } })
+    await client('/pet/findByStatus', {
+      query: { status: 'available' },
+    })
+    expect(mockFetch).toHaveBeenCalledWith('/pet/findByStatus', {
+      query: { status: 'available' },
+    })
   })
 
   it('serializes an object body as JSON for a QUERY request', async () => {
     const { fetch, rawFetch } = await createRecordingFetch()
     const client = createOpenAPIClient<'catalog'>({}, { fetch })
-    await client('/items', { method: 'QUERY', body: { name: 'lamp' } })
+    await client('/items', {
+      method: 'QUERY',
+      body: { name: 'lamp' },
+    })
 
     const [, init] = rawFetch.mock.lastCall!
     expect(init.body).toBe('{"name":"lamp"}')
@@ -120,9 +184,14 @@ describe('createOpenAPIClient', () => {
   })
 
   it('keeps the default content-type of the fetch for a QUERY body', async () => {
-    const { fetch, rawFetch } = await createRecordingFetch({ headers: { 'content-type': 'application/vnd.api+json' } })
+    const { fetch, rawFetch } = await createRecordingFetch({
+      headers: { 'content-type': 'application/vnd.api+json' },
+    })
     const client = createOpenAPIClient<'catalog'>({}, { fetch })
-    await client('/items', { method: 'QUERY', body: { name: 'lamp' } })
+    await client('/items', {
+      method: 'QUERY',
+      body: { name: 'lamp' },
+    })
 
     expect(rawFetch.mock.lastCall![1].headers.get('content-type')).toBe('application/vnd.api+json')
   })
@@ -143,7 +212,11 @@ describe('createOpenAPIClient', () => {
     const { fetch } = await createRecordingFetch()
     const client = createOpenAPIClient<'catalog'>({}, { fetch })
     const onRequest = vi.fn()
-    await client('/items', { method: 'QUERY', body: { name: 'lamp' }, onRequest })
+    await client('/items', {
+      method: 'QUERY',
+      body: { name: 'lamp' },
+      onRequest,
+    })
 
     expect(onRequest.mock.lastCall![0].options.body).toEqual({ name: 'lamp' })
   })
@@ -158,7 +231,9 @@ describe('createOpenAPIClient', () => {
   it('rejects for the path parameter .. rather than throwing', async () => {
     const client = createOpenAPIClient<'petStore'>()
 
-    await expect(client('/pet/{petId}', { path: { petId: '..' as unknown as number } }))
+    await expect(client('/pet/{petId}', {
+      path: { petId: '..' as unknown as number },
+    }))
       .rejects
       .toThrow('Path parameter `petId` is `..`')
   })
@@ -173,7 +248,9 @@ describe('createOpenAPIClient', () => {
     mockFetch.mockResolvedValue(expected)
 
     const client = createOpenAPIClient<'petStore'>({ baseURL: 'https://petstore3.swagger.io/api/v3' })
-    const result = await client('/pet/{petId}', { path: { petId: 456 } })
+    const result = await client('/pet/{petId}', {
+      path: { petId: 456 },
+    })
 
     expect(result).toBe(expected)
   })

@@ -69,7 +69,10 @@ describe('openAPIBuilder', () => {
 
   it('passes the typed call signature to the next extension builder', () => {
     const client = createRecordedClient().client.with(openAPIBuilder<'petStore'>()).with(openAPIClient => ({
-      pet: (petId: number) => openAPIClient('/pet/{petId}', { method: 'GET', path: { petId } }),
+      pet: (petId: number) => openAPIClient('/pet/{petId}', {
+        method: 'GET',
+        path: { petId },
+      }),
     }))
 
     expectTypeOf(client.pet).toEqualTypeOf<(petId: number) => Promise<PetStore<'/pet/{petId}', 'get'>['response']>>()
@@ -94,15 +97,21 @@ describe('openAPIBuilder', () => {
     {
       name: 'query parameters',
       path: '/pet/findByStatus',
-      options: { query: { status: 'available' } },
+      options: {
+        query: { status: 'available' },
+      },
       expectedUrl: '/pet/findByStatus',
-      expectedOptions: { query: { status: 'available' } },
+      expectedOptions: {
+        query: { status: 'available' },
+      },
       mockResponse: [samplePet],
     },
     {
       name: 'path parameters as a resolved template',
       path: '/pet/{petId}',
-      options: { path: { petId: 123 } },
+      options: {
+        path: { petId: 123 },
+      },
       expectedUrl: '/pet/123',
       expectedOptions: {},
       mockResponse: { ...samplePet, id: 123 },

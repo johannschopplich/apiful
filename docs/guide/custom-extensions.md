@@ -67,7 +67,10 @@ import { createClient, openAPIBuilder } from 'apiful'
 const api = createClient({ baseURL: 'https://petstore3.swagger.io/api/v3' })
   .with(openAPIBuilder<'petStore'>())
   .with(client => ({
-    pet: (petId: number) => client('/pet/{petId}', { method: 'GET', path: { petId } }),
+    pet: (petId: number) => client('/pet/{petId}', {
+      method: 'GET',
+      path: { petId }
+    }),
   }))
 
 const pet = await api.pet(1)
@@ -81,7 +84,10 @@ import type { OpenAPIClient, SchemaPaths } from 'apiful/openapi'
 
 function petMethods(client: OpenAPIClient<SchemaPaths<'petStore'>>) {
   return {
-    pet: (petId: number) => client('/pet/{petId}', { method: 'GET', path: { petId } }),
+    pet: (petId: number) => client('/pet/{petId}', {
+      method: 'GET',
+      path: { petId }
+    }),
   }
 }
 

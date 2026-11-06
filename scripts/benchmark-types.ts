@@ -49,14 +49,20 @@ const { positionals, values } = parseArgs({
 })
 const [command, ...targets] = positionals
 
-if (command === 'bench')
-  bench(targets, values.tsc ?? [path.join(rootDir, 'node_modules/.bin/tsc')], Number(values.runs))
-else if (command === 'compare')
+if (command === 'bench') {
+  bench(targets, values.tsc ?? [
+    path.join(rootDir, 'node_modules/.bin/tsc'),
+  ], Number(values.runs))
+}
+else if (command === 'compare') {
   compare(targets[0]!, targets.slice(1))
-else if (command === 'schemas')
+}
+else if (command === 'schemas') {
   compareSchemas(targets[0]!, targets[1]!)
-else
+}
+else {
   throw new Error('Expected one of the commands `bench`, `compare` or `schemas`.')
+}
 
 function bench(directories: string[], compilers: string[], runs: number): void {
   const rows = []
@@ -83,7 +89,12 @@ function bench(directories: string[], compilers: string[], runs: number): void {
 function measure(directory: string, compiler: string): Measurement {
   let output: string
   try {
-    output = execFileSync(compiler, ['-p', values.config!, '--noEmit', '--extendedDiagnostics'], { cwd: directory, encoding: 'utf8', maxBuffer: 1 << 26 })
+    output = execFileSync(compiler, [
+      '-p',
+      values.config!,
+      '--noEmit',
+      '--extendedDiagnostics',
+    ], { cwd: directory, encoding: 'utf8', maxBuffer: 1 << 26 })
   }
   catch (error) {
     output = (error as { stdout: string }).stdout
@@ -140,10 +151,14 @@ function printConsumerTypes(directory: string): { diagnostics: string[], types: 
 
       const node = ts.isFunctionDeclaration(statement)
         ? statement
-        : ts.isVariableStatement(statement) ? statement.declarationList.declarations[0]?.initializer : undefined
+        : ts.isVariableStatement(statement)
+          ? statement.declarationList.declarations[0]?.initializer
+          : undefined
       const name = ts.isFunctionDeclaration(statement)
         ? statement.name?.text
-        : ts.isVariableStatement(statement) ? statement.declarationList.declarations[0]?.name.getText() : undefined
+        : ts.isVariableStatement(statement)
+          ? statement.declarationList.declarations[0]?.name.getText()
+          : undefined
       const signature = node && checker.getSignaturesOfType(checker.getTypeAtLocation(node), ts.SignatureKind.Call)[0]
       if (name && signature)
         types[`${prefix}:${name}`] = checker.typeToString(checker.getReturnTypeOfSignature(signature), undefined, flags)
@@ -174,7 +189,9 @@ function compareSchemas(oldFile: string, newFile: string): void {
   fs.copyFileSync(newFile, path.join(workDir, 'new.d.ts'))
   fs.writeFileSync(path.join(workDir, 'check.ts'), `import type * as Old from './old'\nimport type * as New from './new'\nexport type All = [Old.paths, New.paths, Old.components, New.components]\n`)
 
-  const program = ts.createProgram([path.join(workDir, 'check.ts')], {
+  const program = ts.createProgram([
+    path.join(workDir, 'check.ts'),
+  ], {
     strict: true,
     noEmit: true,
     skipLibCheck: true,
@@ -187,13 +204,18 @@ function compareSchemas(oldFile: string, newFile: string): void {
   const checker = program.getTypeChecker()
   const exportsOf = (fileName: string) => {
     const moduleSymbol = checker.getSymbolAtLocation(program.getSourceFile(path.join(workDir, fileName))!)!
-    return Object.fromEntries(checker.getExportsOfModule(moduleSymbol).map(symbol => [symbol.name, checker.getDeclaredTypeOfSymbol(symbol)]))
+    return Object.fromEntries(checker.getExportsOfModule(moduleSymbol).map(symbol => [
+      symbol.name,
+      checker.getDeclaredTypeOfSymbol(symbol),
+    ]))
   }
   const oldExports = exportsOf('old.d.ts')
   const newExports = exportsOf('new.d.ts')
 
   const print = (type: ts.Type) => checker.typeToString(type, undefined, ts.TypeFormatFlags.InTypeAlias)
-  const members = (type: ts.Type | undefined) => type ? checker.getPropertiesOfType(checker.getNonNullableType(type)) : []
+  const members = (type: ts.Type | undefined) => type
+    ? checker.getPropertiesOfType(checker.getNonNullableType(type))
+    : []
   const member = (type: ts.Type | undefined, name: string) => {
     const symbol = type && checker.getPropertyOfType(checker.getNonNullableType(type), name)
     return symbol && checker.getTypeOfSymbol(symbol)
@@ -205,20 +227,31 @@ function compareSchemas(oldFile: string, newFile: string): void {
   const operations = (pathItem: ts.Type) => members(pathItem).filter(symbol => symbol.name !== 'parameters' && !(checker.getNonNullableType(checker.getTypeOfSymbol(symbol)).flags & ts.TypeFlags.Never))
 
   const mismatches: Mismatch[] = []
-  const counts = { operations: 0, equalOperations: 0, components: 0, equalComponents: 0 }
+  const counts = {
+    operations: 0,
+    equalOperations: 0,
+    components: 0,
+    equalComponents: 0,
+  }
 
   // Records the deepest members that differ, along with any change in optionality.
   const drill = (where: string, a: ts.Type, b: ts.Type, depth = 0): void => {
     if (isEqual(a, b))
       return
-    const names = new Set([...members(a), ...members(b)].map(symbol => symbol.name))
+    const names = new Set([
+      ...members(a),
+      ...members(b),
+    ].map(symbol => symbol.name))
     if (depth < 6 && isObject(a) && isObject(b) && names.size > 0) {
       const before = mismatches.length
       for (const name of names) {
         const memberA = member(a, name)
         const memberB = member(b, name)
         if (!memberA || !memberB) {
-          mismatches.push({ where: `${where}.${name}`, kind: memberA ? 'only in old' : 'only in new' })
+          mismatches.push({
+            where: `${where}.${name}`,
+            kind: memberA ? 'only in old' : 'only in new',
+          })
           continue
         }
         if (isOptional(a, name) !== isOptional(b, name))
@@ -229,7 +262,12 @@ function compareSchemas(oldFile: string, newFile: string): void {
       if (mismatches.length > before)
         return
     }
-    mismatches.push({ where, kind: 'type', old: print(a), new: print(b) })
+    mismatches.push({
+      where,
+      kind: 'type',
+      old: print(a),
+      new: print(b),
+    })
   }
 
   for (const pathSymbol of members(oldExports.paths)) {

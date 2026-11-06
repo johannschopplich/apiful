@@ -57,7 +57,9 @@ function parseCsvLine(line: string) {
   // Matches one field – quoted with doubled inner quotes, or bare – followed by its separator.
   for (const match of line.matchAll(/("(?:[^"]|"")*"|[^,]*)(,|$)/g)) {
     const field = match[1]!
-    fields.push(field.startsWith('"') ? field.slice(1, -1).replaceAll('""', '"') : field)
+    fields.push(field.startsWith('"')
+      ? field.slice(1, -1).replaceAll('""', '"')
+      : field)
     if (match[2] === '')
       break
   }
@@ -70,7 +72,9 @@ function resolveReferenceUrl(value: string, reference: string) {
     throw new Error(`HTTP status ${value} has no RFC reference: ${reference}`)
 
   const [, rfcNumber, section] = match
-  return `https://www.rfc-editor.org/rfc/rfc${rfcNumber}.html${section ? `#section-${section}` : ''}`
+  return `https://www.rfc-editor.org/rfc/rfc${rfcNumber}.html${section
+    ? `#section-${section}`
+    : ''}`
 }
 
 async function writeModule(fileName: string, statuses: HttpStatus[], toInitializer: (status: HttpStatus) => string) {
@@ -78,7 +82,9 @@ async function writeModule(fileName: string, statuses: HttpStatus[], toInitializ
     '/**',
     ` * ${status.code} ${status.phrase}`,
     ' *',
-    ...(status.isObsolete ? [' * @deprecated Marked obsolete in the IANA registry.'] : []),
+    ...(status.isObsolete
+      ? [' * @deprecated Marked obsolete in the IANA registry.']
+      : []),
     ` * @see ${status.referenceUrl}`,
     ' */',
     `export const ${status.constant} = ${toInitializer(status)}`,

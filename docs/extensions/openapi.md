@@ -114,15 +114,21 @@ const petStore = createClient({
   baseURL: 'https://petstore3.swagger.io/api/v3',
   onRequest({ options }) {
     const { tags } = options.query ?? {}
-    if (Array.isArray(tags))
-      options.query = { ...options.query, tags: tags.join(',') }
+    if (Array.isArray(tags)) {
+      options.query = {
+        ...options.query,
+        tags: tags.join(',')
+      }
+    }
   },
 })
   .with(openAPIBuilder<'petStore'>())
 
 // GET https://petstore3.swagger.io/api/v3/pet/findByTags?tags=tag1,tag2
 const pets = await petStore('/pet/findByTags', {
-  query: { tags: ['tag1', 'tag2'] },
+  query: {
+    tags: ['tag1', 'tag2']
+  },
 })
 ```
 
@@ -163,7 +169,9 @@ import type { PetStore } from 'apiful/schema'
 type PetError = FetchResponseError<PetStore<'/pet/{petId}', 'get'>['operation']>
 
 try {
-  const pet = await petStore('/pet/{petId}', { path: { petId: 1 } })
+  const pet = await petStore('/pet/{petId}', {
+    path: { petId: 1 }
+  })
 }
 catch (caught) {
   const { status, data } = caught as PetError

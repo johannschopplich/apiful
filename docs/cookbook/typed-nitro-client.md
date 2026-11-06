@@ -74,7 +74,9 @@ defineRouteMeta({
 })
 
 export default defineHandler(() => {
-  return [{ id: '1', name: 'Alice', email: 'alice@example.com' }]
+  return [
+    { id: '1', name: 'Alice', email: 'alice@example.com' }
+  ]
 })
 ```
 

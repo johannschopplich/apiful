@@ -6,7 +6,9 @@ import generateCommand from './commands/generate.ts'
 
 const { name, version } = pkg
 
-export const cliOptions: RunMainOptions = { expectedErrors: [SchemaGenerationError] }
+export const cliOptions: RunMainOptions = {
+  expectedErrors: [SchemaGenerationError],
+}
 
 export const mainCommand: CommandDef = defineCommand({
   meta: {

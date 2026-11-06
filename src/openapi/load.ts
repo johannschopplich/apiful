@@ -141,10 +141,14 @@ async function readDocument(absoluteRef: string, isRoot: boolean): Promise<Loade
   if (isAbsoluteURL(absoluteRef)) {
     let response: Response
     try {
-      response = await fetch(absoluteRef, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
+      response = await fetch(absoluteRef, {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      })
       // The timeout also covers the body, which a server can stall on after sending the headers.
       // An error response's body is skipped, so its status always reaches the error message.
-      text = response.ok ? await response.text() : ''
+      text = response.ok
+        ? await response.text()
+        : ''
     }
     catch (error) {
       if (error instanceof DOMException && error.name === 'TimeoutError')
@@ -174,7 +178,9 @@ async function readDocument(absoluteRef: string, isRoot: boolean): Promise<Loade
     const isJSON = extension === '.json' || contentType.includes('json')
     return {
       absoluteRef,
-      parsed: isJSON ? JSON.parse(text.replace(/^\uFEFF/, '')) : parseYAMLWithMergeKeys(text),
+      parsed: isJSON
+        ? JSON.parse(text.replace(/^\uFEFF/, ''))
+        : parseYAMLWithMergeKeys(text),
     }
   }
   catch (error) {
@@ -256,8 +262,11 @@ async function resolveRefs(
 
   async function followRef(document: LoadedDocument, $ref: string, refChain: string[]): Promise<ResolvedRef> {
     const refId = createRefId(document.absoluteRef, $ref)
-    if (refChain.includes(refId))
-      return { error: new Error(`Circular \`$ref\` chain through \`${$ref}\``) }
+    if (refChain.includes(refId)) {
+      return {
+        error: new Error(`Circular \`$ref\` chain through \`${$ref}\``),
+      }
+    }
 
     let targetDocument = document
     let segments: string[]
@@ -304,7 +313,10 @@ async function resolveRefs(
 
     const resolvedRef = isRef(node)
       ? await followRef(targetDocument, node.$ref, [...refChain, refId])
-      : { location: { document: targetDocument, pointer }, node }
+      : {
+          location: { document: targetDocument, pointer },
+          node,
+        }
     resolvedRefs.set(refId, resolvedRef)
     return resolvedRef
   }
@@ -483,12 +495,16 @@ function bundleDocument(rootDocument: LoadedDocument & { parsed: OpenAPIDocument
 
     let name = ''
     while (segments.length > 0) {
-      name = segments.pop() + (name ? `-${name}` : '')
+      name = segments.pop() + (name
+        ? `-${name}`
+        : '')
       if (isAvailable(name))
         return name
     }
 
-    name = getRefBaseName(target.location.document.absoluteRef) + (name ? `_${name}` : '')
+    name = getRefBaseName(target.location.document.absoluteRef) + (name
+      ? `_${name}`
+      : '')
     if (isAvailable(name))
       return name
 
@@ -531,7 +547,9 @@ function createNodeTypes(openapi: string) {
   const schema: NodeType = { name: 'Schema', hasExtensions: true }
   const schemaList = listOf(schema)
   const namedSchemas = mapOf(schema, 'NamedSchemas')
-  const schemaOrBoolean = (value: unknown) => typeof value === 'boolean' ? undefined : schema
+  const schemaOrBoolean = (value: unknown) => typeof value === 'boolean'
+    ? undefined
+    : schema
   const schemaProperties: NodeType = {
     name: 'SchemaProperties',
     additionalProperties: isOpenAPI30 ? schema : schemaOrBoolean,
@@ -558,7 +576,9 @@ function createNodeTypes(openapi: string) {
         oneOf: schemaList,
         not: schema,
         properties: schemaProperties,
-        items: value => Array.isArray(value) ? schemaList : schema,
+        items: value => Array.isArray(value)
+          ? schemaList
+          : schema,
         additionalProperties: schemaOrBoolean,
         xml: opaque,
         example: scalar,
@@ -593,36 +613,73 @@ function createNodeTypes(openapi: string) {
         const: scalar,
       }
 
-  const example: NodeType = { name: 'Example', properties: { value: scalar }, hasExtensions: true }
+  const example: NodeType = {
+    name: 'Example',
+    properties: { value: scalar },
+    hasExtensions: true,
+  }
   const examplesMap = mapOf(example)
   const header: NodeType = { name: 'Header', hasExtensions: true }
   const headersMap = mapOf(header)
-  const encoding: NodeType = { name: 'Encoding', properties: { headers: headersMap }, hasExtensions: true }
+  const encoding: NodeType = {
+    name: 'Encoding',
+    properties: { headers: headersMap },
+    hasExtensions: true,
+  }
   const mediaType: NodeType = {
     name: 'MediaType',
-    properties: { schema, example: scalar, examples: examplesMap, encoding: mapOf(encoding) },
+    properties: {
+      schema,
+      example: scalar,
+      examples: examplesMap,
+      encoding: mapOf(encoding),
+    },
     hasExtensions: true,
   }
   const mediaTypesMap = mapOf(mediaType, 'MediaTypesMap')
-  header.properties = { schema, example: scalar, examples: examplesMap, content: mediaTypesMap }
+  header.properties = {
+    schema,
+    example: scalar,
+    examples: examplesMap,
+    content: mediaTypesMap,
+  }
 
   const parameter: NodeType = {
     name: 'Parameter',
-    properties: { schema, example: scalar, examples: examplesMap, content: mediaTypesMap },
+    properties: {
+      schema,
+      example: scalar,
+      examples: examplesMap,
+      content: mediaTypesMap,
+    },
     hasExtensions: true,
   }
   const parameterList = listOf(parameter)
-  const requestBody: NodeType = { name: 'RequestBody', properties: { content: mediaTypesMap }, hasExtensions: true }
-  const link: NodeType = { name: 'Link', properties: { server: opaque }, hasExtensions: true }
+  const requestBody: NodeType = {
+    name: 'RequestBody',
+    properties: { content: mediaTypesMap },
+    hasExtensions: true,
+  }
+  const link: NodeType = {
+    name: 'Link',
+    properties: { server: opaque },
+    hasExtensions: true,
+  }
   const response: NodeType = {
     name: 'Response',
-    properties: { headers: headersMap, content: mediaTypesMap, links: mapOf(link) },
+    properties: {
+      headers: headersMap,
+      content: mediaTypesMap,
+      links: mapOf(link),
+    },
     hasExtensions: true,
   }
   const responses: NodeType = {
     name: 'Responses',
     properties: { default: response },
-    additionalProperties: (_value, key) => RESPONSE_CODE_RE.test(key) ? response : undefined,
+    additionalProperties: (_value, key) => RESPONSE_CODE_RE.test(key)
+      ? response
+      : undefined,
   }
 
   const pathItem: NodeType = { name: 'PathItem', hasExtensions: true }
@@ -671,9 +728,13 @@ function createNodeTypes(openapi: string) {
       securitySchemes: mapOf(opaque, 'NamedSecuritySchemes'),
       links: mapOf(link, 'NamedLinks'),
       callbacks: mapOf(callback, 'NamedCallbacks'),
-      ...(!isOpenAPI30 && { pathItems: mapOf(pathItem, 'NamedPathItems') }),
+      ...(!isOpenAPI30 && {
+        pathItems: mapOf(pathItem, 'NamedPathItems'),
+      }),
       // An OpenAPI 3.2 group, which Redocly 1.x leaves unbundled.
-      ...(hasMediaTypesGroup(openapi) && { mediaTypes: mapOf(mediaType, 'NamedMediaTypes') }),
+      ...(hasMediaTypesGroup(openapi) && {
+        mediaTypes: mapOf(mediaType, 'NamedMediaTypes'),
+      }),
     },
     hasExtensions: true,
   }
@@ -688,7 +749,9 @@ function createNodeTypes(openapi: string) {
       externalDocs: opaque,
       paths: {
         name: 'Paths',
-        additionalProperties: (_value, key) => key.startsWith('/') ? pathItem : undefined,
+        additionalProperties: (_value, key) => key.startsWith('/')
+          ? pathItem
+          : undefined,
       },
       ...(isOpenAPI30
         ? { 'components': components, 'x-webhooks': webhooks }
@@ -697,7 +760,12 @@ function createNodeTypes(openapi: string) {
     hasExtensions: true,
   }
 
-  return { root, scalar, extension, discriminatorMapping }
+  return {
+    root,
+    scalar,
+    extension,
+    discriminatorMapping,
+  }
 }
 
 function listOf(item: NodeType): NodeType {
@@ -709,7 +777,9 @@ function mapOf(item: NodeType, name = `${item.name}Map`): NodeType {
 }
 
 function resolveChildType(childType: ChildType | undefined, value: unknown, key: string): NodeType | undefined {
-  return typeof childType === 'function' ? childType(value, key) : childType
+  return typeof childType === 'function'
+    ? childType(value, key)
+    : childType
 }
 
 /** Replaces a ref with its target, the ref's siblings taking precedence over the target's properties. */
@@ -719,11 +789,16 @@ function inlineRef(node: Record<string, unknown>, target: unknown, parent: any, 
     return
   }
   delete node.$ref
-  Object.assign(node, { ...target, ...node })
+  Object.assign(node, {
+    ...target,
+    ...node,
+  })
 }
 
 function createUnresolvedRefError($ref: string, location: NodeLocation, cause: unknown): Error {
-  const reason = cause === undefined ? 'the target does not exist' : getErrorMessage(cause)
+  const reason = cause === undefined
+    ? 'the target does not exist'
+    : getErrorMessage(cause)
   return new Error(
     `Failed to resolve \`$ref\` \`${$ref}\` at \`${getAbsolutePointer(location)}\` – ${reason}`,
     { cause },
@@ -802,15 +877,22 @@ function createRefId(absoluteRef: string, $ref: string): string {
 }
 
 function childLocation(location: NodeLocation, key: string): NodeLocation {
-  return { document: location.document, pointer: joinPointer(location.pointer, escapePointer(key)) }
+  return {
+    document: location.document,
+    pointer: joinPointer(location.pointer, escapePointer(key)),
+  }
 }
 
 function getAbsolutePointer({ document, pointer }: NodeLocation): string {
-  return document.absoluteRef + (pointer === '#/' ? '' : pointer)
+  return document.absoluteRef + (pointer === '#/'
+    ? ''
+    : pointer)
 }
 
 function joinPointer(base: string, key: string): string {
-  return base.endsWith('/') ? base + key : `${base}/${key}`
+  return base.endsWith('/')
+    ? base + key
+    : `${base}/${key}`
 }
 
 /** Last segment of a path or URL, without its extension. */
@@ -819,5 +901,7 @@ function getRefBaseName(absoluteRef: string): string {
 }
 
 export function getErrorMessage(error: unknown): string {
-  return Error.isError(error) ? error.message : String(error)
+  return Error.isError(error)
+    ? error.message
+    : String(error)
 }

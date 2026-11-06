@@ -34,7 +34,9 @@ consola.success('Generated the CLI snippets in `docs/snippets`')
  */
 async function capture(fileName: string, argv: string[]): Promise<void> {
   const { stdout, stderr } = await exec('node', [cliEntry, ...argv], {
-    nodeOptions: { env: { ...process.env, FORCE_COLOR: '1' } },
+    nodeOptions: {
+      env: { ...process.env, FORCE_COLOR: '1' },
+    },
   })
 
   const transcript = [stdout, stderr].filter(Boolean).join('').trimEnd()

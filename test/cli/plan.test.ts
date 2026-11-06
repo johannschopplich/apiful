@@ -23,7 +23,11 @@ describe('planGeneration', () => {
   it('writes the entry and every fragment to apiful.d.ts under the root', () => {
     const { files } = planGeneration(DTS, { rootDir: ROOT })
 
-    expect([...files.keys()]).toEqual([path.join(ROOT, 'apiful.d.ts')])
+    expect([
+      ...files.keys(),
+    ]).toEqual([
+      path.join(ROOT, 'apiful.d.ts'),
+    ])
     expect(files.get(path.join(ROOT, 'apiful.d.ts'))).toBe(
       `${GENERATED_FILE_HEADER}${DTS.entry}\n${DTS.fragments.petStore}\n\n${DTS.fragments.testEcho}`,
     )
@@ -38,8 +42,14 @@ describe('planGeneration', () => {
   it('resolves --outfile against the root and names its parent as a directory to create', () => {
     const { files, directories } = planGeneration(DTS, { rootDir: ROOT, outfile: 'types/nested/api.d.ts' })
 
-    expect([...files.keys()]).toEqual([path.join(ROOT, 'types/nested/api.d.ts')])
-    expect(directories).toEqual([path.join(ROOT, 'types/nested')])
+    expect([
+      ...files.keys(),
+    ]).toEqual([
+      path.join(ROOT, 'types/nested/api.d.ts'),
+    ])
+    expect(directories).toEqual([
+      path.join(ROOT, 'types/nested'),
+    ])
   })
 
   it('summarizes the outfile path with the service count pluralized', () => {
@@ -71,14 +81,18 @@ describe('planGeneration', () => {
 
   it('names the fragment directory as the one to create with --outdir', () => {
     expect(planGeneration(DTS, { rootDir: ROOT, outdir: 'generated' }).directories)
-      .toEqual([path.join(ROOT, 'generated/schema')])
+      .toEqual([
+        path.join(ROOT, 'generated/schema'),
+      ])
   })
 
   it('names the output directory rather than the fragment directory when no service is listed', () => {
     const empty: GeneratedDeclarations = { entry: DTS.entry, fragments: {} }
     const { files, directories, summary } = planGeneration(empty, { rootDir: ROOT, outdir: 'generated' })
 
-    expect(directories).toEqual([path.join(ROOT, 'generated')])
+    expect(directories).toEqual([
+      path.join(ROOT, 'generated'),
+    ])
     expect(files.get(path.join(ROOT, 'generated/apiful.d.ts'))).toBe(`${GENERATED_FILE_HEADER}${DTS.entry}`)
     expect(summary).toBe('OpenAPI types generated in `generated/` (entry + 0 services)')
   })
@@ -93,7 +107,9 @@ describe('planGeneration', () => {
       ]),
     })
 
-    expect(removals).toEqual([path.join(ROOT, 'generated/schema/removedService.d.ts')])
+    expect(removals).toEqual([
+      path.join(ROOT, 'generated/schema/removedService.d.ts'),
+    ])
   })
 
   it('keeps a file in the fragment directory that carries no generated header', () => {
@@ -112,7 +128,9 @@ describe('planGeneration', () => {
   it('removes nothing with --outfile, whatever the fragment directory holds', () => {
     const { removals } = planGeneration(DTS, {
       rootDir: ROOT,
-      existingFragments: new Map([['removedService.d.ts', `${GENERATED_FILE_HEADER}`]]),
+      existingFragments: new Map([
+        ['removedService.d.ts', `${GENERATED_FILE_HEADER}`],
+      ]),
     })
 
     expect(removals).toEqual([])
@@ -141,7 +159,12 @@ describe('findDrift', () => {
   })
 
   it('reports a removal as no longer configured', () => {
-    const withRemoval = { ...plan, removals: [path.join(ROOT, 'generated/schema/removedService.d.ts')] }
+    const withRemoval = {
+      ...plan,
+      removals: [
+        path.join(ROOT, 'generated/schema/removedService.d.ts'),
+      ],
+    }
 
     expect(findDrift(withRemoval, new Map(plan.files), ROOT))
       .toEqual(['no longer configured: generated/schema/removedService.d.ts'])

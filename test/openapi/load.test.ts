@@ -59,7 +59,11 @@ describe('loadOpenAPIDocument', () => {
         openapi: '3.0.3',
         info: { title: 'In-Memory API', version: '1.0.0' },
         paths: {},
-        components: { schemas: { Tag: { $ref: './multi-file/schemas/tag.yaml' } } },
+        components: {
+          schemas: {
+            Tag: { $ref: './multi-file/schemas/tag.yaml' },
+          },
+        },
       }
 
       const document = await loadOpenAPIDocument(source, { rootDir: fixturesDir })
@@ -121,20 +125,36 @@ describe('loadOpenAPIDocument', () => {
       const { components } = await loadOpenAPIDocument({
         openapi: '3.2.0',
         info: { title: 'Media Types', version: '1.0.0' },
-        components: { mediaTypes: { Tag: { schema: { $ref: './multi-file/schemas/tag.yaml' } } } },
+        components: {
+          mediaTypes: {
+            Tag: {
+              schema: { $ref: './multi-file/schemas/tag.yaml' },
+            },
+          },
+        },
       }, { rootDir: fixturesDir })
 
-      expect(components!.mediaTypes!.Tag).toEqual({ schema: { $ref: '#/components/schemas/tag' } })
+      expect(components!.mediaTypes!.Tag).toEqual({
+        schema: { $ref: '#/components/schemas/tag' },
+      })
     })
 
     it('leaves the refs in an OpenAPI 3.1 components.mediaTypes as they are', async () => {
       const { components } = await loadOpenAPIDocument({
         openapi: '3.1',
         info: { title: 'Media Types', version: '1.0.0' },
-        components: { mediaTypes: { Tag: { schema: { $ref: './multi-file/schemas/tag.yaml' } } } },
+        components: {
+          mediaTypes: {
+            Tag: {
+              schema: { $ref: './multi-file/schemas/tag.yaml' },
+            },
+          },
+        },
       }, { rootDir: fixturesDir })
 
-      expect(components!.mediaTypes!.Tag).toEqual({ schema: { $ref: './multi-file/schemas/tag.yaml' } })
+      expect(components!.mediaTypes!.Tag).toEqual({
+        schema: { $ref: './multi-file/schemas/tag.yaml' },
+      })
     })
 
     it('keeps the siblings of an OpenAPI 3.1 $ref', async () => {
@@ -229,19 +249,27 @@ describe('loadOpenAPIDocument', () => {
 
   describe('errors', () => {
     it('rejects a Swagger 2.0 document', async () => {
-      await expect(loadOpenAPIDocument({ swagger: '2.0', info: { title: 'Legacy API', version: '1.0.0' } }))
+      await expect(loadOpenAPIDocument({
+        swagger: '2.0',
+        info: { title: 'Legacy API', version: '1.0.0' },
+      }))
         .rejects
         .toThrow('Swagger 2.0')
     })
 
     it('rejects a document declaring openapi 2.0.0', async () => {
-      await expect(loadOpenAPIDocument({ openapi: '2.0.0', info: { title: 'Legacy API', version: '1.0.0' } }))
+      await expect(loadOpenAPIDocument({
+        openapi: '2.0.0',
+        info: { title: 'Legacy API', version: '1.0.0' },
+      }))
         .rejects
         .toThrow('unsupported OpenAPI version `2.0.0`')
     })
 
     it('names a $ref whose file is missing', async () => {
-      await expect(loadOpenAPIDocument(createDocument({ Pet: { $ref: './missing.yaml' } }), { rootDir: fixturesDir }))
+      await expect(loadOpenAPIDocument(createDocument({
+        Pet: { $ref: './missing.yaml' },
+      }), { rootDir: fixturesDir }))
         .rejects
         .toThrow('Failed to resolve `$ref` `./missing.yaml`')
     })

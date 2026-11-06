@@ -44,7 +44,17 @@ A hook cannot answer a request – `onResponseError` returns nothing, so it has 
 const client = createClient({
   baseURL: 'https://api.example.com',
   retry: 1,
-  retryStatusCodes: [401, 408, 409, 425, 429, 500, 502, 503, 504],
+  retryStatusCodes: [
+    401,
+    408,
+    409,
+    425,
+    429,
+    500,
+    502,
+    503,
+    504
+  ],
   async onRequest({ options }) {
     options.headers.set('Authorization', `Bearer ${await getAccessToken()}`)
   },

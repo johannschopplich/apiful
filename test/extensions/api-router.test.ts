@@ -7,7 +7,10 @@ import { createRecordingFetch } from '../utils'
 const BASE_URL = 'https://api.test'
 
 function createRouter(respond?: (request: RecordedRequest) => Response) {
-  const defaultOptions = { baseURL: BASE_URL, headers: { 'X-Foo': 'bar' } }
+  const defaultOptions = {
+    baseURL: BASE_URL,
+    headers: { 'X-Foo': 'bar' },
+  }
   const { fetch, requests } = createRecordingFetch(defaultOptions, respond)
   const client = createClient(defaultOptions, { fetch }).with(apiRouterBuilder())
 
@@ -26,14 +29,25 @@ describe('apiRouterBuilder', () => {
   })
 
   it.each([
-    ['POST', { foo: 'bar' }],
-    ['PUT', { foo: 'bar' }],
-    ['PATCH', { foo: 'bar' }],
+    [
+      'POST',
+      { foo: 'bar' },
+    ],
+    [
+      'PUT',
+      { foo: 'bar' },
+    ],
+    [
+      'PATCH',
+      { foo: 'bar' },
+    ],
     ['DELETE', undefined],
   ] as const)('sends %s with the payload as the request body', async (method, body) => {
     const { client, requests } = createRouter()
     const route = client.echo!.request![method.toLowerCase() as Lowercase<typeof method>]!
-    body === undefined ? await route() : await route(body)
+    body === undefined
+      ? await route()
+      : await route(body)
 
     expect(requests[0]!.method).toBe(method)
     expect(requests[0]!.body).toEqual(body)
@@ -48,10 +62,14 @@ describe('apiRouterBuilder', () => {
 
   it('leaves the options object it was given unchanged', async () => {
     const { client } = createRouter()
-    const options = { headers: { 'X-Bar': 'baz' } }
+    const options = {
+      headers: { 'X-Bar': 'baz' },
+    }
     await client.echo!.query!.get({ value: 'bar' }, options)
 
-    expect(options).toEqual({ headers: { 'X-Bar': 'baz' } })
+    expect(options).toEqual({
+      headers: { 'X-Bar': 'baz' },
+    })
   })
 
   it('includes default headers in requests', async () => {
@@ -78,10 +96,19 @@ describe('apiRouterBuilder', () => {
   })
 
   it.each([
-    // eslint-disable-next-line dot-notation
-    ['bracket notation', (c: ApiRouter) => c.echo!.static!['constant']!.get<{ value: string }>()],
-    ['function call syntax', (c: ApiRouter) => c.echo!.static!('constant').get<{ value: string }>()],
-    ['multiple segments in single call', (c: ApiRouter) => c('echo', 'static', 'constant').get<{ value: string }>()],
+
+    [
+      'bracket notation',
+      (c: ApiRouter) => c.echo!.static!.constant!.get<{ value: string }>(),
+    ],
+    [
+      'function call syntax',
+      (c: ApiRouter) => c.echo!.static!('constant').get<{ value: string }>(),
+    ],
+    [
+      'multiple segments in single call',
+      (c: ApiRouter) => c('echo', 'static', 'constant').get<{ value: string }>(),
+    ],
   ])('builds the same path from %s', async (_name, call) => {
     const { client, requests } = createRouter(() => Response.json({ value: 'foo' }))
     const response = await call(client)

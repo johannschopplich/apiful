@@ -80,13 +80,17 @@ export function createJSDocComment(annotatedObject: AnnotatedObject, indent = ''
     const value = annotatedObject[field]
     if (value === undefined || (value === '' && field === 'description'))
       continue
-    const serializedValue = typeof value === 'object' ? JSON.stringify(value, undefined, 2) : value
+    const serializedValue = typeof value === 'object'
+      ? JSON.stringify(value, undefined, 2)
+      : value
     output.push(`@${field} ${formatCommentText(String(serializedValue))}`)
   }
 
   if (Array.isArray(annotatedObject.examples)) {
     for (const example of annotatedObject.examples) {
-      const serializedExample = typeof example === 'object' ? JSON.stringify(example, undefined, 2) : example
+      const serializedExample = typeof example === 'object'
+        ? JSON.stringify(example, undefined, 2)
+        : example
       output.push(`@example ${formatCommentText(String(serializedExample))}`)
     }
   }
@@ -123,7 +127,9 @@ export function createJSDocComment(annotatedObject: AnnotatedObject, indent = ''
 
 /** Builds an object type from line fragments, or `{}` without any. */
 export function typeLiteral(members: TSNode[], indent = ''): TSNode {
-  return members.length ? `{\n${members.join('\n')}\n${indent}}` : '{}'
+  return members.length
+    ? `{\n${members.join('\n')}\n${indent}}`
+    : '{}'
 }
 
 /** Builds a tuple type, multi-line like the TypeScript printer even when empty. */
@@ -145,7 +151,9 @@ export function tsLiteral(value: unknown, indent = ''): TSNode {
     // A YAML `.inf` or `.nan` has no literal type.
     if (!Number.isFinite(value))
       return NUMBER
-    return value < 0 ? `-${Math.abs(value)}` : String(value)
+    return value < 0
+      ? `-${Math.abs(value)}`
+      : String(value)
   }
   if (typeof value === 'boolean')
     return String(value)
@@ -164,13 +172,18 @@ export function tsLiteral(value: unknown, indent = ''): TSNode {
       type: tsLiteral(item, memberIndent),
       indent: memberIndent,
     }))
-    return members.length ? typeLiteral(members, indent) : tsRecord(STRING, NEVER)
+    return members.length
+      ? typeLiteral(members, indent)
+      : tsRecord(STRING, NEVER)
   }
   return UNKNOWN
 }
 
 export function tsNullable(types: TSNode[]): TSNode {
-  return [...types.map(tsParenthesize), NULL].join(' | ')
+  return [
+    ...types.map(tsParenthesize),
+    NULL,
+  ].join(' | ')
 }
 
 export function tsOmit(type: TSNode, keys: string[]): TSNode {
@@ -193,7 +206,9 @@ export function tsPropertyIndex(index: string | number): string {
   ) {
     return String(index)
   }
-  return typeof index === 'string' && ASCII_IDENTIFIER_RE.test(index) ? index : tsStringLiteral(String(index))
+  return typeof index === 'string' && ASCII_IDENTIFIER_RE.test(index)
+    ? index
+    : tsStringLiteral(String(index))
 }
 
 export function isIdentifier(name: string): boolean {
@@ -224,7 +239,9 @@ export function tsIsPrimitive(type: TSNode): boolean {
 }
 
 export function tsParenthesize(expression: TSNode): TSNode {
-  return needsParentheses(expression) ? `(${expression})` : expression
+  return needsParentheses(expression)
+    ? `(${expression})`
+    : expression
 }
 
 export function tsArray(elementType: TSNode): TSNode {
@@ -254,7 +271,9 @@ export function indexSignature({ keyName, valueType, indent }: {
 /** Builds `typeName["a"]["b"]`, leaving numeric segments unquoted. */
 export function tsIndexedAccess(typeName: TSNode, ...segments: readonly (string | number)[]): TSNode {
   return segments.reduce<TSNode>(
-    (type, segment) => `${type}[${typeof segment === 'number' ? String(segment) : tsStringLiteral(segment)}]`,
+    (type, segment) => `${type}[${typeof segment === 'number'
+      ? String(segment)
+      : tsStringLiteral(segment)}]`,
     typeName,
   )
 }
@@ -268,7 +287,9 @@ function tsStringLiteral(value: string): string {
     if (code === 0) {
       // A digit after the escape would otherwise read as part of an octal escape.
       const nextCode = value.charCodeAt(index + 1)
-      output += nextCode >= 48 && nextCode <= 57 ? '\\x00' : '\\0'
+      output += nextCode >= 48 && nextCode <= 57
+        ? '\\x00'
+        : '\\0'
     }
     else if (ESCAPED_CHARACTERS[character] !== undefined) {
       output += ESCAPED_CHARACTERS[character]
@@ -315,7 +336,9 @@ function needsParentheses(expression: TSNode): boolean {
     }
     if (character === '/' && expression[index + 1] === '*') {
       const commentEnd = expression.indexOf('*/', index + 2)
-      index = commentEnd === -1 ? expression.length - 1 : commentEnd + 1
+      index = commentEnd === -1
+        ? expression.length - 1
+        : commentEnd + 1
       continue
     }
     if (character === '{' || character === '[' || character === '(' || character === '<') {
@@ -331,7 +354,9 @@ function needsParentheses(expression: TSNode): boolean {
     if (character === '|' || character === '&')
       return true
     if (character === 'e' && expression.startsWith('extends', index)) {
-      const previous = index === 0 ? '' : expression[index - 1]!
+      const previous = index === 0
+        ? ''
+        : expression[index - 1]!
       const next = expression[index + 7] ?? ''
       if (!/[\w$]/.test(previous) && !/[\w$]/.test(next))
         return true

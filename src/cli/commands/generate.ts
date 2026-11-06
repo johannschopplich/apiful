@@ -70,7 +70,9 @@ const command: CommandDef<typeof args> = defineCommand({
     })
 
     if (args.check) {
-      const drift = findDrift(plan, await readFiles([...plan.files.keys()]), rootDir)
+      const drift = findDrift(plan, await readFiles([
+        ...plan.files.keys(),
+      ]), rootDir)
 
       if (drift.length > 0) {
         throw new CliError(
@@ -115,6 +117,9 @@ async function readDirectory(directory: string): Promise<Map<string, string>> {
   const contents = await readFiles(fileNames.map(fileName => path.join(directory, fileName)))
 
   return new Map(
-    [...contents].map(([filePath, text]) => [path.basename(filePath), text]),
+    [...contents].map(([filePath, text]) => [
+      path.basename(filePath),
+      text,
+    ]),
   )
 }

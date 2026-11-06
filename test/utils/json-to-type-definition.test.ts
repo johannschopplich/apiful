@@ -32,7 +32,10 @@ describe('jsonToTypeDefinition', () => {
     })
 
     it('types a nested array as number[][]', () => {
-      const result = jsonToTypeDefinition([[1, 2], [3, 4]], { typeName: 'Matrix' })
+      const result = jsonToTypeDefinition([
+        [1, 2],
+        [3, 4],
+      ], { typeName: 'Matrix' })
       expect(result).toContain('export type Matrix = number[][]')
     })
 
@@ -48,7 +51,14 @@ describe('jsonToTypeDefinition', () => {
     })
 
     it('merges object properties through nested arrays', () => {
-      const result = jsonToTypeDefinition([[{ a: 1 }], [{ b: 2 }]], { typeName: 'Grid' })
+      const result = jsonToTypeDefinition([
+        [
+          { a: 1 },
+        ],
+        [
+          { b: 2 },
+        ],
+      ], { typeName: 'Grid' })
       expect(result).toContain('a?: number')
       expect(result).toContain('b?: number')
       expect(result).toContain('}[][]')
@@ -56,8 +66,12 @@ describe('jsonToTypeDefinition', () => {
 
     it('merges deeply nested object schemas across array items', () => {
       const input = [
-        { meta: { version: 1 } },
-        { meta: { name: 'alpha' } },
+        {
+          meta: { version: 1 },
+        },
+        {
+          meta: { name: 'alpha' },
+        },
       ]
       const result = jsonToTypeDefinition(input as unknown as JsonValue, { typeName: 'Deep' })
       expect(result).toContain('version?: number')
@@ -74,7 +88,12 @@ describe('jsonToTypeDefinition', () => {
     })
 
     it('merges objects even when the array also holds primitives', () => {
-      const input = [1, 'two', { a: 1 }, { b: 2 }]
+      const input = [
+        1,
+        'two',
+        { a: 1 },
+        { b: 2 },
+      ]
       const result = jsonToTypeDefinition(input as unknown as JsonValue, { typeName: 'Mixed' })
       expect(result).toMatchInlineSnapshot(`
         "export type Mixed = ({
@@ -110,7 +129,11 @@ describe('jsonToTypeDefinition', () => {
     })
 
     it('nests an interface for a nested object', () => {
-      const result = jsonToTypeDefinition({ a: { b: { c: 1 } } }, { typeName: 'Nested' })
+      const result = jsonToTypeDefinition({
+        a: {
+          b: { c: 1 },
+        },
+      }, { typeName: 'Nested' })
       expect(result).toMatchInlineSnapshot(`
         "export interface Nested {
           a?: {
@@ -160,7 +183,9 @@ describe('jsonToTypeDefinition', () => {
     })
 
     it('propagates strictProperties into nested objects', () => {
-      const result = jsonToTypeDefinition({ a: { b: 1 } }, { typeName: 'Strict', strictProperties: true })
+      const result = jsonToTypeDefinition({
+        a: { b: 1 },
+      }, { typeName: 'Strict', strictProperties: true })
       expect(result).toMatchInlineSnapshot(`
         "export interface Strict {
           a: {
@@ -188,8 +213,18 @@ describe('jsonToTypeDefinition', () => {
   describe('invalid input', () => {
     it.each([
       ['bigint at root', 10n],
-      ['function nested in object', { fn: () => 1 }],
-      ['symbol nested in array', [Symbol('x')]],
+      [
+        'function nested in object',
+        {
+          fn: () => 1,
+        },
+      ],
+      [
+        'symbol nested in array',
+        [
+          Symbol('x'),
+        ],
+      ],
     ])('throws TypeError for %s', (_label, input) => {
       expect(() => jsonToTypeDefinition(input as unknown as JsonValue, { typeName: 'Bad' }))
         .toThrow(TypeError)

@@ -52,7 +52,9 @@ export function createRecordingFetch(
         query: Object.fromEntries(url.searchParams.entries()),
         method: request.method,
         headers: Object.fromEntries(request.headers.entries()),
-        body: text ? JSON.parse(text) : undefined,
+        body: text
+          ? JSON.parse(text)
+          : undefined,
       }
 
       requests.push(recorded)

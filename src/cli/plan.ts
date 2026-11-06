@@ -73,9 +73,13 @@ function planSingleFileOutput(declarations: GeneratedDeclarations, { rootDir, ou
   const serviceCount = Object.keys(declarations.fragments).length
 
   return {
-    files: new Map([[outfilePath, `${GENERATED_FILE_HEADER}${joinDeclarations(declarations)}`]]),
+    files: new Map([
+      [outfilePath, `${GENERATED_FILE_HEADER}${joinDeclarations(declarations)}`],
+    ]),
     removals: [],
-    directories: [path.dirname(outfilePath)],
+    directories: [
+      path.dirname(outfilePath),
+    ],
     summary: `OpenAPI types generated in \`${path.relative(rootDir, outfilePath)}\` (${serviceCount} ${pluralizeServices(serviceCount)})`,
   }
 }
@@ -83,7 +87,9 @@ function planSingleFileOutput(declarations: GeneratedDeclarations, { rootDir, ou
 /** Joins the entry and the per-service fragments into the single file an `outfile` run writes. */
 function joinDeclarations({ entry, fragments }: GeneratedDeclarations): string {
   const fragmentContent = Object.values(fragments).join('\n\n')
-  return fragmentContent ? `${entry}\n${fragmentContent}` : entry
+  return fragmentContent
+    ? `${entry}\n${fragmentContent}`
+    : entry
 }
 
 function planFragmentedOutput(
@@ -117,7 +123,9 @@ function planFragmentedOutput(
   return {
     files,
     removals: findStaleFragments(fragmentDir, existingFragments, fragmentFileNames),
-    directories: fragmentCount > 0 ? [fragmentDir] : [outputDir],
+    directories: fragmentCount > 0
+      ? [fragmentDir]
+      : [outputDir],
     summary: `OpenAPI types generated in \`${relativeOutdir}/\` (entry + ${fragmentCount} ${pluralizeServices(fragmentCount)})`,
   }
 }
@@ -151,5 +159,7 @@ function toReferencePath(from: string, to: string): string {
 }
 
 function pluralizeServices(count: number): string {
-  return count === 1 ? 'service' : 'services'
+  return count === 1
+    ? 'service'
+    : 'services'
 }

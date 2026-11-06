@@ -78,10 +78,28 @@ interface TransformOptions {
 }
 
 /** HTTP methods a path item declares as fixed fields, `query` arriving with OpenAPI 3.2. */
-const PATH_ITEM_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query'] as const
+const PATH_ITEM_METHODS = [
+  'get',
+  'put',
+  'post',
+  'delete',
+  'options',
+  'head',
+  'patch',
+  'trace',
+  'query',
+] as const
 const PARAMETER_LOCATIONS = ['query', 'header', 'path', 'cookie'] as const
 /** Component groups that hold types, in the order OpenAPI lists them, `mediaTypes` arriving with OpenAPI 3.2. */
-const COMPONENT_GROUPS = ['schemas', 'responses', 'parameters', 'requestBodies', 'headers', 'pathItems', 'mediaTypes'] as const
+const COMPONENT_GROUPS = [
+  'schemas',
+  'responses',
+  'parameters',
+  'requestBodies',
+  'headers',
+  'pathItems',
+  'mediaTypes',
+] as const
 /** Keys an `allOf` member may carry and still describe nothing but which keys are required, annotations among them. */
 const REQUIRED_ONLY_KEYS = new Set([
   'type',
@@ -100,7 +118,13 @@ const REQUIRED_ONLY_KEYS = new Set([
   'xml',
   '$comment',
 ])
-const PRIMITIVE_TYPES = ['boolean', 'string', 'number', 'integer', 'null']
+const PRIMITIVE_TYPES = [
+  'boolean',
+  'string',
+  'number',
+  'integer',
+  'null',
+]
 const BINARY_TYPE = 'Blob | File'
 const JSON_MEDIA_TYPE_RE = /^application\/(?:[\w.+-]+\+)?json(?:;|$)/i
 const MULTIPART_FORM_DATA_RE = /^multipart\/form-data(?:;|$)/i
@@ -134,7 +158,9 @@ export function generateSchemaTypes(document: OpenAPIDocument): string {
 
   const declarations: TSNode[] = []
 
-  const pathMembers = isObject(schema.paths) ? transformPathsObject(schema.paths, context) : []
+  const pathMembers = isObject(schema.paths)
+    ? transformPathsObject(schema.paths, context)
+    : []
   declarations.push(pathMembers.length
     ? `export interface paths {\n${pathMembers.join('\n')}\n}`
     : EMPTY_PATHS)
@@ -187,7 +213,10 @@ function transformPathsObject(pathsObject: Record<string, any>, context: EmitCon
 
     members.push(propertySignature({
       name: tsPropertyIndex(url),
-      type: transformPathItemObject(pathItemObject, { ref: createRef(['paths', url]), context }, memberIndent),
+      type: transformPathItemObject(pathItemObject, {
+        ref: createRef(['paths', url]),
+        context,
+      }, memberIndent),
       indent: memberIndent,
     }))
   }
@@ -206,7 +235,10 @@ function transformComponentsObject(componentsObject: Record<string, any>, contex
     const items: TSNode[] = []
 
     for (const [name, item] of Object.entries<any>(componentsObject[componentGroup] ?? {})) {
-      const options: TransformOptions = { ref: createRef(['components', componentGroup, name]), context }
+      const options: TransformOptions = {
+        ref: createRef(['components', componentGroup, name]),
+        context,
+      }
       let type: TSNode
       switch (componentGroup) {
         case 'schemas':
@@ -242,7 +274,9 @@ function transformComponentsObject(componentsObject: Record<string, any>, contex
 
     members.push(propertySignature({
       name: componentGroup,
-      type: items.length ? typeLiteral(items, memberIndent) : NEVER,
+      type: items.length
+        ? typeLiteral(items, memberIndent)
+        : NEVER,
       indent: memberIndent,
     }))
   }
@@ -258,13 +292,22 @@ function transformPathItemObject(pathItem: Record<string, any>, options: Transfo
   const members: TSNode[] = []
   const operations: [method: string, operation: any, ref: string][] = PATH_ITEM_METHODS
     .filter(method => pathItem[method])
-    .map(method => [method, pathItem[method], createRef([options.ref, method])])
+    .map(method => [
+      method,
+      pathItem[method],
+      createRef([options.ref, method]),
+    ])
 
   // OpenAPI 3.2 keys custom methods by their spelling on the wire; `paths` keys every method in lowercase.
   for (const [method, operation] of Object.entries<any>(pathItem.additionalOperations ?? {})) {
     const lowercasedMethod = method.toLowerCase()
-    if (operation && !operations.some(([existingMethod]) => existingMethod === lowercasedMethod))
-      operations.push([lowercasedMethod, operation, createRef([options.ref, 'additionalOperations', method])])
+    if (operation && !operations.some(([existingMethod]) => existingMethod === lowercasedMethod)) {
+      operations.push([
+        lowercasedMethod,
+        operation,
+        createRef([options.ref, 'additionalOperations', method]),
+      ])
+    }
   }
 
   for (const [method, operationObject, operationRef] of operations) {
@@ -275,14 +318,20 @@ function transformPathItemObject(pathItem: Record<string, any>, options: Transfo
     else {
       // Operation parameters come last and override a path-level parameter of the same location and name.
       const keyedParameters: Record<string, ParameterObject | ReferenceObject> = {}
-      for (const parameter of [...(pathItem.parameters ?? []), ...(operationObject.parameters ?? [])]) {
+      for (const parameter of [
+        ...(pathItem.parameters ?? []),
+        ...(operationObject.parameters ?? []),
+      ]) {
         const resolvedParameter = resolveParameter(parameter, options.context)
         keyedParameters[`${resolvedParameter?.in}-${resolvedParameter?.name}`] = parameter
       }
 
       operationType = typeLiteral(
         transformOperationObject(
-          { ...operationObject, parameters: Object.values(keyedParameters) },
+          {
+            ...operationObject,
+            parameters: Object.values(keyedParameters),
+          },
           { ...options, ref: operationRef },
           `${memberIndent}${INDENT}`,
         ),
@@ -303,14 +352,21 @@ function transformPathItemObject(pathItem: Record<string, any>, options: Transfo
 
 /** Returns the members of an operation's object type, not the type itself. */
 function transformOperationObject(operationObject: Record<string, any>, options: TransformOptions, indent: string): TSNode[] {
-  const members: TSNode[] = [transformParametersArray(operationObject.parameters ?? [], options, indent)]
+  const members: TSNode[] = [
+    transformParametersArray(operationObject.parameters ?? [], options, indent),
+  ]
 
   if (operationObject.requestBody) {
     const requestBody = operationObject.requestBody
     const requestBodyType = '$ref' in requestBody
       ? refToType(requestBody.$ref)
-      : transformRequestBodyObject(requestBody, { ...options, ref: createRef([options.ref, 'requestBody']) }, indent)
-    const isRequired = !!('$ref' in requestBody ? options.context.resolve(requestBody.$ref) : requestBody)?.required
+      : transformRequestBodyObject(requestBody, {
+          ...options,
+          ref: createRef([options.ref, 'requestBody']),
+        }, indent)
+    const isRequired = !!('$ref' in requestBody
+      ? options.context.resolve(requestBody.$ref)
+      : requestBody)?.required
     members.push(propertySignature({
       name: 'requestBody',
       type: requestBodyType,
@@ -320,7 +376,12 @@ function transformOperationObject(operationObject: Record<string, any>, options:
     }))
   }
   else {
-    members.push(propertySignature({ name: 'requestBody', optional: true, type: NEVER, indent }))
+    members.push(propertySignature({
+      name: 'requestBody',
+      optional: true,
+      type: NEVER,
+      indent,
+    }))
   }
 
   members.push(propertySignature({
@@ -343,7 +404,10 @@ function transformParametersArray(
 ): TSNode {
   const locationIndent = `${indent}${INDENT}`
   const parameterIndent = `${locationIndent}${INDENT}`
-  const parameters = parametersArray.map(original => ({ original, resolved: resolveParameter(original, options.context) }))
+  const parameters = parametersArray.map(original => ({
+    original,
+    resolved: resolveParameter(original, options.context),
+  }))
   const locationMembers: TSNode[] = []
 
   for (const location of PARAMETER_LOCATIONS) {
@@ -364,7 +428,9 @@ function transformParametersArray(
       }))
     }
 
-    let type = members.length ? typeLiteral(members, locationIndent) : undefined
+    let type = members.length
+      ? typeLiteral(members, locationIndent)
+      : undefined
     let isOptional = optionalFlags.every(Boolean)
 
     const querystring = location === 'query'
@@ -372,7 +438,9 @@ function transformParametersArray(
       : undefined
     if (querystring) {
       const querystringType = transformParameter(querystring.original, querystring.resolved!, options, locationIndent)
-      type = type ? tsIntersection([type, querystringType]) : querystringType
+      type = type
+        ? tsIntersection([type, querystringType])
+        : querystringType
       isOptional = isOptional && !querystring.resolved!.required
     }
 
@@ -403,7 +471,15 @@ function transformParameter(
 ): TSNode {
   if ('$ref' in original && original.$ref.startsWith('#/components/parameters/'))
     return refToType(original.$ref, resolved)
-  return transformParameterObject(resolved, { ...options, ref: createRef([options.ref, 'parameters', resolved.in, resolved.name]) }, indent)
+  return transformParameterObject(resolved, {
+    ...options,
+    ref: createRef([
+      options.ref,
+      'parameters',
+      resolved.in,
+      resolved.name,
+    ]),
+  }, indent)
 }
 
 /**
@@ -434,16 +510,31 @@ function transformRequestBodyObject(requestBodyObject: Record<string, any>, opti
   for (const [contentType, mediaTypeObject] of Object.entries<any>(requestBodyObject.content ?? {})) {
     members.push(propertySignature({
       name: tsPropertyIndex(contentType),
-      type: transformRequestMediaType(contentType, mediaTypeObject, { ...options, ref: createRef([options.ref, 'content', contentType]) }, contentIndent),
+      type: transformRequestMediaType(contentType, mediaTypeObject, {
+        ...options,
+        ref: createRef([options.ref, 'content', contentType]),
+      }, contentIndent),
       comment: createJSDocComment(mediaTypeObject, contentIndent),
       indent: contentIndent,
     }))
   }
 
-  if (!members.length)
-    members.push(propertySignature({ name: tsPropertyIndex('*/*'), optional: true, type: NEVER, indent: contentIndent }))
+  if (!members.length) {
+    members.push(propertySignature({
+      name: tsPropertyIndex('*/*'),
+      optional: true,
+      type: NEVER,
+      indent: contentIndent,
+    }))
+  }
 
-  return typeLiteral([propertySignature({ name: 'content', type: typeLiteral(members, memberIndent), indent: memberIndent })], indent)
+  return typeLiteral([
+    propertySignature({
+      name: 'content',
+      type: typeLiteral(members, memberIndent),
+      indent: memberIndent,
+    }),
+  ], indent)
 }
 
 /**
@@ -455,7 +546,9 @@ function transformRequestMediaType(contentType: string, mediaTypeObject: Record<
   if (MULTIPART_FORM_DATA_RE.test(contentType))
     return 'FormData'
   const mediaType = transformMediaTypeObject(mediaTypeObject, options, indent)
-  return FORM_URLENCODED_RE.test(contentType) ? tsUnion([mediaType, 'URLSearchParams']) : mediaType
+  return FORM_URLENCODED_RE.test(contentType)
+    ? tsUnion([mediaType, 'URLSearchParams'])
+    : mediaType
 }
 
 function transformResponsesObject(responsesObject: Record<string, any>, options: TransformOptions, indent: string): TSNode {
@@ -467,13 +560,18 @@ function transformResponsesObject(responsesObject: Record<string, any>, options:
       name: tsPropertyIndex(responseCode),
       type: '$ref' in responseObject
         ? refToType(responseObject.$ref)
-        : transformResponseObject(responseObject, { ...options, ref: createRef([options.ref, 'responses', responseCode]) }, memberIndent),
+        : transformResponseObject(responseObject, {
+            ...options,
+            ref: createRef([options.ref, 'responses', responseCode]),
+          }, memberIndent),
       comment: createJSDocComment(responseObject, memberIndent),
       indent: memberIndent,
     }))
   }
 
-  return members.length ? typeLiteral(members, indent) : NEVER
+  return members.length
+    ? typeLiteral(members, indent)
+    : NEVER
 }
 
 function transformResponseObject(responseObject: Record<string, any>, options: TransformOptions, indent: string): TSNode {
@@ -486,7 +584,10 @@ function transformResponseObject(responseObject: Record<string, any>, options: T
       name: tsPropertyIndex(name),
       type: '$ref' in headerObject
         ? refToType(headerObject.$ref)
-        : transformHeaderObject(headerObject, { ...options, ref: createRef([options.ref, 'headers', name]) }, nestedIndent),
+        : transformHeaderObject(headerObject, {
+            ...options,
+            ref: createRef([options.ref, 'headers', name]),
+          }, nestedIndent),
       optional: !('$ref' in headerObject) && !headerObject.required,
       comment: createJSDocComment(headerObject, nestedIndent),
       indent: nestedIndent,
@@ -499,17 +600,33 @@ function transformResponseObject(responseObject: Record<string, any>, options: T
   for (const [contentType, mediaTypeObject] of Object.entries<any>(responseObject.content ?? {})) {
     contentMembers.push(propertySignature({
       name: tsPropertyIndex(contentType),
-      type: transformMediaTypeObject(mediaTypeObject, { ...options, ref: createRef([options.ref, 'content', contentType]) }, nestedIndent),
+      type: transformMediaTypeObject(mediaTypeObject, {
+        ...options,
+        ref: createRef([options.ref, 'content', contentType]),
+      }, nestedIndent),
       comment: createJSDocComment(mediaTypeObject, nestedIndent),
       indent: nestedIndent,
     }))
   }
 
   return typeLiteral([
-    propertySignature({ name: 'headers', type: typeLiteral(headerMembers, memberIndent), indent: memberIndent }),
+    propertySignature({
+      name: 'headers',
+      type: typeLiteral(headerMembers, memberIndent),
+      indent: memberIndent,
+    }),
     contentMembers.length
-      ? propertySignature({ name: 'content', type: typeLiteral(contentMembers, memberIndent), indent: memberIndent })
-      : propertySignature({ name: 'content', optional: true, type: NEVER, indent: memberIndent }),
+      ? propertySignature({
+          name: 'content',
+          type: typeLiteral(contentMembers, memberIndent),
+          indent: memberIndent,
+        })
+      : propertySignature({
+          name: 'content',
+          optional: true,
+          type: NEVER,
+          indent: memberIndent,
+        }),
   ], indent)
 }
 
@@ -523,7 +640,10 @@ function transformHeaderObject(headerObject: Record<string, any>, options: Trans
     for (const [contentType, mediaTypeObject] of Object.entries<any>(headerObject.content)) {
       members.push(propertySignature({
         name: tsPropertyIndex(contentType),
-        type: transformMediaTypeObject(mediaTypeObject, { ...options, ref: createRef([options.ref, 'content', contentType]) }, memberIndent),
+        type: transformMediaTypeObject(mediaTypeObject, {
+          ...options,
+          ref: createRef([options.ref, 'content', contentType]),
+        }, memberIndent),
         comment: createJSDocComment(mediaTypeObject, memberIndent),
         indent: memberIndent,
       }))
@@ -537,7 +657,9 @@ function transformHeaderObject(headerObject: Record<string, any>, options: Trans
 function transformMediaTypeObject(mediaTypeObject: Record<string, any>, options: TransformOptions, indent: string): TSNode {
   if ('$ref' in mediaTypeObject)
     return refToType(mediaTypeObject.$ref)
-  return mediaTypeObject.schema ? transformSchemaObject(mediaTypeObject.schema, options, indent) : UNKNOWN
+  return mediaTypeObject.schema
+    ? transformSchemaObject(mediaTypeObject.schema, options, indent)
+    : UNKNOWN
 }
 
 function transformSchemaObject(
@@ -550,8 +672,11 @@ function transformSchemaObject(
   // A `true` schema accepts anything.
   if (schemaObject === true)
     return UNKNOWN
-  if (Array.isArray(schemaObject) || typeof schemaObject !== 'object')
-    throw new Error(`Expected a schema object, received ${Array.isArray(schemaObject) ? 'an array' : typeof schemaObject} at \`${options.ref}\``)
+  if (Array.isArray(schemaObject) || typeof schemaObject !== 'object') {
+    throw new TypeError(`Expected a schema object, received ${Array.isArray(schemaObject)
+      ? 'an array'
+      : typeof schemaObject} at \`${options.ref}\``)
+  }
 
   if ('$ref' in schemaObject)
     return transformSchemaRef(schemaObject.$ref, options, indent)
@@ -568,14 +693,26 @@ function transformSchemaObject(
         enumTypes.push(NULL)
       const unionType = tsUnion(enumTypes)
       // An open string enum also accepts any other string.
-      return hasAdditionalProperties ? tsUnion([unionType, tsIntersection([STRING, '{}'])]) : unionType
+      return hasAdditionalProperties
+        ? tsUnion([
+            unionType,
+            tsIntersection([STRING, '{}']),
+          ])
+        : unionType
     }
   }
 
   const siblingProperties: unknown = schemaObject.properties
   const collectUnionCompositions = (items: (SchemaObject | ReferenceObject)[], unionKey: 'anyOf' | 'oneOf'): TSNode[] =>
     items.map((item, index) => {
-      const itemOptions: TransformOptions = { ...options, ref: createRef([options.ref, unionKey, String(index)]) }
+      const itemOptions: TransformOptions = {
+        ...options,
+        ref: createRef([
+          options.ref,
+          unionKey,
+          String(index),
+        ]),
+      }
       // A member that only lists required keys requires them of the properties beside it.
       if (isRequiredOnlySchema(item) && item.required?.length && isObject(siblingProperties)) {
         const memberIndent = `${indent}${INDENT}`
@@ -623,12 +760,16 @@ function transformSchemaObject(
       const discriminator = ('$ref' in item && options.context.discriminators.objects[item.$ref]) || item.discriminator
       if (!discriminator)
         return itemType
-      const parentSchema = '$ref' in item ? options.context.resolve<SchemaObject>(item.$ref) : item
+      const parentSchema = '$ref' in item
+        ? options.context.resolve<SchemaObject>(item.$ref)
+        : item
       // `Omit` keeps only the index signature of a type that has one, so such a parent keeps its
       // discriminator property, which the value of the schema narrows.
       if (isObject(parentSchema) && (parentSchema.additionalProperties || parentSchema.patternProperties))
         return itemType
-      return tsOmit(isObject(parentSchema) && isNullableSchema(parentSchema) ? `NonNullable<${itemType}>` : itemType, [discriminator.propertyName])
+      return tsOmit(isObject(parentSchema) && isNullableSchema(parentSchema)
+        ? `NonNullable<${itemType}>`
+        : itemType, [discriminator.propertyName])
     })
   }
 
@@ -640,14 +781,27 @@ function transformSchemaObject(
   const appliesCompositionsPerType = Array.isArray(schemaObject.type)
     && schemaObject.type.some((type: unknown) => typeof type === 'string' && type !== 'null' && !isTypeLeftToOneOf(schemaObject, type))
   const coreObjectType = transformSchemaObjectCore(schemaObject, options, indent)
-  const allOfTypes = appliesCompositionsPerType ? [] : collectAllOfCompositions(schemaObject.allOf ?? [], schemaObject.required)
+  const allOfTypes = appliesCompositionsPerType
+    ? []
+    : collectAllOfCompositions(schemaObject.allOf ?? [], schemaObject.required)
   if (coreObjectType || allOfTypes.length) {
-    const allOfType = allOfTypes.length ? tsIntersection(allOfTypes) : undefined
-    finalType = tsIntersection([...(coreObjectType ? [coreObjectType] : []), ...(allOfType ? [allOfType] : [])])
+    const allOfType = allOfTypes.length
+      ? tsIntersection(allOfTypes)
+      : undefined
+    finalType = tsIntersection([
+      ...(coreObjectType
+        ? [coreObjectType]
+        : []),
+      ...(allOfType
+        ? [allOfType]
+        : []),
+    ])
   }
 
   // A union is closer to `anyOf` than to `oneOf`, since TypeScript has no exclusive union.
-  const anyOfTypes = appliesCompositionsPerType ? [] : collectUnionCompositions(schemaObject.anyOf ?? [], 'anyOf')
+  const anyOfTypes = appliesCompositionsPerType
+    ? []
+    : collectUnionCompositions(schemaObject.anyOf ?? [], 'anyOf')
   if (anyOfTypes.length)
     finalType = applyUnionComposition(finalType, anyOfTypes)
 
@@ -661,8 +815,11 @@ function transformSchemaObject(
   // An object schema without a `properties` or `additionalProperties` key admits any properties.
   if (!finalType && schemaObject.type === 'object' && !('properties' in schemaObject) && !('additionalProperties' in schemaObject))
     finalType = tsRecord(STRING, UNKNOWN)
-  if (!finalType)
-    finalType = 'type' in schemaObject ? tsRecord(STRING, NEVER) : UNKNOWN
+  if (!finalType) {
+    finalType = 'type' in schemaObject
+      ? tsRecord(STRING, NEVER)
+      : UNKNOWN
+  }
 
   if (finalType !== UNKNOWN && schemaObject.nullable)
     finalType = tsNullable([finalType])
@@ -679,7 +836,10 @@ function applyUnionComposition(type: TSNode | undefined, unionTypes: TSNode[]): 
     return tsUnion(unionTypes)
   return type === NULL || unionTypes.every(tsIsPrimitive)
     ? tsUnion([type, ...unionTypes])
-    : tsIntersection([type, tsUnion(unionTypes)])
+    : tsIntersection([
+        type,
+        tsUnion(unionTypes),
+      ])
 }
 
 /**
@@ -702,7 +862,14 @@ function transformSchemaRef(ref: string, options: TransformOptions, indent: stri
   const targetSchema = options.context.resolveOneHop<SchemaObject | boolean>(ref)
   if (targetSchema === undefined || options.inlinedRefs?.includes(ref))
     return UNKNOWN
-  return transformSchemaObject(targetSchema, { ...options, ref, inlinedRefs: [...(options.inlinedRefs ?? []), ref] }, indent)
+  return transformSchemaObject(targetSchema, {
+    ...options,
+    ref,
+    inlinedRefs: [
+      ...(options.inlinedRefs ?? []),
+      ref,
+    ],
+  }, indent)
 }
 
 /**
@@ -728,7 +895,9 @@ function schemaRefToType(ref: string, context: EmitContext): TSNode | undefined 
     if (!isObject(members) || !Object.hasOwn(members, memberName))
       return undefined
 
-    const parentType = isOptional || isNullableSchema(schemaObject) ? `NonNullable<${type}>` : type
+    const parentType = isOptional || isNullableSchema(schemaObject)
+      ? `NonNullable<${type}>`
+      : type
     // The `$defs` member is optional.
     type = memberGroup === '$defs'
       ? tsIndexedAccess(`NonNullable<${tsIndexedAccess(parentType, '$defs')}>`, memberName)
@@ -738,7 +907,9 @@ function schemaRefToType(ref: string, context: EmitContext): TSNode | undefined 
   }
 
   // The schema of an optional property describes its value, never its absence.
-  return isOptional ? `Exclude<${type}, undefined>` : type
+  return isOptional
+    ? `Exclude<${type}, undefined>`
+    : type
 }
 
 /**
@@ -772,16 +943,22 @@ function collectEagerMembers(schemaObject: object, context: EmitContext): Set<ob
       }
       return
     }
-    for (const item of Array.isArray(node.allOf) ? node.allOf : []) {
+    for (const item of Array.isArray(node.allOf)
+      ? node.allOf
+      : []) {
       // A parent whose `oneOf` lists the schema back is inlined without that `oneOf`.
-      const parent = isObject(item) && typeof item.$ref === 'string' ? context.resolve<unknown>(item.$ref) : undefined
+      const parent = isObject(item) && typeof item.$ref === 'string'
+        ? context.resolve<unknown>(item.$ref)
+        : undefined
       if (isObject(parent) && Array.isArray(parent.oneOf) && parent.oneOf.some((member: unknown) => isObject(member) && typeof member.$ref === 'string' && context.resolveOneHop(member.$ref) === owner))
         walk({ ...parent, oneOf: undefined }, parent)
       else
         walk(item, owner)
     }
     for (const key of ['anyOf', 'oneOf', 'prefixItems'] as const) {
-      for (const item of Array.isArray(node[key]) ? node[key] : [])
+      for (const item of Array.isArray(node[key])
+        ? node[key]
+        : [])
         walk(item, owner)
     }
     if (Array.isArray(node.items))
@@ -810,7 +987,9 @@ function hasIndexableMembers(schemaObject: unknown): schemaObject is SchemaObjec
 
 /** Whether a schema `type`, or a type list once `null` is left out, is `object` alone. */
 function isObjectType(type: unknown): boolean {
-  const types = (Array.isArray(type) ? type : [type]).filter(item => item !== 'null')
+  const types = (Array.isArray(type)
+    ? type
+    : [type]).filter(item => item !== 'null')
   return types.length === 1 && types[0] === 'object'
 }
 
@@ -820,10 +999,14 @@ function isPrimitiveSchema(schemaObject: unknown): boolean {
     return false
   // A schema without a type takes the type of its compositions.
   if (schemaObject.type === undefined) {
-    const members: unknown[] = [schemaObject.allOf, schemaObject.anyOf, schemaObject.oneOf].flatMap(items => Array.isArray(items) ? items : [])
+    const members: unknown[] = [schemaObject.allOf, schemaObject.anyOf, schemaObject.oneOf].flatMap(items => Array.isArray(items)
+      ? items
+      : [])
     return members.length > 0 && members.every(isPrimitiveSchema)
   }
-  const types: unknown[] = Array.isArray(schemaObject.type) ? schemaObject.type : [schemaObject.type]
+  const types: unknown[] = Array.isArray(schemaObject.type)
+    ? schemaObject.type
+    : [schemaObject.type]
   return types.every(type => PRIMITIVE_TYPES.includes(type as string))
 }
 
@@ -850,7 +1033,10 @@ function foldRequiredOnlyMembers(schemaObject: SchemaObject): SchemaObject {
   return {
     ...schemaObject,
     ...(schemaObject.type === undefined && requiredOnlyItems.some(item => item.type === 'object') && { type: 'object' }),
-    required: [...(schemaObject.required ?? []), ...requiredOnlyItems.flatMap(item => item.required ?? [])],
+    required: [
+      ...(schemaObject.required ?? []),
+      ...requiredOnlyItems.flatMap(item => item.required ?? []),
+    ],
     allOf: schemaObject.allOf.filter((item: SchemaObject) => !requiredOnlyItems.includes(item)),
   }
 }
@@ -876,8 +1062,11 @@ function transformSchemaObjectCore(schemaObject: SchemaObject, options: Transfor
   if (schemaObject.type) {
     if (schemaObject.type === 'null')
       return NULL
-    if (schemaObject.type === 'string')
-      return isBinarySchema(schemaObject) ? BINARY_TYPE : STRING
+    if (schemaObject.type === 'string') {
+      return isBinarySchema(schemaObject)
+        ? BINARY_TYPE
+        : STRING
+    }
     if (schemaObject.type === 'number' || schemaObject.type === 'integer')
       return NUMBER
     if (schemaObject.type === 'boolean')
@@ -893,12 +1082,16 @@ function transformSchemaObjectCore(schemaObject: SchemaObject, options: Transfor
           || schemaObject.items === false
           || (typeof schemaObject.maxItems === 'number' && schemaObject.maxItems <= prefixItems.length)
         if (!isClosed) {
-          const restType = isObject(schemaObject.items) ? transformSchemaObject(schemaObject.items, options, `${indent}${INDENT}`) : UNKNOWN
+          const restType = isObject(schemaObject.items)
+            ? transformSchemaObject(schemaObject.items, options, `${indent}${INDENT}`)
+            : UNKNOWN
           elementTypes.push(`...${tsArray(restType)}`)
         }
         return tupleType(elementTypes, indent)
       }
-      return tsArray(schemaObject.items ? transformSchemaObject(schemaObject.items, options, indent) : UNKNOWN)
+      return tsArray(schemaObject.items
+        ? transformSchemaObject(schemaObject.items, options, indent)
+        : UNKNOWN)
     }
 
     // A list of types, among them OpenAPI 3.1's way of saying nullable.
@@ -909,7 +1102,11 @@ function transformSchemaObjectCore(schemaObject: SchemaObject, options: Transfor
           continue
         uniqueTypes.push(type === 'null' || type === null
           ? NULL
-          : transformSchemaObject({ ...schemaObject, type, ...(Array.isArray(schemaObject.oneOf) && { oneOf: undefined }) }, options, indent))
+          : transformSchemaObject({
+              ...schemaObject,
+              type,
+              ...(Array.isArray(schemaObject.oneOf) && { oneOf: undefined }),
+            }, options, indent))
       }
       return tsUnion(uniqueTypes)
     }
@@ -933,18 +1130,25 @@ function transformSchemaObjectCore(schemaObject: SchemaObject, options: Transfor
   }
 
   const hasProperties = isObject(schemaObject.properties) && Object.keys(schemaObject.properties).length > 0
-  if (!hasProperties && !schemaObject.additionalProperties && !schemaObject.patternProperties && !schemaObject.$defs)
-    return coreMembers.length ? typeLiteral(coreMembers, indent) : undefined
+  if (!hasProperties && !schemaObject.additionalProperties && !schemaObject.patternProperties && !schemaObject.$defs) {
+    return coreMembers.length
+      ? typeLiteral(coreMembers, indent)
+      : undefined
+  }
 
   if (hasProperties) {
     for (const [key, value] of Object.entries<any>(schemaObject.properties)) {
       if ((typeof value !== 'object' && typeof value !== 'boolean') || Array.isArray(value))
-        throw new Error(`Invalid property \`${key}\` at \`${options.ref}\`, expected a schema object or a boolean`)
+        throw new TypeError(`Invalid property \`${key}\` at \`${options.ref}\`, expected a schema object or a boolean`)
 
       const isReadOnly = typeof value === 'object' && !!value.readOnly
       const isRequired = !!schemaObject.required?.includes(key)
 
-      const propertyType = transformSchemaObject(value, { ...options, ref: createRef([options.ref, key]), member: value }, memberIndent)
+      const propertyType = transformSchemaObject(value, {
+        ...options,
+        ref: createRef([options.ref, key]),
+        member: value,
+      }, memberIndent)
       propertyTypes.push(propertyType)
       coreMembers.push(propertySignature({
         name: tsPropertyIndex(key),
@@ -961,13 +1165,22 @@ function transformSchemaObjectCore(schemaObject: SchemaObject, options: Transfor
     const defsIndent = `${memberIndent}${INDENT}`
     const defMembers = Object.entries<any>(schemaObject.$defs).map(([key, value]) => propertySignature({
       name: tsPropertyIndex(key),
-      type: transformSchemaObject(value, { ...options, ref: createRef([options.ref, '$defs', key]), member: value }, defsIndent),
+      type: transformSchemaObject(value, {
+        ...options,
+        ref: createRef([options.ref, '$defs', key]),
+        member: value,
+      }, defsIndent),
       readonly: !!value?.readOnly,
       comment: createJSDocComment(value, defsIndent),
       indent: defsIndent,
     }))
     // Data never carries `$defs`, which is only there to hold the schemas refs point into.
-    coreMembers.push(propertySignature({ name: '$defs', type: typeLiteral(defMembers, memberIndent), optional: true, indent: memberIndent }))
+    coreMembers.push(propertySignature({
+      name: '$defs',
+      type: typeLiteral(defMembers, memberIndent),
+      optional: true,
+      indent: memberIndent,
+    }))
   }
 
   const { additionalProperties, patternProperties } = schemaObject
@@ -981,8 +1194,11 @@ function transformSchemaObjectCore(schemaObject: SchemaObject, options: Transfor
       indexTypes.push(transformSchemaObject(value, { ...options, member: undefined }, memberIndent))
   }
 
-  if (!indexTypes.length)
-    return coreMembers.length ? typeLiteral(coreMembers, indent) : undefined
+  if (!indexTypes.length) {
+    return coreMembers.length
+      ? typeLiteral(coreMembers, indent)
+      : undefined
+  }
 
   // The index signature also covers the declared properties, which an intersection with a
   // narrower one would make impossible to satisfy.
@@ -990,8 +1206,18 @@ function transformSchemaObjectCore(schemaObject: SchemaObject, options: Transfor
     indexTypes.push(...propertyTypes)
 
   return tsIntersection([
-    ...(coreMembers.length ? [typeLiteral(coreMembers, indent)] : []),
-    typeLiteral([indexSignature({ keyName: 'key', valueType: tsUnion(indexTypes), indent: memberIndent })], indent),
+    ...(coreMembers.length
+      ? [
+          typeLiteral(coreMembers, indent),
+        ]
+      : []),
+    typeLiteral([
+      indexSignature({
+        keyName: 'key',
+        valueType: tsUnion(indexTypes),
+        indent: memberIndent,
+      }),
+    ], indent),
   ])
 }
 
@@ -1015,7 +1241,9 @@ function refToType(ref: string, resolvedParameter?: ParameterObject): TSNode {
 }
 
 function resolveParameter(parameter: ParameterObject | ReferenceObject, context: EmitContext): ParameterObject | undefined {
-  return '$ref' in parameter ? context.resolve<ParameterObject>(parameter.$ref) : parameter as ParameterObject
+  return '$ref' in parameter
+    ? context.resolve<ParameterObject>(parameter.$ref)
+    : parameter as ParameterObject
 }
 
 /**
@@ -1029,14 +1257,20 @@ function isParameterOptional(parameter: ParameterObject, context: EmitContext): 
   if (!parameter.required)
     return true
   const mediaType = Object.values(parameter.content ?? {})[0]
-  const schema = parameter.schema ?? (mediaType && '$ref' in mediaType ? context.resolve<SchemaObject>(mediaType.$ref) : mediaType)?.schema
-  const resolvedSchema = schema && '$ref' in schema ? context.resolve<SchemaObject>(schema.$ref) : schema
+  const schema = parameter.schema ?? (mediaType && '$ref' in mediaType
+    ? context.resolve<SchemaObject>(mediaType.$ref)
+    : mediaType)?.schema
+  const resolvedSchema = schema && '$ref' in schema
+    ? context.resolve<SchemaObject>(schema.$ref)
+    : schema
   return resolvedSchema?.default !== undefined
 }
 
 /** Whether a schema, followed through refs and compositions, describes a JSON object. */
 function isObjectSchema(schemaObject: SchemaObject | ReferenceObject, context: EmitContext): boolean {
-  const schema = '$ref' in schemaObject ? context.resolve<SchemaObject>(schemaObject.$ref) : schemaObject
+  const schema = '$ref' in schemaObject
+    ? context.resolve<SchemaObject>(schemaObject.$ref)
+    : schemaObject
   if (!isObject(schema))
     return false
   if (schema.type !== undefined)
@@ -1181,7 +1415,9 @@ function scanDiscriminators(document: OpenAPIDocument, context: EmitContext): Em
 
 /** Turns a discriminator mapping value into a ref, reading a bare schema name as the schema component of that name. */
 function toMappingRef(mappingTarget: string): string {
-  return mappingTarget.startsWith('#') ? mappingTarget : createRef(['components', 'schemas', mappingTarget])
+  return mappingTarget.startsWith('#')
+    ? mappingTarget
+    : createRef(['components', 'schemas', mappingTarget])
 }
 
 function patchDiscriminatorEnum(

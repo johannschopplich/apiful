@@ -86,8 +86,12 @@ describe('createClient', () => {
   it('resolves method name conflicts by prioritizing later extensions', () => {
     const client = createClient()
     const extendedClient = client
-      .with(() => ({ method: () => 'first' }))
-      .with(() => ({ method: () => 'second' }))
+      .with(() => ({
+        method: () => 'first',
+      }))
+      .with(() => ({
+        method: () => 'second',
+      }))
     expect(extendedClient.method()).toBe('second')
   })
 
@@ -102,15 +106,21 @@ describe('createClient', () => {
   it('passes the handler call signature to the next extension builder', () => {
     const extendedClient = createClient()
       .with(() => (path: string): Response => new Response(path))
-      .with(client => ({ home: () => client('/') }))
+      .with(client => ({
+        home: () => client('/'),
+      }))
 
     expectTypeOf(extendedClient.home).toEqualTypeOf<() => Response>()
   })
 
   it('passes an earlier extension\'s methods to the next extension builder', () => {
     const extendedClient = createClient()
-      .with(() => ({ token: (): string => 'abc' }))
-      .with(client => ({ authorization: () => `Bearer ${client.token()}` }))
+      .with(() => ({
+        token: (): string => 'abc',
+      }))
+      .with(client => ({
+        authorization: () => `Bearer ${client.token()}`,
+      }))
 
     expectTypeOf(extendedClient.authorization).toEqualTypeOf<() => string>()
   })
@@ -167,8 +177,12 @@ describe('createClient', () => {
 
   it('keeps the methods of two clients extended from the same client apart', () => {
     const client = createClient()
-    const left = client.with(() => ({ tag: () => 'left' }))
-    const right = client.with(() => ({ tag: () => 'right' }))
+    const left = client.with(() => ({
+      tag: () => 'left',
+    }))
+    const right = client.with(() => ({
+      tag: () => 'right',
+    }))
     expect(left.tag()).toBe('left')
     expect(right.tag()).toBe('right')
   })
@@ -183,7 +197,9 @@ describe('createClient', () => {
 
   it('leaves the client `with` was called on without the extension', () => {
     const client = createClient()
-    client.with(() => ({ ghost: () => 'boo' }))
+    client.with(() => ({
+      ghost: () => 'boo',
+    }))
     expect((client as unknown as { ghost?: unknown }).ghost).toBeUndefined()
   })
 

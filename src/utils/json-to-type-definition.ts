@@ -64,7 +64,10 @@ function createJsonSchema(data: JsonValue, options: ResolvedTypeDefinitionOption
     }
 
     const properties = Object.fromEntries(entries.map(
-      ([key, value]) => [key, createJsonSchema(value, options)],
+      ([key, value]) => [
+        key,
+        createJsonSchema(value, options),
+      ],
     ))
     const propertyKeys = Object.keys(properties)
 
@@ -118,11 +121,15 @@ function mergeSchemas(schemas: InferredSchema[], options: ResolvedTypeDefinition
   const variants: InferredSchema[] = []
 
   if (objectSchemas.length > 0) {
-    variants.push(objectSchemas.length === 1 ? objectSchemas[0]! : mergeObjectSchemas(objectSchemas, options))
+    variants.push(objectSchemas.length === 1
+      ? objectSchemas[0]!
+      : mergeObjectSchemas(objectSchemas, options))
   }
 
   if (arraySchemas.length > 0) {
-    variants.push(arraySchemas.length === 1 ? arraySchemas[0]! : mergeArraySchemas(arraySchemas, options))
+    variants.push(arraySchemas.length === 1
+      ? arraySchemas[0]!
+      : mergeArraySchemas(arraySchemas, options))
   }
 
   // Deduplicate primitives by type, preserving first-seen order.
@@ -134,7 +141,9 @@ function mergeSchemas(schemas: InferredSchema[], options: ResolvedTypeDefinition
     }
   }
 
-  return variants.length === 1 ? variants[0]! : { anyOf: variants }
+  return variants.length === 1
+    ? variants[0]!
+    : { anyOf: variants }
 }
 
 /**
@@ -173,8 +182,12 @@ function mergeObjectSchemas(schemas: InferredSchema[], options: ResolvedTypeDefi
         mergeSchemas(schemas, options),
       ]),
     ),
-    required: requiredProperties.length > 0 ? requiredProperties : undefined,
-    additionalProperties: propertySchemas.size === 0 ? {} : false,
+    required: requiredProperties.length > 0
+      ? requiredProperties
+      : undefined,
+    additionalProperties: propertySchemas.size === 0
+      ? {}
+      : false,
   }
 }
 

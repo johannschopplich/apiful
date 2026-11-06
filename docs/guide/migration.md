@@ -73,10 +73,18 @@ A query parameter declared with `application/json` content and an object schema 
 
 ```ts
 // Before
-await catalog('/items', { query: { filter: JSON.stringify({ name: 'lamp' }) } })
+await catalog('/items', {
+  query: {
+    filter: JSON.stringify({ name: 'lamp' })
+  }
+})
 
 // After
-await catalog('/items', { query: { filter: { name: 'lamp' } } })
+await catalog('/items', {
+  query: {
+    filter: { name: 'lamp' }
+  }
+})
 ```
 
 A JSON parameter with an array or primitive schema stays `string`. An object schema with an empty `properties` admits no keys, as it does anywhere else, so its parameter is `Record<string, never>`. Where a type of your own mirrors a parameter with an object schema as `string`, type it as the object, too.
@@ -131,7 +139,10 @@ await catalog('/items', {
 })
 
 // After
-await catalog('/items', { method: 'QUERY', body: { name: 'lamp' } })
+await catalog('/items', {
+  method: 'QUERY',
+  body: { name: 'lamp' }
+})
 ```
 
 #### A `.` or `..` Path Parameter Rejects the Call

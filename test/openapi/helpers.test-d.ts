@@ -77,11 +77,17 @@ describe('createOpenAPIClient', () => {
   })
 
   it('types the response after the responseType option', () => {
-    expectTypeOf(() => petStoreClient('/pet/{petId}', { path: { petId: 1 }, responseType: 'blob' }))
+    expectTypeOf(() => petStoreClient('/pet/{petId}', {
+      path: { petId: 1 },
+      responseType: 'blob',
+    }))
       .returns
       .resolves
       .toEqualTypeOf<Blob>()
-    expectTypeOf(() => petStoreClient('/pet/{petId}', { path: { petId: 1 }, responseType: 'json' }))
+    expectTypeOf(() => petStoreClient('/pet/{petId}', {
+      path: { petId: 1 },
+      responseType: 'json',
+    }))
       .returns
       .resolves
       .toEqualTypeOf<Components['schemas']['Pet']>()
@@ -100,7 +106,10 @@ describe('createOpenAPIClient', () => {
   })
 
   it('types the response of a path cast to any as any', () => {
-    expectTypeOf(() => petStoreClient('/pet/1' as any, { method: 'SEARCH', body: JSON.stringify({ name: 'Rex' }) }))
+    expectTypeOf(() => petStoreClient('/pet/1' as any, {
+      method: 'SEARCH',
+      body: JSON.stringify({ name: 'Rex' }),
+    }))
       .returns
       .resolves
       .toBeAny()
@@ -108,7 +117,10 @@ describe('createOpenAPIClient', () => {
 
   it('keeps the JSON response with a retryDelay typed for any response format', () => {
     const retryDelay = (_context: FetchContext) => 100
-    expectTypeOf(() => petStoreClient('/pet/{petId}', { path: { petId: 1 }, retryDelay }))
+    expectTypeOf(() => petStoreClient('/pet/{petId}', {
+      path: { petId: 1 },
+      retryDelay,
+    }))
       .returns
       .resolves
       .toEqualTypeOf<Components['schemas']['Pet']>()
@@ -169,11 +181,17 @@ describe('PetStore', () => {
   })
 
   it('resolves the response the same way a request through the client does', () => {
-    expectTypeOf(() => petStoreClient('/pet/{petId}', { method: 'get', path: { petId: 1 } }))
+    expectTypeOf(() => petStoreClient('/pet/{petId}', {
+      method: 'get',
+      path: { petId: 1 },
+    }))
       .returns
       .resolves
       .toEqualTypeOf<PetStore<'/pet/{petId}', 'get'>['response']>()
-    expectTypeOf(() => petStoreClient('/pet/{petId}', { method: 'delete', path: { petId: 1 } }))
+    expectTypeOf(() => petStoreClient('/pet/{petId}', {
+      method: 'delete',
+      path: { petId: 1 },
+    }))
       .returns
       .resolves
       .toEqualTypeOf<PetStore<'/pet/{petId}', 'delete'>['response']>()

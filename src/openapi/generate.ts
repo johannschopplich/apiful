@@ -50,11 +50,17 @@ export async function generateDeclarations(
   const fragmentEntries = await Promise.all(
     Object.entries(services).map(async ([serviceName, service]) => {
       const types = await generateServiceTypes(serviceName, service, options)
-      return [serviceName, declareModule(`apiful/schema/${serviceName}`, types)] as const
+      return [
+        serviceName,
+        declareModule(`apiful/schema/${serviceName}`, types),
+      ] as const
     }),
   )
 
-  const serviceTypeNames = Object.keys(services).map(serviceName => [serviceName, createTypeNames(serviceName)] as const)
+  const serviceTypeNames = Object.keys(services).map(serviceName => [
+    serviceName,
+    createTypeNames(serviceName),
+  ] as const)
 
   const servicePathImports = serviceTypeNames
     .map(([serviceName, typeNames]) => `import { paths as ${typeNames.paths}, components as ${typeNames.components} } from 'apiful/schema/${serviceName}'`)

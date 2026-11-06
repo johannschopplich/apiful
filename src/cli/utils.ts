@@ -4,7 +4,12 @@ import * as path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { CliError } from 'utilful/cli'
 
-const CONFIG_FILE_NAMES = ['apiful.config.ts', 'apiful.config.mts', 'apiful.config.js', 'apiful.config.mjs']
+const CONFIG_FILE_NAMES = [
+  'apiful.config.ts',
+  'apiful.config.mts',
+  'apiful.config.js',
+  'apiful.config.mjs',
+]
 
 let importCount = 0
 

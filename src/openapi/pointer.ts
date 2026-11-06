@@ -2,7 +2,9 @@
 export function parseRef($ref: string): { uri: string | null, segments: string[] } {
   const [uri = '', pointer = ''] = $ref.split('#/')
   return {
-    uri: (uri.endsWith('#') ? uri.slice(0, -1) : uri) || null,
+    uri: (uri.endsWith('#')
+      ? uri.slice(0, -1)
+      : uri) || null,
     segments: pointer.split('/').map(unescapePointer).filter(Boolean),
   }
 }
@@ -23,7 +25,11 @@ export function createRef(parts: (number | string | undefined)[]): string {
     if (part === undefined || part === '')
       continue
     const { segments } = parseRef(String(part))
-    for (const segment of segments.length ? segments : [String(part)])
+    for (const segment of segments.length
+      ? segments
+      : [
+          String(part),
+        ])
       ref += `/${escapePointer(segment)}`
   }
   return ref
