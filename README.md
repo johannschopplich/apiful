@@ -2,7 +2,7 @@
 
 # APIful
 
-An APIful client is a set of default fetch options – a base URL, headers, retries – plus the extensions you add to it. The extensions decide how you write a request and how much of it TypeScript knows: plain `fetch`-style calls, a chain of path segments, or paths and responses typed from an OpenAPI schema.
+An APIful client is a set of default fetch options – a base URL, headers, retries – plus the extensions you add to it. The extensions decide how you write a request and how much of it TypeScript knows: plain `fetch`-style calls, a chain of path segments, or paths and responses typed from an OpenAPI document.
 
 Start with one of the [built-in extensions](https://apiful.land/extensions/), or [write your own](https://apiful.land/guide/custom-extensions).
 
@@ -12,7 +12,7 @@ Start with one of the [built-in extensions](https://apiful.land/extensions/), or
 > [📖 Read the documentation](https://apiful.land)
 
 > [!NOTE]
-> Upgrading from v5? See the [migration guide](https://apiful.land/guide/migration). Coming from openapi-typescript and openapi-fetch? See [Migrating From openapi-typescript and openapi-fetch](https://apiful.land/guide/migrating-from-openapi-typescript).
+> Upgrading from an earlier major? See the [migration guide](https://apiful.land/guide/migration). Coming from openapi-typescript and openapi-fetch? See [Migrating From openapi-typescript and openapi-fetch](https://apiful.land/guide/migrating-from-openapi-typescript).
 
 ```bash
 # pnpm
@@ -24,12 +24,12 @@ npm i apiful
 
 ## Usage
 
-### Your First API Client
+### Compose a Client
 
-Create your first API client by initializing it with a base URL and a sample bearer token for authorization:
+`createClient` takes the default options every request starts from, and `with` adds the extension that makes the client callable:
 
 ```ts
-import { createClient } from 'apiful'
+import { createClient, ofetchBuilder } from 'apiful'
 
 const client = createClient({
   baseURL: 'https://api.example.com',
@@ -37,10 +37,8 @@ const client = createClient({
     Authorization: `Bearer ${process.env.API_KEY}`,
   },
 })
+  .with(ofetchBuilder())
 ```
-
-> [!NOTE]
-> The `createClient` function returns an [`ApiClient`](https://apiful.land/reference/api-client) instance that can't yet make requests. You'll need to add a handler extension to enable HTTP functionality. Read on to learn how to do this.
 
 ### Built-in Extensions
 
@@ -84,7 +82,7 @@ await api.users.post({ name: 'foo' })
 
 **What it does:**
 
-The `apiRouterBuilder` provides a jQuery-like and Axios-style API for building and making API requests. It allows you to construct your API calls in a declarative way.
+The `apiRouterBuilder` builds the request from property access: each property adds a path segment, and the HTTP method at the end of the chain sends the request.
 
 </td></tr><tr><td width="500px" valign="top">
 
@@ -93,8 +91,8 @@ The `apiRouterBuilder` provides a jQuery-like and Axios-style API for building a
 ```ts
 import { createClient, openAPIBuilder } from 'apiful'
 
+// Pass the service name from apiful.config.ts
 const api = createClient({ baseURL: 'https://petstore3.swagger.io/api/v3' })
-  // Pass the service name from apiful.config.ts
   .with(openAPIBuilder<'petStore'>())
 
 // Typed parameters and response
@@ -108,9 +106,9 @@ const response = await api('/user/{username}', {
 
 **What it does:**
 
-If your API has an [OpenAPI](https://swagger.io/resources/open-api/) schema, APIful can use it to generate types for you, which the `openAPIBuilder` extension then consumes to provide type-safe API calls.
+If your API publishes an [OpenAPI](https://swagger.io/resources/open-api/) document, `apiful generate` turns it into types, and `openAPIBuilder` checks every call against them. A client with no other extension can come from `createOpenAPIClient` of `apiful/openapi` instead, which takes the same service name.
 
-For example, the response returned by the API call on the left is typed as follows:
+`response` is typed from the OpenAPI document:
 
 ```ts
 const response: {
@@ -120,38 +118,15 @@ const response: {
 }
 ```
 
-Follow the [OpenAPI extension documentation](https://apiful.land/extensions/openapi) to learn more about how to generate types from your OpenAPI schema files.
+Follow the [OpenAPI extension documentation](https://apiful.land/extensions/openapi) to generate the types from your OpenAPI document.
 
 </td></tr></table>
-
-### Custom Extensions
-
-Each client can have more than one extension. This means that you can chain `with` methods to add multiple extensions to your client.
-
-For example, you can add a custom extension to log the default fetch options:
-
-```ts
-import type { MethodsExtensionBuilder } from 'apiful'
-
-const logExtension = (client => ({
-  logDefaults() {
-    console.log('Default fetch options:', client.defaultOptions)
-  },
-})) satisfies MethodsExtensionBuilder
-
-const extendedClient = client
-  .with(logExtension)
-
-extendedClient.logDefaults() // { baseURL: 'https://api.example.com', headers: { Authorization: 'Bearer <your-bearer-token>' } }
-```
-
-If you have specific requirements that aren't covered by the included extensions, you can create your own extensions. Follow the [Custom Extensions](https://apiful.land/guide/custom-extensions) guide to learn more.
 
 ## Development
 
 - Clone this repository
-- Install latest LTS version of [Node.js](https://nodejs.org/en/)
-- Enable [Corepack](https://github.com/nodejs/corepack) using `corepack enable`
+- Install [Node.js](https://nodejs.org/en/) 24 or later
+- Install [pnpm](https://pnpm.io/installation)
 - Install dependencies using `pnpm install`
 - Run interactive tests using `pnpm test`
 
