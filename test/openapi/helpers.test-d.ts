@@ -1,9 +1,11 @@
 import type { OpenAPISchemaRepository, PetStore, PetStoreApiMethods, PetStoreApiPaths, PetStoreModel, TestEcho } from 'apiful/schema'
 import type { components as Components } from 'apiful/schema/petStore'
 import type { components as TestEchoComponents } from 'apiful/schema/testEcho'
-import type { createOpenAPIClient, SchemaPaths } from '../../src/openapi/client'
-import type { FetchResponseError } from '../../src/openapi/types'
+import type { FetchContext } from 'ofetch'
+import type { SchemaPaths } from '../../src/openapi/client'
+import type { FetchResponseData, FetchResponseError } from '../../src/openapi/types'
 import { describe, expectTypeOf, it } from 'vitest'
+import { createOpenAPIClient } from '../../src/openapi/client'
 
 declare const petStoreClient: ReturnType<typeof createOpenAPIClient<'petStore'>>
 
@@ -17,6 +19,43 @@ describe('FetchResponseError', () => {
     expectTypeOf<FetchResponseError<PetStore<'/pet/{petId}', 'get'>['operation']>['data']>()
       .toEqualTypeOf<undefined>()
   })
+
+  it('leaves the body of a 300 response out of the thrown data, since ofetch throws only for 4xx and 5xx', () => {
+    interface Operation {
+      responses: {
+        '200': { content: { 'application/json': string } }
+        '300': { content: { 'application/json': string[] } }
+        '404': { content: { 'application/json': { message: string } } }
+        '500': { content: { 'application/json': { trace: string } } }
+        '5XX': { content: { 'application/json': { retryAfter: number } } }
+      }
+    }
+
+    expectTypeOf<FetchResponseError<Operation>['data']>()
+      .toEqualTypeOf<{ message: string } | { trace: string } | { retryAfter: number } | undefined>()
+  })
+
+  it('types the thrown data from a lowercase 4xx range', () => {
+    interface Operation {
+      responses: {
+        '4xx': { content: { 'application/json': { message: string } } }
+      }
+    }
+
+    expectTypeOf<FetchResponseError<Operation>['data']>().toEqualTypeOf<{ message: string } | undefined>()
+  })
+})
+
+describe('FetchResponseData', () => {
+  it('types the data from a lowercase 2xx range', () => {
+    interface Operation {
+      responses: {
+        '2xx': { content: { 'application/json': { id: string } } }
+      }
+    }
+
+    expectTypeOf<FetchResponseData<Operation>>().toEqualTypeOf<{ id: string }>()
+  })
 })
 
 describe('SchemaPaths', () => {
@@ -25,8 +64,35 @@ describe('SchemaPaths', () => {
     expectTypeOf<SchemaPaths<'testEcho'>>().toEqualTypeOf<OpenAPISchemaRepository['testEcho']>()
   })
 
-  it('resolves an unknown schema key to Record<string, never>', () => {
-    expectTypeOf<SchemaPaths<'nonExistent'>>().toEqualTypeOf<Record<string, never>>()
+  it('rejects an unknown schema key', () => {
+    // @ts-expect-error: No service is named `petStroe`.
+    type _UnknownSchemaPaths = SchemaPaths<'petStroe'>
+  })
+})
+
+describe('createOpenAPIClient', () => {
+  it('rejects an unknown service name', () => {
+    // @ts-expect-error: No service is named `petStroe`.
+    expectTypeOf(createOpenAPIClient<'petStroe'>).toBeFunction()
+  })
+
+  it('types the response after the responseType option', () => {
+    expectTypeOf(() => petStoreClient('/pet/{petId}', { path: { petId: 1 }, responseType: 'blob' }))
+      .returns
+      .resolves
+      .toEqualTypeOf<Blob>()
+    expectTypeOf(() => petStoreClient('/pet/{petId}', { path: { petId: 1 }, responseType: 'json' }))
+      .returns
+      .resolves
+      .toEqualTypeOf<Components['schemas']['Pet']>()
+  })
+
+  it('keeps the JSON response with a retryDelay typed for any response format', () => {
+    const retryDelay = (_context: FetchContext) => 100
+    expectTypeOf(() => petStoreClient('/pet/{petId}', { path: { petId: 1 }, retryDelay }))
+      .returns
+      .resolves
+      .toEqualTypeOf<Components['schemas']['Pet']>()
   })
 })
 
@@ -94,11 +160,23 @@ describe('PetStore', () => {
       .toEqualTypeOf<PetStore<'/pet/{petId}', 'delete'>['response']>()
   })
 
+  it('types the response of a path cast to any as any and accepts any body', () => {
+    expectTypeOf(() => petStoreClient('/pet/1' as any, { method: 'SEARCH', body: JSON.stringify({ name: 'Rex' }) }))
+      .returns
+      .resolves
+      .toBeAny()
+  })
+
   it('keys the responses by status code', () => {
     expectTypeOf<TestEcho<'/echo/request', 'post'>['responses']>().toEqualTypeOf<{
       200: TestEchoComponents['schemas']['EchoResponse']
       400: TestEchoComponents['schemas']['Error']
     }>()
+  })
+
+  it('types the body of a default response as the error rather than the response', () => {
+    expectTypeOf<PetStore<'/user', 'post'>['error']>().toEqualTypeOf<Components['schemas']['User']>()
+    expectTypeOf<PetStore<'/user', 'post'>['response']>().toBeNever()
   })
 
   it('types a status that carries no content as undefined', () => {

@@ -3,16 +3,14 @@ import type { $Fetch, FetchOptions } from 'ofetch'
 import type { OpenAPIClient } from './types.ts'
 import { ofetch } from 'ofetch'
 
-export type SchemaPaths<K> = K extends keyof OpenAPISchemaRepository
-  ? OpenAPISchemaRepository[K]
-  : Record<string, never>
+export type SchemaPaths<K extends keyof OpenAPISchemaRepository> = OpenAPISchemaRepository[K]
 
 interface OpenAPIRequestOptions extends FetchOptions {
   path?: Record<string, string>
 }
 
 export function createOpenAPIClient<
-  const Schema extends string,
+  Schema extends keyof OpenAPISchemaRepository,
   Paths = SchemaPaths<Schema>,
 >(
   defaultOptions: FetchOptions = {},

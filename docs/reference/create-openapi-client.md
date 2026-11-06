@@ -30,7 +30,7 @@ const userResponse = await petStore('/user/{username}', {
 
 ```ts
 declare function createOpenAPIClient<
-  const Schema extends string,
+  Schema extends keyof OpenAPISchemaRepository,
   Paths = SchemaPaths<Schema>,
 >(
   defaultOptions?: FetchOptions
@@ -38,7 +38,7 @@ declare function createOpenAPIClient<
 ```
 
 > [!NOTE]
-> `Schema` is the service name from your `apiful.config.ts` file, same as with `OpenAPIBuilder`. `Paths` is derived from it and is not meant to be passed.
+> `Schema` is the service name from your `apiful.config.ts` file, same as with `OpenAPIBuilder`. A name no service carries fails to compile. `Paths` is derived from it and is not meant to be passed.
 
 ## Error Responses
 

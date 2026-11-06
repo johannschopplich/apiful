@@ -48,6 +48,7 @@ Every endpoint type provides these essential properties that give you complete c
 | `request` | Request body, for whichever media type the operation declares | `{ name: string; photoUrls: string[] }` |
 | `response` | Body of the successful response, for whichever 2xx status the operation declares | `{ id?: number; name: string }` |
 | `responses` | Map of every status code the operation declares to the body it returns | `{ 200: Pet; 400: undefined; 404: undefined }` |
+| `error` | Body of every 4xx, 5xx, and `default` response the operation declares, as one union | `Error` |
 | `fullPath` | The complete path template as defined in the OpenAPI spec | `'/pet/{petId}'` |
 | `method` | HTTP method verb for the operation | `'get'` |
 | `operation` | Complete OpenAPI operation object with all metadata | Complete operation object |

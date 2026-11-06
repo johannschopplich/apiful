@@ -42,12 +42,9 @@ describe('OpenAPIBuilder', () => {
     expectTypeOf(secondPetStoreClient).toEqualTypeOf<OpenAPIClient<OpenAPISchemaRepository['petStore']>>()
   })
 
-  it('types an unknown schema name as an empty paths record', () => {
-    const nonExistentBuilder = OpenAPIBuilder<'nonExistent'>()
-    const client = {} as ApiClient
-    const nonExistentClient = nonExistentBuilder(client)
-
-    expectTypeOf(nonExistentClient).toEqualTypeOf<OpenAPIClient<Record<string, never>>>()
+  it('rejects an unknown schema name', () => {
+    // @ts-expect-error: No service is named `petStroe`.
+    expectTypeOf(OpenAPIBuilder<'petStroe'>).toBeFunction()
   })
 
   it('types the response by path and method', () => {

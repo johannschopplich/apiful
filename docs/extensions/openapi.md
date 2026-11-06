@@ -80,6 +80,16 @@ declare const userResponse: {
 }
 ```
 
+A `responseType` other than `json` swaps the schema type for the one ofetch hands back – `Blob` for `blob`, `string` for `text`, `ArrayBuffer` for `arrayBuffer`, and `ReadableStream<Uint8Array>` for `stream`:
+
+```ts
+const rawUser = await petStore('/user/{username}', {
+  path: { username: 'user1' },
+  responseType: 'blob',
+})
+// ^? Blob
+```
+
 ## OpenAPI Path Parameters
 
 OpenAPI can define path parameters on given endpoints. They are typically declared as `/foo/{id}`. Unfortunately, the endpoint type isn't defined as `/foo/10`. Thus, using the latter as the path will break type inference.
