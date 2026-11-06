@@ -1,4 +1,4 @@
-# `OpenAPIBuilder`
+# `openAPIBuilder`
 
 > [!NOTE]
 > This is a [handler extension](/guide/custom-extensions#handler-extension) that wraps [ofetch](https://github.com/unjs/ofetch) under the hood.
@@ -36,7 +36,7 @@ npx apiful generate
 
 APIful turns the schema into types and declares them as a module that merges into `apiful/schema`. The output is a declaration file, so nothing of it reaches your bundle. The file builds its endpoint helpers on the types APIful itself ships, which is why it imports from `apiful/openapi`.
 
-You can now create a type-safe client with the `OpenAPIBuilder` extension, passing the **service name** as a generic parameter – `OpenAPIBuilder<'petStore'>()`. The [next section](#using-the-openapibuilder-extension) shows it in full.
+You can now create a type-safe client with the `openAPIBuilder` extension, passing the **service name** as a generic parameter – `openAPIBuilder<'petStore'>()`. The [next section](#using-the-openapibuilder-extension) shows it in full.
 
 > [!IMPORTANT]
 > Make sure the generated `apiful.d.ts` file isn't excluded by your `tsconfig.json` configuration. TypeScript needs to find this file to provide typed definitions for your OpenAPI schema.
@@ -44,15 +44,15 @@ You can now create a type-safe client with the `OpenAPIBuilder` extension, passi
 > [!TIP]
 > Run the generate command whenever your OpenAPI schema changes to keep your types up-to-date. Consider adding it to your build process or a pre-commit hook.
 
-## Using the `OpenAPIBuilder` Extension
+## Using the `openAPIBuilder` Extension
 
-Once you have generated the TypeScript definitions, create a type-safe API client using the `OpenAPIBuilder` extension:
+Once you have generated the TypeScript definitions, create a type-safe API client using the `openAPIBuilder` extension:
 
 ```ts
-import { createClient, OpenAPIBuilder } from 'apiful'
+import { createClient, openAPIBuilder } from 'apiful'
 
 const baseURL = 'https://petstore3.swagger.io/api/v3'
-const adapter = OpenAPIBuilder<'petStore'>()
+const adapter = openAPIBuilder<'petStore'>()
 const petStore = createClient({ baseURL }).with(adapter)
 ```
 

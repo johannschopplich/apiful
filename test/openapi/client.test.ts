@@ -1,4 +1,5 @@
 import type { components } from 'apiful/schema/petStore'
+import type { $Fetch, FetchOptions } from 'ofetch'
 import { ofetch } from 'ofetch'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createOpenAPIClient, resolvePathParams } from '../../src/openapi/client'
@@ -64,6 +65,15 @@ describe('createOpenAPIClient', () => {
     expect(mockCreate).toHaveBeenCalledOnce()
   })
 
+  it('issues requests through the fetch it was given instead of creating one', async () => {
+    const fetch = vi.fn().mockResolvedValue({})
+    const client = createOpenAPIClient<'petStore'>({}, { fetch: fetch as unknown as $Fetch })
+    await client('/pet/{petId}', { path: { petId: 1 } })
+
+    expect(fetch).toHaveBeenCalledWith('/pet/1', {})
+    expect(mockCreate).not.toHaveBeenCalled()
+  })
+
   it('resolves path parameters and forwards options to the underlying fetch', async () => {
     const mockPet: components['schemas']['Pet'] = {
       id: 123,
@@ -91,6 +101,46 @@ describe('createOpenAPIClient', () => {
     expect(mockFetch).toHaveBeenCalledWith('/pet/findByStatus', { query: { status: 'available' } })
   })
 
+  it('serializes an object body as JSON for a QUERY request', async () => {
+    const { fetch, rawFetch } = await createRecordingFetch()
+    const client = createOpenAPIClient<'catalog'>({}, { fetch })
+    await client('/items', { method: 'QUERY', body: { name: 'lamp' } })
+
+    const [, init] = rawFetch.mock.lastCall!
+    expect(init.body).toBe('{"name":"lamp"}')
+    expect(init.headers.get('content-type')).toBe('application/json')
+    expect(init.headers.get('accept')).toBe('application/json')
+  })
+
+  it('keeps the default content-type of the fetch for a QUERY body', async () => {
+    const { fetch, rawFetch } = await createRecordingFetch({ headers: { 'content-type': 'application/vnd.api+json' } })
+    const client = createOpenAPIClient<'catalog'>({}, { fetch })
+    await client('/items', { method: 'QUERY', body: { name: 'lamp' } })
+
+    expect(rawFetch.mock.lastCall![1].headers.get('content-type')).toBe('application/vnd.api+json')
+  })
+
+  it('form-encodes a QUERY body under an application/x-www-form-urlencoded content-type', async () => {
+    const { fetch, rawFetch } = await createRecordingFetch()
+    const client = createOpenAPIClient<'catalog'>({}, { fetch })
+    await client('/items', {
+      method: 'QUERY',
+      body: { name: 'lamp' },
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    })
+
+    expect(rawFetch.mock.lastCall![1].body).toBe('name=lamp')
+  })
+
+  it('passes a QUERY body to the onRequest hook as an object', async () => {
+    const { fetch } = await createRecordingFetch()
+    const client = createOpenAPIClient<'catalog'>({}, { fetch })
+    const onRequest = vi.fn()
+    await client('/items', { method: 'QUERY', body: { name: 'lamp' }, onRequest })
+
+    expect(onRequest.mock.lastCall![0].options.body).toEqual({ name: 'lamp' })
+  })
+
   it('invokes fetch without options when the caller provides none', async () => {
     mockFetch.mockResolvedValue({})
     const client = createOpenAPIClient<'petStore'>({ baseURL: 'https://petstore3.swagger.io/api/v3' })
@@ -113,3 +163,12 @@ describe('createOpenAPIClient', () => {
     expect(result).toBe(expected)
   })
 })
+
+/** Creates an actual ofetch instance whose underlying fetch records each request. */
+async function createRecordingFetch(defaultOptions: FetchOptions = {}) {
+  const { ofetch: actualOfetch } = await vi.importActual<typeof import('ofetch')>('ofetch')
+  const rawFetch = vi.fn<(input: RequestInfo | URL, init: RequestInit & { headers: Headers }) => Promise<Response>>()
+    .mockResolvedValue(Response.json([]))
+  const fetch = actualOfetch.create(defaultOptions, { fetch: rawFetch as typeof globalThis.fetch })
+  return { fetch, rawFetch }
+}

@@ -1,6 +1,6 @@
 # OpenAPI Type Helpers
 
-When building clients with the [`OpenAPIBuilder` extension](/extensions/openapi), you may want to extract TypeScript types from your OpenAPI schema. APIful generates a comprehensive type system that lets you access request and response types for any endpoint without manually defining them.
+When building clients with the [`openAPIBuilder` extension](/extensions/openapi), you may want to extract TypeScript types from your OpenAPI schema. APIful generates a comprehensive type system that lets you access request and response types for any endpoint without manually defining them.
 
 ## Why Use Type Helpers?
 

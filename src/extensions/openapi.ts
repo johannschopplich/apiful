@@ -1,16 +1,16 @@
 import type { OpenAPISchemaRepository } from 'apiful/schema'
 import type { ApiClient } from '../client.ts'
-import type { SchemaPaths } from '../openapi/index.ts'
+import type { SchemaPaths } from '../openapi/client.ts'
 import type { OpenAPIClient } from '../openapi/types.ts'
-import { createOpenAPIHandler } from '../openapi/index.ts'
+import { createOpenAPIClient } from '../openapi/client.ts'
 
 export type * from '../openapi/types.ts'
 
-export function OpenAPIBuilder<
+export function openAPIBuilder<
   Schema extends keyof OpenAPISchemaRepository,
   Paths = SchemaPaths<Schema>,
 >() {
   return function (client: ApiClient): OpenAPIClient<Paths> {
-    return createOpenAPIHandler<Paths>(client.fetch)
+    return createOpenAPIClient<Schema, Paths>({}, { fetch: client.fetch })
   }
 }

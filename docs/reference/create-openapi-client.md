@@ -2,11 +2,11 @@
 
 Creates a type-safe OpenAPI client from a generated schema. This is the direct way to call an OpenAPI service, and the one to reach for by default.
 
-Use [`createClient`](/reference/create-client) with [`OpenAPIBuilder`](/extensions/openapi) instead when the same client also has to carry other extensions. Both give you the same types from the same schema – the builder adds the `.with()` chain on top.
+Use [`createClient`](/reference/create-client) with [`openAPIBuilder`](/extensions/openapi) instead when the same client also has to carry other extensions. Both give you the same types from the same schema – the builder adds the `.with()` chain on top.
 
 ## Prerequisites
 
-Same as the [`OpenAPIBuilder`](/extensions/openapi) extension – you need TypeScript definitions generated using the [`generate`](/guide/cli) command.
+Same as the [`openAPIBuilder`](/extensions/openapi) extension – you need TypeScript definitions generated using the [`generate`](/guide/cli) command.
 
 ## Example
 
@@ -33,16 +33,19 @@ declare function createOpenAPIClient<
   Schema extends keyof OpenAPISchemaRepository,
   Paths = SchemaPaths<Schema>,
 >(
-  defaultOptions?: FetchOptions
+  defaultOptions?: FetchOptions,
+  factoryOptions?: ClientFactoryOptions
 ): OpenAPIClient<Paths>
 ```
 
+`ClientFactoryOptions` is the same as for [`createClient`](/reference/create-client#type-definition).
+
 > [!NOTE]
-> `Schema` is the service name from your `apiful.config.ts` file, same as with `OpenAPIBuilder`. A name no service carries fails to compile. `Paths` is derived from it and is not meant to be passed.
+> `Schema` is the service name from your `apiful.config.ts` file, same as with `openAPIBuilder`. A name no service carries fails to compile. `Paths` is derived from it and is not meant to be passed.
 
 ## Error Responses
 
-A non-2xx response throws, and [`FetchResponseError`](/extensions/openapi#error-responses) types the body the error carries – from the same schema, in the same way it works with `OpenAPIBuilder`.
+A 4xx or 5xx response throws, and [`FetchResponseError`](/extensions/openapi#error-responses) types the body the error carries – from the same schema, in the same way it works with `openAPIBuilder`.
 
 ## Options Resolved per Request
 
@@ -59,13 +62,12 @@ const client = createOpenAPIClient<'petStore'>({
 
 ## Bringing Your Own Fetch
 
-`createOpenAPIClient` builds its fetch function with `ofetch.create`. To supply one yourself – an instance you already configured, or a stub in a test – wrap it with `createOpenAPIHandler`, which is what this function and `OpenAPIBuilder` both use underneath:
+`createOpenAPIClient` builds its fetch function from `defaultOptions` with `ofetch.create`. To supply one yourself – an instance you already configured, or a stub in a test – pass it as `fetch`, the same option [`createClient`](/reference/create-client#supplying-your-own-fetch) takes:
 
 ```ts
-import type { SchemaPaths } from 'apiful/openapi'
-import { createOpenAPIHandler } from 'apiful/openapi/client'
+import { createOpenAPIClient } from 'apiful/openapi/client'
 
-const petStore = createOpenAPIHandler<SchemaPaths<'petStore'>>(myFetch)
+const petStore = createOpenAPIClient<'petStore'>({}, { fetch: myFetch })
 ```
 
-It resolves the `path` parameters into the URL and passes every other option on to the fetch function unchanged.
+The client resolves the `path` parameters into the URL and passes every other option on to the fetch function unchanged. A fetch you supply owns its own options, so `defaultOptions` no longer reaches it.

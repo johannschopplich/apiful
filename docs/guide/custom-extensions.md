@@ -59,13 +59,13 @@ See [`MethodsExtensionBuilder`](/reference/methods-extension-builder) for the ty
 
 ## Reaching the Client
 
-`with` hands the builder the client as it stands, carrying every extension added before it. Written inline, the types follow along – this method calls through the [`OpenAPIBuilder`](/extensions/openapi) handler one line above it and is typed from the schema:
+`with` hands the builder the client as it stands, carrying every extension added before it. Written inline, the types follow along – this method calls through the [`openAPIBuilder`](/extensions/openapi) handler one line above it and is typed from the schema:
 
 ```ts
-import { createClient, OpenAPIBuilder } from 'apiful'
+import { createClient, openAPIBuilder } from 'apiful'
 
 const api = createClient({ baseURL: 'https://petstore3.swagger.io/api/v3' })
-  .with(OpenAPIBuilder<'petStore'>())
+  .with(openAPIBuilder<'petStore'>())
   .with(client => ({
     pet: (petId: number) => client('/pet/{petId}', { method: 'GET', path: { petId } }),
   }))
@@ -86,7 +86,7 @@ function petMethods(client: OpenAPIClient<SchemaPaths<'petStore'>>) {
 }
 
 const api = createClient({ baseURL: 'https://petstore3.swagger.io/api/v3' })
-  .with(OpenAPIBuilder<'petStore'>())
+  .with(openAPIBuilder<'petStore'>())
   .with(petMethods)
 ```
 

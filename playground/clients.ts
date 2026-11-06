@@ -1,7 +1,7 @@
 /* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable antfu/no-top-level-await */
 import { consola } from 'consola'
-import { apiRouterBuilder, createClient, ofetchBuilder, OpenAPIBuilder } from '../src/index.ts'
+import { apiRouterBuilder, createClient, ofetchBuilder, openAPIBuilder } from '../src/index.ts'
 
 interface JSONPlaceholderTodoResponse {
   userId: number
@@ -23,7 +23,7 @@ consola.success(response)
 
 const petStore = createClient({
   baseURL: 'https://petstore3.swagger.io/api/v3',
-}).with(OpenAPIBuilder<'petStore'>())
+}).with(openAPIBuilder<'petStore'>())
 const userResponse = await petStore('/user/{username}', {
   method: 'GET',
   path: { username: 'user1' },

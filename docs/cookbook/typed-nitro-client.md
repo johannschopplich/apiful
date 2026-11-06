@@ -2,7 +2,7 @@
 
 [Nitro](https://nitro.build) is excellent for building web servers with everything you need and deploying them wherever you want. This guide shows you how to set up a fully typed client for your Nitro server quickly.
 
-We will use the [APIful CLI](/guide/cli) to transform the OpenAPI schema into type definitions and [`createClient`](/reference/create-client) with [`OpenAPIBuilder`](/extensions/openapi) to instantiate a typed client.
+We will use the [APIful CLI](/guide/cli) to transform the OpenAPI schema into type definitions and [`createClient`](/reference/create-client) with [`openAPIBuilder`](/extensions/openapi) to instantiate a typed client.
 
 > [!NOTE]
 > This guide targets **Nitro v3**, which ships as the `nitro` package and is currently in beta. Its OpenAPI support is behind an experimental flag. If you are starting from scratch, follow Nitro's [quick start](https://nitro.build/docs/quick-start) first – everything below assumes a working Nitro app.
@@ -133,7 +133,7 @@ Next, run the following command to generate the type definitions, saved as `apif
 npx apiful generate
 ```
 
-Type definitions for the `myApi` service will augment the global `apiful/schema`, making them available to the `OpenAPIBuilder` extension.
+Type definitions for the `myApi` service will augment the global `apiful/schema`, making them available to the `openAPIBuilder` extension.
 
 > [!IMPORTANT]
 > The `/_openapi.json` route is only served in development. Keep your Nitro dev server running while generating types from a URL.
@@ -143,13 +143,13 @@ Type definitions for the `myApi` service will augment the global `apiful/schema`
 
 ## 4️⃣ Create the Typed Client
 
-Finally, create an API client using the `OpenAPIBuilder` extension. Pass `myApi` as a generic type parameter to `OpenAPIBuilder` so that the client is typed with the definitions generated from the OpenAPI schema:
+Finally, create an API client using the `openAPIBuilder` extension. Pass `myApi` as a generic type parameter to `openAPIBuilder` so that the client is typed with the definitions generated from the OpenAPI schema:
 
 ```ts
-import { createClient, OpenAPIBuilder } from 'apiful'
+import { createClient, openAPIBuilder } from 'apiful'
 
 const client = createClient({ baseURL: 'http://localhost:3000' })
-  .with(OpenAPIBuilder<'myApi'>())
+  .with(openAPIBuilder<'myApi'>())
 ```
 
 ## 5️⃣ Request Data With the Typed Client

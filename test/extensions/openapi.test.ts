@@ -5,7 +5,7 @@ import type { ApiClient } from '../../src/client'
 import type { OpenAPIClient } from '../../src/extensions/openapi'
 import type { SchemaPaths } from '../../src/openapi/client'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { createClient, OpenAPIBuilder } from '../../src/index'
+import { createClient, openAPIBuilder } from '../../src/index'
 
 function createRecordedClient() {
   const fetch = vi.fn()
@@ -17,10 +17,9 @@ function createRecordedClient() {
   return { client, fetch }
 }
 
-// eslint-disable-next-line test/prefer-lowercase-title
-describe('OpenAPIBuilder', () => {
+describe('openAPIBuilder', () => {
   it('takes an ApiClient and returns an OpenAPIClient', () => {
-    const builder = OpenAPIBuilder<'petStore'>()
+    const builder = openAPIBuilder<'petStore'>()
     expectTypeOf(builder).toBeFunction()
     expectTypeOf(builder).parameter(0).toEqualTypeOf<ApiClient>()
 
@@ -30,13 +29,13 @@ describe('OpenAPIBuilder', () => {
   })
 
   it('types the client from the schema name it was given', () => {
-    const petStoreBuilder = OpenAPIBuilder<'petStore'>()
+    const petStoreBuilder = openAPIBuilder<'petStore'>()
     const client = {} as ApiClient
     const petStoreClient = petStoreBuilder(client)
 
     expectTypeOf(petStoreClient).toEqualTypeOf<OpenAPIClient<OpenAPISchemaRepository['petStore']>>()
 
-    const secondPetStoreBuilder = OpenAPIBuilder<'petStore'>()
+    const secondPetStoreBuilder = openAPIBuilder<'petStore'>()
     const secondPetStoreClient = secondPetStoreBuilder(client)
 
     expectTypeOf(secondPetStoreClient).toEqualTypeOf<OpenAPIClient<OpenAPISchemaRepository['petStore']>>()
@@ -44,11 +43,11 @@ describe('OpenAPIBuilder', () => {
 
   it('rejects an unknown schema name', () => {
     // @ts-expect-error: No service is named `petStroe`.
-    expectTypeOf(OpenAPIBuilder<'petStroe'>).toBeFunction()
+    expectTypeOf(openAPIBuilder<'petStroe'>).toBeFunction()
   })
 
   it('types the response by path and method', () => {
-    const petStoreClient = OpenAPIBuilder<'petStore'>()(createRecordedClient().client)
+    const petStoreClient = openAPIBuilder<'petStore'>()(createRecordedClient().client)
 
     const getResponse = petStoreClient('/pet/{petId}', {
       method: 'GET',
@@ -69,7 +68,7 @@ describe('OpenAPIBuilder', () => {
   })
 
   it('passes the typed call signature to the next extension builder', () => {
-    const client = createRecordedClient().client.with(OpenAPIBuilder<'petStore'>()).with(openAPIClient => ({
+    const client = createRecordedClient().client.with(openAPIBuilder<'petStore'>()).with(openAPIClient => ({
       pet: (petId: number) => openAPIClient('/pet/{petId}', { method: 'GET', path: { petId } }),
     }))
 
@@ -119,7 +118,7 @@ describe('OpenAPIBuilder', () => {
   ])('forwards $name to the underlying fetch and returns the response', async ({ path, options, expectedUrl, expectedOptions, mockResponse }) => {
     const { client: baseClient, fetch } = createRecordedClient()
     fetch.mockResolvedValue(mockResponse)
-    const client = baseClient.with(OpenAPIBuilder<'petStore'>())
+    const client = baseClient.with(openAPIBuilder<'petStore'>())
 
     const call = client as unknown as (path: string, options?: Record<string, unknown>) => Promise<unknown>
     const response = await call(path, options)
@@ -131,7 +130,7 @@ describe('OpenAPIBuilder', () => {
   it('rejects when the underlying fetch rejects', async () => {
     const { client: baseClient, fetch } = createRecordedClient()
     fetch.mockRejectedValue(new Error('404 Not Found'))
-    const client = baseClient.with(OpenAPIBuilder<'petStore'>())
+    const client = baseClient.with(openAPIBuilder<'petStore'>())
 
     await expect(() => {
       return client(

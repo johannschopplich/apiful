@@ -90,14 +90,14 @@ The `apiRouterBuilder` provides a jQuery-like and Axios-style API for building a
 
 </td></tr><tr><td width="500px" valign="top">
 
-### `OpenAPIBuilder`
+### `openAPIBuilder`
 
 ```ts
-import { createClient, OpenAPIBuilder } from 'apiful'
+import { createClient, openAPIBuilder } from 'apiful'
 
 const baseURL = 'https://petstore3.swagger.io/api/v3'
 // Pass pre-generated schema type ID to adapter
-const adapter = OpenAPIBuilder<'petStore'>()
+const adapter = openAPIBuilder<'petStore'>()
 const api = createClient({ baseURL }).with(adapter)
 
 // Typed parameters and response
@@ -111,7 +111,7 @@ const response = await api('/user/{username}', {
 
 **What it does:**
 
-If your API has an [OpenAPI](https://swagger.io/resources/open-api/) schema, APIful can use it to generate types for you, which the `OpenAPIBuilder` extension then consumes to provide type-safe API calls.
+If your API has an [OpenAPI](https://swagger.io/resources/open-api/) schema, APIful can use it to generate types for you, which the `openAPIBuilder` extension then consumes to provide type-safe API calls.
 
 For example, the response returned by the API call on the left is typed as follows:
 
