@@ -238,12 +238,6 @@ export function tsIsPrimitive(type: TSNode): boolean {
   return type === BOOLEAN || type === NEVER || type === NULL || type === NUMBER || type === STRING || type === UNDEFINED
 }
 
-export function tsParenthesize(expression: TSNode): TSNode {
-  return needsParentheses(expression)
-    ? `(${expression})`
-    : expression
-}
-
 export function tsArray(elementType: TSNode): TSNode {
   return `${tsParenthesize(elementType)}[]`
 }
@@ -319,6 +313,12 @@ function tsDedupe(types: TSNode[]): TSNode[] {
     encounteredTypes.add(type)
     return true
   })
+}
+
+function tsParenthesize(expression: TSNode): TSNode {
+  return needsParentheses(expression)
+    ? `(${expression})`
+    : expression
 }
 
 /**
