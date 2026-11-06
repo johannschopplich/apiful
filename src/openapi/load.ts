@@ -174,7 +174,7 @@ async function readDocument(absoluteRef: string, isRoot: boolean): Promise<Loade
     const isJSON = extension === '.json' || contentType.includes('json')
     return {
       absoluteRef,
-      parsed: isJSON ? JSON.parse(text.replace(/^\uFEFF/, '')) : parseYAMLKeepingTimestamps(text),
+      parsed: isJSON ? JSON.parse(text.replace(/^\uFEFF/, '')) : parseYAMLWithMergeKeys(text),
     }
   }
   catch (error) {
@@ -730,38 +730,51 @@ function createUnresolvedRefError($ref: string, location: NodeLocation, cause: u
   )
 }
 
-/** Parses YAML like Redocly, which keeps dates as the strings they are written as. */
-function parseYAMLKeepingTimestamps(text: string): unknown {
-  const nodeStartPositions: number[] = []
-  const timestampTexts = new Map<Date, string>()
-  const parsed = parseYAML(text, {
-    // js-yaml reports the bounds of every node it composes, which recovers a date's text.
-    listener(event: string, state: { input: string, position: number, result: unknown }) {
-      if (event === 'open') {
-        nodeStartPositions.push(state.position)
-        return
-      }
-      const startPosition = nodeStartPositions.pop()!
-      if (state.result instanceof Date)
-        timestampTexts.set(state.result, state.input.slice(startPosition, state.position).trim())
-    },
-  })
-
-  if (timestampTexts.size === 0)
-    return parsed
-
+/**
+ * Parses YAML like Redocly: dates stay the strings they are written as, which confbox's
+ * core schema already does, and `<<` merge keys are resolved, which it leaves as-is.
+ */
+function parseYAMLWithMergeKeys(text: string): unknown {
+  const parsed = parseYAML(text)
   const visitedNodes = new Set<object>()
-  const restoreTimestamps = (value: unknown): unknown => {
-    if (value instanceof Date)
-      return timestampTexts.get(value) ?? value.toISOString()
-    if (typeof value === 'object' && value !== null && !visitedNodes.has(value)) {
-      visitedNodes.add(value)
-      for (const [key, child] of Object.entries(value))
-        (value as Record<string, unknown>)[key] = restoreTimestamps(child)
+
+  // Merges each `<<` source into its mapping the way js-yaml does: explicit keys win over
+  // merged ones, and an earlier source wins over a later one. Children resolve first, so a
+  // source carrying its own merge key is complete before it is copied.
+  const resolveMergeKeys = (value: unknown): void => {
+    if (typeof value !== 'object' || value === null || visitedNodes.has(value))
+      return
+    visitedNodes.add(value)
+
+    for (const child of Object.values(value))
+      resolveMergeKeys(child)
+
+    if (Array.isArray(value) || !Object.hasOwn(value, '<<'))
+      return
+
+    const mapping = value as Record<string, unknown>
+    const mergedEntries: Record<string, unknown> = {}
+    for (const [key, child] of Object.entries(mapping)) {
+      const sources = [child].flat()
+      if (key !== '<<' || !sources.every(isObject)) {
+        mergedEntries[key] = child
+        continue
+      }
+      for (const source of sources) {
+        for (const [sourceKey, sourceValue] of Object.entries(source)) {
+          if (!Object.hasOwn(mergedEntries, sourceKey))
+            mergedEntries[sourceKey] = sourceValue
+        }
+      }
     }
-    return value
+
+    for (const key of Object.keys(mapping))
+      delete mapping[key]
+    Object.assign(mapping, mergedEntries)
   }
-  return restoreTimestamps(parsed)
+
+  resolveMergeKeys(parsed)
+  return parsed
 }
 
 function resolveExternalRef(base: string, ref: string): string {

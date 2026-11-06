@@ -152,7 +152,33 @@ describe('loadOpenAPIDocument', () => {
       expect(info.version).toBe('2024-01-01')
     })
 
-    it('inlines a referenced file in neither format as text', async () => {
+    it('merges the mappings a YAML << key lists under the explicit keys, the earlier mapping winning', async () => {
+      const directory = createDirectory({
+        'merge.yaml': [
+          'openapi: 3.1.0',
+          'info: { title: Merge, version: "1" }',
+          'paths: {}',
+          'components:',
+          '  schemas:',
+          '    Id: &id',
+          '      type: string',
+          '      description: An identifier',
+          '    Code: &code',
+          '      type: integer',
+          '      format: int32',
+          '    LegacyId:',
+          '      description: A legacy identifier',
+          '      <<: [*id, *code]',
+          '',
+        ].join('\n'),
+      })
+
+      const { components } = await loadOpenAPIDocument(path.join(directory, 'merge.yaml'))
+
+      expect(components!.schemas!.LegacyId).toEqual({ type: 'string', format: 'int32', description: 'A legacy identifier' })
+    })
+
+    it('inlines a referenced .sh file as text', async () => {
       const { paths } = await loadOpenAPIDocument(multiFileRoot) as Record<string, any>
 
       expect(paths['/pets/{id}'].get['x-codeSamples'][0].source).toBe('curl https://api.example.com/pets/1\n')

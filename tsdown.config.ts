@@ -9,9 +9,9 @@ const config: UserConfig = defineConfig({
       .filter(entry => !entry.endsWith('schema.ts'))),
     'src/cli/entry.ts',
   ],
-  external: [
-    'apiful/schema',
-  ],
+  deps: {
+    neverBundle: ['apiful/schema'],
+  },
   dts: true,
   unbundle: true,
 })
