@@ -42,9 +42,9 @@ The types are saved as `apiful.d.ts` in the same directory, where they augment t
 
 ### Failed and Skipped Services
 
-An OpenAPI document that cannot be read or parsed fails the whole run: the command reports the service it choked on, exits with code `1`, and writes no types, rather than leaving you with a client that compiles and is silently untyped. So does a service name the [type generator rejects](/reference/type-generator#generatetypes). The command prints the error message only; add `--verbose` to print the stack trace, too. Called from your own code instead of the CLI, the type generator rejects with a `GenerationError` for the same failures.
+An OpenAPI document that cannot be read or parsed fails the whole run: the command reports the service it choked on, exits with code `1`, and writes no types. So does a service name the [type generator rejects](/reference/type-generator#generatetypes). The command prints the error message only; add `--verbose` to print the stack trace, too.
 
-A service with no `schema` has nothing to generate from, so the run skips it and names it in a warning. Every other service is still generated, and the run succeeds. Where no service sets a `schema`, the run does nothing: output from earlier runs stays on disk, and `--check` passes. In a TypeScript configuration the omission is a type error long before that, since `schema` is required.
+A service with no `schema` is skipped with a warning that names it. Every other service is still generated, and the run succeeds. Where no service sets a `schema`, the run does nothing: output from earlier runs stays on disk, and `--check` passes.
 
 ### Keep Generated Types Current
 

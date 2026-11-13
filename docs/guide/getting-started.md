@@ -20,9 +20,6 @@ APIful requires Node 24 or later, and its types require TypeScript 5.9 or later.
   ```
 :::
 
-> [!TIP]
-> Your API client ships with your application, so `apiful` belongs in `dependencies`.
-
 ## Create a Client
 
 `createClient` takes the default options every request of the client starts from:

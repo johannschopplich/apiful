@@ -74,7 +74,7 @@ declare const userResponse: {
 }
 ```
 
-`method` is optional where the path declares `get`, and leaving it out types the call as a `GET`. It takes the verb in either case, `'POST'` or `'post'`. Where the operation requires an option – a path parameter, a required query parameter, a request body, or the `method` of a path without `get` – the options argument is required, too.
+`method` is optional where the path declares `get`, and leaving it out types the call as a `GET`. Where the operation requires an option – a path parameter, a required query parameter, a request body, or the `method` of a path without `get` – the options argument is required, too.
 
 ## Send a Request Body
 
@@ -87,7 +87,7 @@ const pet = await petStore('/pet', {
 })
 ```
 
-ofetch serializes an object body to JSON for `PATCH`, `POST`, `PUT`, and `DELETE`, and the client does the same for every other method, such as OpenAPI 3.2's `QUERY`. Two media types take other values:
+An object body is sent as JSON whatever the method, OpenAPI 3.2's `QUERY` included. Two media types take other values:
 
 - A `multipart/form-data` body is typed as `FormData`, since a plain object would be sent as JSON.
 - An `application/x-www-form-urlencoded` body takes its schema's object or a `URLSearchParams`. ofetch form-encodes the object once the request sets that content type in `headers`.

@@ -16,59 +16,24 @@ const users = await api.users.get<UserResponse>()
 
 ## Path Building Strategies
 
-There are four ways to build a path, and they mix freely within one chain.
-
-### Dot Notation
-
-Every property that is not an HTTP method becomes a segment:
+Four ways to build a path mix freely within one chain:
 
 ```ts
+// Every property that is not an HTTP method is a segment
 // GET request to <baseURL>/users/profile/settings
 const settings = await api.users.profile.settings.get<SettingsResponse>()
 
-// POST request to <baseURL>/posts/comments
-const comment = await api.posts.comments.post({ text: 'Hello!' })
-```
-
-### Chain Syntax With Dynamic Segments
-
-Calling a segment appends its arguments, which is how you interpolate a value:
-
-```ts
-const userId = 123
-const postId = 456
-
-// GET request to <baseURL>/users/123/posts/456
-const post = await api.users(userId).posts(postId).get<PostResponse>()
-
-// Multiple dynamic segments
-const response = await api.categories('tech').posts(postId).comments.get()
-```
-
-### Bracket Notation
-
-The same as dot notation, for segments that are not valid identifiers or are not known ahead of time:
-
-```ts
-const userId = 123
-
-// GET request to <baseURL>/users/123
-const user = await api.users[`${userId}`].get<UserResponse>()
-
-// Useful for paths with special characters or spaces
+// Brackets, for segments that are not valid identifiers or not known ahead of time
+// GET request to <baseURL>/api-v2/special-endpoint
 const data = await api['api-v2']['special-endpoint'].get()
-```
 
-### Multiple Arguments
+// Calling a segment appends its arguments
+// GET request to <baseURL>/users/123/posts/456
+const post = await api.users(123).posts(456).get<PostResponse>()
 
-Calling the client itself appends every argument at once:
-
-```ts
+// Calling the client appends every argument at once
 // GET request to <baseURL>/users/123/posts/456/comments
 const comments = await api('users', 123, 'posts', 456, 'comments').get<CommentResponse[]>()
-
-// Mix static and dynamic segments
-const result = await api('api', 'v1', 'users', userId, 'profile').get()
 ```
 
 > [!NOTE]
