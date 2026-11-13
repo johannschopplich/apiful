@@ -6,7 +6,7 @@ An APIful client is a set of default fetch options – a base URL, headers, retr
 
 Start with one of the [built-in extensions](https://apiful.land/extensions/), or [write your own](https://apiful.land/guide/custom-extensions).
 
-## Setup
+## Installation
 
 > [!TIP]
 > [📖 Read the documentation](https://apiful.land)
