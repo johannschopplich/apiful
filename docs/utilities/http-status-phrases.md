@@ -4,7 +4,7 @@
 
 The phrases are the ones the [IANA HTTP Status Code Registry](https://www.iana.org/assignments/http-status-codes) lists, and each constant shares its name with the matching [status code](/utilities/http-status-codes): `CONTENT_TOO_LARGE` is `'Content Too Large'`.
 
-## Usage
+## Example
 
 ```ts
 import * as HttpStatusPhrases from 'apiful/http-status-phrases'

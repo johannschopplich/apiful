@@ -2,7 +2,7 @@
 
 An APIful client is a set of default fetch options – a base URL, headers, retries – plus the extensions you add to it. The extensions decide how you write a request and how much of it TypeScript knows: plain `fetch`-style calls, a chain of path segments, or paths and responses typed from an OpenAPI document.
 
-Start with one of the [built-in extensions](/extensions/), or [write your own](/guide/custom-extensions). Either way the client stays one callable object, which is [how extensions work](/guide/using-extensions#how-extensions-work).
+Start with one of the [built-in extensions](/extensions/), or [write your own](/guide/custom-extensions). Either way the client stays one callable object, which is [how extensions work](/guide/how-extensions-work).
 
 ## Install APIful
 
@@ -89,4 +89,4 @@ const client = createClient({ baseURL: 'https://api.example.com' })
   .with(logExtension)
 ```
 
-See [Custom Extensions](/guide/custom-extensions) for how `logExtension` is written, and [how extensions work](/guide/using-extensions#how-extensions-work) for what happens when two of them collide.
+See [Custom Extensions](/guide/custom-extensions) for how `logExtension` is written, and [how extensions work](/guide/how-extensions-work) for what happens when two of them collide.

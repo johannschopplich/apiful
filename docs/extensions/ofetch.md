@@ -11,7 +11,7 @@ const client = createClient({ baseURL: 'https://jsonplaceholder.typicode.com' })
   .with(ofetchBuilder())
 ```
 
-The `client` now has the same API as [ofetch](https://github.com/unjs/ofetch), accepting all options that ofetch provides:
+The client now takes the same arguments as [ofetch](https://github.com/unjs/ofetch):
 
 ```ts
 // GET request with query parameters

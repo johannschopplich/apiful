@@ -1,17 +1,6 @@
-# Using Extensions
+# How Extensions Work
 
-A client on its own holds nothing but default fetch options – calling it throws. Extensions give it behavior, and `with` adds them:
-
-```ts
-import { createClient, ofetchBuilder } from 'apiful'
-
-const client = createClient({ baseURL: 'https://api.example.com' })
-  .with(ofetchBuilder())
-```
-
-If you have not created a client yet, start with [Getting Started](/guide/getting-started).
-
-## How Extensions Work
+A client on its own holds nothing but default fetch options – calling it throws. Extensions give it behavior, and `with` adds them.
 
 Every `.with()` call returns a new client, wrapped in a proxy that routes property access to the extension that provides it, so a chain of extensions stays a single callable client and TypeScript keeps the types of each one. The client you called it on is left as it was, which means you can extend one client two different ways without the two interfering.
 

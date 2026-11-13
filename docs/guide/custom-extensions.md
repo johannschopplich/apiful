@@ -5,7 +5,7 @@ When none of the [built-in extensions](/extensions/) fits, write your own. An ex
 - A [handler extension](#write-a-handler-extension) is a function, which becomes the client's call signature.
 - A [methods extension](#write-a-methods-extension) is an object, whose entries become methods on the client.
 
-Both are added with `with`, and the rules for combining them are in [how extensions work](/guide/using-extensions#how-extensions-work).
+Both are added with `with`, and the rules for combining them are in [how extensions work](/guide/how-extensions-work).
 
 > [!IMPORTANT]
 > Use `satisfies HandlerExtensionBuilder` or `satisfies MethodsExtensionBuilder` rather than annotating the variable with the type directly. `satisfies` checks the shape while preserving the exact return type, which is what lets the next `.with()` in the chain see your methods. Both type the client as a bare `ApiClient` – to reach the extensions added before yours, [annotate the parameter instead](#reach-earlier-extensions).
@@ -52,7 +52,7 @@ const logExtension = (client => ({
 const extendedClient = client
   .with(logExtension)
 
-extendedClient.logDefaults() // { baseURL: 'https://api.example.com', headers: { Authorization: 'Bearer <your-bearer-token>' } }
+extendedClient.logDefaults() // Default fetch options: { baseURL: 'https://api.example.com' }
 ```
 
 See [`MethodsExtensionBuilder`](/reference/methods-extension-builder) for the type definition.

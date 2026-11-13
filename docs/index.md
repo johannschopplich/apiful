@@ -44,7 +44,7 @@ features:
     link: /guide/cli
     linkText: CLI Reference
   - icon: <span class="i-devicon-plain:openapi"></span>
-    title: Typed API Clients from OpenAPI Documents
+    title: Typed API Clients From OpenAPI Documents
     details: Runtime-free types instead of runtime-generated code.
     link: /extensions/openapi
     linkText: OpenAPI Integration

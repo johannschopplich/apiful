@@ -10,4 +10,4 @@ APIful ships three handler extensions. Each one gives the client a different cal
 
 All three wrap [ofetch](https://github.com/unjs/ofetch), so they share its options, its error behavior, and its hooks.
 
-A client takes one handler extension. To combine one of these with methods of your own, chain a [methods extension](/guide/custom-extensions#write-a-methods-extension) after it – see [how extensions work](/guide/using-extensions#how-extensions-work).
+A client takes one handler extension. To combine one of these with methods of your own, chain a [methods extension](/guide/custom-extensions#write-a-methods-extension) after it – see [how extensions work](/guide/how-extensions-work).

@@ -2,7 +2,7 @@
 
 `jsonToTypeDefinition` from `apiful/utils` infers a TypeScript type from a JSON value and returns its source: an interface for an object, a type alias for anything else, named after `typeName` (default `Root`). Every property is optional unless you pass `strictProperties: true`.
 
-## Usage
+## Example
 
 ```ts
 import { jsonToTypeDefinition } from 'apiful/utils'

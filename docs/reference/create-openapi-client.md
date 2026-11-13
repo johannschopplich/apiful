@@ -1,8 +1,6 @@
 # `createOpenAPIClient`
 
-Creates a type-safe OpenAPI client from the types [`apiful generate`](/guide/cli) writes. This is the direct way to call an OpenAPI service, and the one to reach for by default.
-
-Use [`createClient`](/reference/create-client) with [`openAPIBuilder`](/extensions/openapi) instead when the same client also has to carry other extensions. Both give you the same types from the same OpenAPI document – the builder adds the `.with()` chain on top.
+Creates a client for one service from the generated types [`apiful generate`](/guide/cli) writes. This is the direct way to call an OpenAPI service, and the one to reach for unless the client also carries other extensions – see [Create the Client](/extensions/openapi#create-the-client).
 
 ## Example
 
@@ -24,6 +22,8 @@ const userResponse = await petStore('/user/{username}', {
 
 For a value that changes per request, such as a rotating token, see [Authenticating Requests](/cookbook/authentication).
 
+A 4xx or 5xx response throws, and [`FetchResponseError`](/extensions/openapi#catch-error-responses) types the body the error carries – from the same OpenAPI document, in the same way it works with `openAPIBuilder`.
+
 ## Type Definition
 
 ```ts
@@ -39,11 +39,7 @@ declare function createOpenAPIClient<
 `ClientFactoryOptions` is the same as for [`createClient`](/reference/create-client#type-definition).
 
 > [!NOTE]
-> `Service` is the service name from your `apiful.config.ts` file, same as with `openAPIBuilder`. A name no service carries fails to compile. `Paths` is derived from it and is not meant to be passed.
-
-## Error Responses
-
-A 4xx or 5xx response throws, and [`FetchResponseError`](/extensions/openapi#catch-error-responses) types the body the error carries – from the same OpenAPI document, in the same way it works with `openAPIBuilder`.
+> `Service` is the service name from your `apiful.config.ts` file, same as with `openAPIBuilder`. A name no service carries fails to compile. `Paths` is derived from it, and is passed only for [`paths` you placed yourself](/reference/type-generator#generatetypehelpers).
 
 ## Supplying Your Own Fetch
 

@@ -253,7 +253,7 @@ The other changes:
 - A query parameter with `application/json` content and an object schema is typed as that schema – pass the object, and ofetch serializes it.
 - OpenAPI 3.2 operations are typed: the `query` method, custom methods from `additionalOperations` under their lowercased name, and a `querystring` parameter as the type of the `query` object.
 - `components` of an OpenAPI 3.2 document has a `mediaTypes` group, `never` where the document declares none.
-- A discriminator child inlines the parent's members into its `Omit<…>` rather than referencing the parent.
+- A discriminator child that its parent lists in `oneOf` inlines the parent's members into its `Omit<…>` rather than referencing the parent.
 - A `$ref` into a member of a schema that may be absent indexes through `NonNullable<…>`, and one to an optional property excludes `undefined`.
 - An `anyOf` beside `properties` is intersected with them, as `oneOf` is, and a branch that only lists `required` keys makes those properties required.
 - A schema of `type: null` beside a `oneOf` or `anyOf` is a union with `null`.

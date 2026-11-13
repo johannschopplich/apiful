@@ -6,7 +6,7 @@ The constants follow the [IANA HTTP Status Code Registry](https://www.iana.org/a
 
 Unlike the enums of the [http-status-codes](https://www.npmjs.com/package/http-status-codes) package, plain constants work with type systems such as `@hono/zod-openapi`.
 
-## Usage
+## Example
 
 ```ts
 import * as HttpStatusCodes from 'apiful/http-status-codes'

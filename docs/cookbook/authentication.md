@@ -21,7 +21,7 @@ const client = createClient({
 
 ## A Token That Expires
 
-Default options are read once, when the client is created. A token interpolated into them is the token that was valid at startup, and it will still be sent an hour later.
+Default options are read once, when the client is created. A token interpolated into them is the token that was valid at startup, and it is still the one sent an hour later.
 
 Use ofetch's `onRequest` hook instead, which runs before every request and may be async:
 
@@ -72,7 +72,7 @@ Two details decide whether this works:
 
 ## One Refresh for Concurrent Requests
 
-Ten requests that all reach an expired token will each call the refresh endpoint. Hold the in-flight refresh in a promise and hand the same one to every caller:
+Ten requests that all reach an expired token each call the refresh endpoint. Hold the in-flight refresh in a promise and hand the same one to every caller:
 
 ```ts
 let accessToken: string | undefined

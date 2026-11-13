@@ -18,12 +18,12 @@ interface ApiClientBase<Handler, Methods> extends Function {
 }
 ```
 
-`Handler` is the latest handler extension – a replaced one is gone from the type, [as at runtime](/guide/using-extensions#how-extensions-work) – and `Methods` collects every methods extension. A bare `ApiClient` carries neither, so every extended client is assignable to it.
+`Handler` is the latest handler extension – a replaced one is gone from the type, [as at runtime](/guide/how-extensions-work) – and `Methods` collects every methods extension. A bare `ApiClient` carries neither, so every extended client is assignable to it.
 
 `createExtension` receives the client as it stands, carrying every extension added before it – see [Reach Earlier Extensions](/guide/custom-extensions#reach-earlier-extensions).
 
 `ApiExtension` is either a [`HandlerExtension`](/reference/handler-extension-builder), which becomes the client's call signature, or a [`MethodsExtension`](/reference/methods-extension-builder), whose entries become methods on the client. `FetchOptions` and `$Fetch` come from [ofetch](https://github.com/unjs/ofetch).
 
-`fetch` is what every extension makes its requests through. It defaults to an ofetch instance built from `defaultOptions`, and [`createClient`](/reference/create-client#supplying-your-own-fetch) takes one of your own.
+`fetch` is what every built-in extension makes its requests through. It defaults to an ofetch instance built from `defaultOptions`, and [`createClient`](/reference/create-client#supplying-your-own-fetch) takes one of your own.
 
 Calling a client that has no handler extension throws a `TypeError` – add one with `with`, such as [`ofetchBuilder()`](/extensions/ofetch).

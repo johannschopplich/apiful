@@ -6,6 +6,7 @@ import { description, github, name, ogImage, ogUrl, releases, twitterImage, vers
 export default defineConfig({
   title: name,
   description,
+  srcExclude: ['adr/**'],
   head: [
     [
       'link',
@@ -79,11 +80,16 @@ export default defineConfig({
         activeMatch: '^/guide/',
         items: [
           { text: 'Getting Started', link: '/guide/getting-started' },
-          { text: 'Using Extensions', link: '/guide/using-extensions' },
+          { text: 'How Extensions Work', link: '/guide/how-extensions-work' },
           { text: 'Custom Extensions', link: '/guide/custom-extensions' },
           { text: 'Command Line Interface', link: '/guide/cli' },
-          { text: 'Migration', link: '/guide/migration' },
-          { text: 'Migrating From openapi-typescript and openapi-fetch', link: '/guide/migrating-from-openapi-typescript' },
+          {
+            text: 'Migration',
+            items: [
+              { text: 'From an Earlier Version', link: '/guide/migration' },
+              { text: 'From openapi-typescript and openapi-fetch', link: '/guide/migrating-from-openapi-typescript' },
+            ],
+          },
         ],
       },
       {
@@ -183,11 +189,9 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       text: 'Guide',
       items: [
         { text: 'Getting Started', link: '/guide/getting-started' },
-        { text: 'Using Extensions', link: '/guide/using-extensions' },
+        { text: 'How Extensions Work', link: '/guide/how-extensions-work' },
         { text: 'Custom Extensions', link: '/guide/custom-extensions' },
         { text: 'Command Line Interface', link: '/guide/cli' },
-        { text: 'Migration', link: '/guide/migration' },
-        { text: 'Migrating From openapi-typescript and openapi-fetch', link: '/guide/migrating-from-openapi-typescript' },
       ],
     },
     {
@@ -207,6 +211,13 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       ],
     },
     { text: 'Utilities', link: '/utilities' },
+    {
+      text: 'Migration',
+      items: [
+        { text: 'From an Earlier Version', link: '/guide/migration' },
+        { text: 'From openapi-typescript and openapi-fetch', link: '/guide/migrating-from-openapi-typescript' },
+      ],
+    },
   ]
 }
 

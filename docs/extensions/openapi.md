@@ -1,9 +1,6 @@
-# `openAPIBuilder`
+# OpenAPI
 
-This [handler extension](/guide/custom-extensions#write-a-handler-extension) types your requests from an OpenAPI document: the paths your API declares, the methods each one allows, request bodies, query parameters, headers, and the response you get back. The checking is entirely compile time – the generated types add nothing to your bundle, and nothing validates a request once it leaves your code.
-
-> [!TIP]
-> Reach for this extension when the client also carries other extensions. For a client that only talks to one OpenAPI service, [`createOpenAPIClient`](/reference/create-openapi-client) is the shorter road to the same types.
+`openAPIBuilder` is a [handler extension](/guide/custom-extensions#write-a-handler-extension) that types your requests from an OpenAPI document: the paths your API declares, the methods each one allows, request bodies, query parameters, headers, and the response you get back. The checking is entirely compile time – the generated types add nothing to your bundle, and nothing validates a request once it leaves your code.
 
 ## Generate the Types
 
@@ -28,11 +25,19 @@ npx apiful generate
 The command writes `apiful.d.ts`, which adds the `petStore` service to the `apiful/schema` module. [`--check` in CI](/guide/cli#keep-generated-types-current) catches it falling behind the OpenAPI document.
 
 > [!IMPORTANT]
-> Your `tsconfig.json` has to include `apiful.d.ts`. Without it, TypeScript knows no service, and `openAPIBuilder<'petStore'>()` fails to compile.
+> Your `tsconfig.json` has to include `apiful.d.ts`. Without it, TypeScript knows no service, and `'petStore'` fails to compile as a service name.
 
 ## Create the Client
 
-Pass the service name to `openAPIBuilder`:
+For a client that only talks to one OpenAPI service, [`createOpenAPIClient`](/reference/create-openapi-client) is the shorter road to the same types. Pass it the service name:
+
+```ts
+import { createOpenAPIClient } from 'apiful/openapi'
+
+const petStore = createOpenAPIClient<'petStore'>({ baseURL: 'https://petstore3.swagger.io/api/v3' })
+```
+
+Reach for `openAPIBuilder` when the client also carries other extensions, and pass the service name to it instead:
 
 ```ts
 import { createClient, openAPIBuilder } from 'apiful'
@@ -40,6 +45,8 @@ import { createClient, openAPIBuilder } from 'apiful'
 const petStore = createClient({ baseURL: 'https://petstore3.swagger.io/api/v3' })
   .with(openAPIBuilder<'petStore'>())
 ```
+
+Everything below works the same for both clients.
 
 ## Call an Endpoint
 
@@ -175,3 +182,15 @@ catch (caught) {
 The cast is unavoidable: TypeScript types a `catch` binding as `unknown`, and no OpenAPI document can promise what a network failure throws.
 
 `data` comes from the response bodies the OpenAPI document declares for the operation's error statuses. Where a document names a status but gives it no content – as the Petstore does throughout – `data` is `undefined`, and the status code is all you get. For the error body on its own, use `PetStore<'/pet/{petId}', 'get'>['error']` – the union of the bodies of every 4xx, 5xx, and `default` response the operation declares.
+
+## Call an Undeclared Path
+
+A path the OpenAPI document does not declare fails to compile. To call one anyway, cast it to `any`:
+
+```ts
+const history = await petStore('/pet/{petId}/history' as any, {
+  path: { petId: 10 },
+})
+```
+
+Its options go unchecked, and it resolves to `any`, so annotate the result yourself.

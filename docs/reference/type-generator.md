@@ -105,7 +105,18 @@ ${generateTypeHelpers('petStore', { paths: 'PetStorePaths', components: 'PetStor
 `
 ```
 
-Helpers placed this way type `PetStore<…>` and the rest, but `createOpenAPIClient<'petStore'>` and `openAPIBuilder<'petStore'>` only accept a service the `OpenAPIServiceRepository` interface of `apiful/schema` lists – and only the entry from `generateTypes` adds to it.
+Helpers placed this way type `PetStore<…>` and the rest, but `createOpenAPIClient<'petStore'>` and `openAPIBuilder<'petStore'>` only accept a service the `OpenAPIServiceRepository` interface of `apiful/schema` lists – and only the entry from `generateTypes` adds to it. To type a client from `paths` you placed yourself, pass them as the second type argument:
+
+```ts
+import type { paths } from '#api/pet-store'
+import { createOpenAPIClient } from 'apiful/openapi'
+
+const petStore = createOpenAPIClient<never, paths>({
+  baseURL: 'https://petstore3.swagger.io/api/v3',
+})
+```
+
+`openAPIBuilder<never, paths>()` types an extended client the same way.
 
 ```ts
 interface TypeHelperIdentifiers {

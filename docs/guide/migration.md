@@ -47,7 +47,7 @@ Only relevant if you call the [type generator](/reference/type-generator) from y
 
 ### Code You Have to Change
 
-#### Node 24 and TypeScript 5.9
+#### Upgrade to Node 24 and TypeScript 5.9
 
 APIful now requires Node 24 or later, and its types require TypeScript 5.9 or later – see [Install APIful](/guide/getting-started#install-apiful).
 
@@ -80,7 +80,7 @@ The CLI imports `apiful.config.{ts,mts,js,mjs}` with Node's native `import()` in
 - `.cjs`, `.cts`, `.json`, `.jsonc`, `.json5`, `.yaml`, `.yml`, and `.toml` files are no longer read, and neither is a `.config/` directory. Move the configuration into an `apiful.config.ts` with a default export.
 - A default export that is a function is no longer called, and the CLI rejects it. Export the configuration object itself.
 - `extends` layers and `$development` or `$production` overrides are gone. Branch on `process.env` in the module instead.
-- TypeScript syntax and relative imports follow [Node's rules](/guide/cli#generate) instead.
+- TypeScript syntax and relative imports follow [Node's rules](/guide/cli#configuration-and-output) instead.
 
 #### The `openAPITS` Option Is Gone
 

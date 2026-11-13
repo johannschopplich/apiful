@@ -42,7 +42,7 @@ interface ClientFactoryOptions {
 
 ## Supplying Your Own Fetch
 
-Every extension makes its requests through `client.fetch`. By default that is an ofetch instance built from `defaultOptions`, and building it is also what applies them. Pass your own to put a test double, an instrumented fetch, or an entirely different client underneath all of them at once:
+Every built-in extension makes its requests through `client.fetch`. By default that is an ofetch instance built from `defaultOptions`, and building it is also what applies them. Pass your own to put a test double, an instrumented fetch, or an entirely different client underneath all of them at once:
 
 ```ts
 import type { $Fetch } from 'ofetch'
