@@ -64,7 +64,6 @@ export interface OpenAPIEndpoint<Paths, Path extends keyof Paths, Method extends
 
   method: Method
 
-  /** Raw operation object, carrying metadata such as tags and security requirements. */
   operation: Paths[Path][Method]
 }
 
