@@ -1,5 +1,5 @@
 [1mapiful[22m
-APIful CLI: Extensible & Type-Safe API Tooling
+A fetch client you compose – typed from your OpenAPI document, no generated client code
 
 [1mUSAGE[22m  [36mapiful generate[39m
 
