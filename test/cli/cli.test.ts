@@ -138,6 +138,16 @@ describe('apiful CLI', () => {
       expect(stderr).toContain('exports a function')
     })
 
+    it('reports a configuration file importing a missing module without a stack trace', async () => {
+      const directory = createDirectory({ 'apiful.config.ts': `import './missing'\nexport default {}\n` })
+
+      const { exitCode, stderr } = await runCli(['generate', `--root=${directory}`])
+
+      expect(exitCode).toBe(1)
+      expect(stderr).toContain('`apiful.config.ts` failed to load')
+      expect(stderr).not.toMatch(/^\s+at /m)
+    })
+
     it('skips generation for a configuration without services', async () => {
       const directory = createDirectory({ 'apiful.config.ts': `export default {}\n` })
 

@@ -31,14 +31,17 @@ export async function loadConfig(rootDir: string): Promise<Partial<ApifulConfig>
   // A unique query string bypasses the module cache, so a second run in the same process
   // reads the file as it is now.
   const configUrl = `${pathToFileURL(configPath).href}?apiful=${++importCount}`
-  const { default: config } = await import(/* @vite-ignore */ configUrl) as { default?: Partial<ApifulConfig> }
+  const configFileName = path.basename(configPath)
+  const { default: config } = await (import(/* @vite-ignore */ configUrl) as Promise<{ default?: Partial<ApifulConfig> }>).catch((error) => {
+    throw new CliError(`Configuration file \`${configFileName}\` failed to load`, { cause: error })
+  })
 
   if (!config) {
-    throw new CliError(`Configuration file \`${path.basename(configPath)}\` has no default export`)
+    throw new CliError(`Configuration file \`${configFileName}\` has no default export`)
   }
 
   if (typeof config === 'function') {
-    throw new CliError(`Configuration file \`${path.basename(configPath)}\` exports a function – export the configuration object instead`)
+    throw new CliError(`Configuration file \`${configFileName}\` exports a function – export the configuration object instead`)
   }
 
   return config
