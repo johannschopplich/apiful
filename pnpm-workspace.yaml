@@ -1,6 +1,6 @@
 minimumReleaseAgeExcludePrune: true
 minimumReleaseAgeExclude:
-  - utilful@3.5.1
+  - utilful@3.6.0
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
