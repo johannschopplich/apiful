@@ -286,7 +286,7 @@ export default defineApifulConfig({
 })
 ```
 
-A missing `schema` is a type error in a TypeScript configuration file. In a JavaScript or JSON one it surfaces when you run [`apiful generate`](/guide/cli), which names the services it skips and generates the rest.
+A missing `schema` is a type error in a TypeScript configuration file. In a JavaScript one it surfaces when you run [`apiful generate`](/guide/cli), which names the services it skips and generates the rest.
 
 The `url` option is gone from the same type. Nothing ever read it, so delete the key if you have one.
 
