@@ -6,7 +6,7 @@ Start with one of the [built-in extensions](/extensions/), or [write your own](/
 
 ## Install APIful
 
-APIful requires Node 24 or later, and its types require TypeScript 5.9 or later. `apiful generate` never loads the `typescript` package, so it runs the same whichever version is installed, and both the generated types and the ones APIful ships check against TypeScript 5.9, 6.0, and 7.0.
+The client runs wherever `fetch` does; `apiful generate` and `apiful/openapi/generate` require Node 24 or later. APIful's types require TypeScript 5.9 or later. `apiful generate` never loads the `typescript` package, so it runs the same whichever version is installed, and both the generated types and the ones APIful ships check against TypeScript 5.9, 6.0, and 7.0.
 
 ::: code-group
   ```bash [pnpm]

@@ -49,7 +49,7 @@ Only relevant if you call the [type generator](/reference/type-generator) from y
 
 #### Upgrade to Node 24 and TypeScript 5.9
 
-APIful now requires Node 24 or later, and its types require TypeScript 5.9 or later – see [Install APIful](/guide/getting-started#install-apiful).
+`apiful generate` and `apiful/openapi/generate` now require Node 24 or later, and APIful's types require TypeScript 5.9 or later – see [Install APIful](/guide/getting-started#install-apiful).
 
 #### Regenerate Your Types
 

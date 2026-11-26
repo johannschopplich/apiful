@@ -27,7 +27,7 @@ Install APIful, and remove `openapi-typescript` and `openapi-fetch` once nothing
   ```
 :::
 
-APIful requires Node 24 or later, and its types require TypeScript 5.9 or later – see [Install APIful](/guide/getting-started#install-apiful).
+`apiful generate` requires Node 24 or later, and APIful's types require TypeScript 5.9 or later – see [Install APIful](/guide/getting-started#install-apiful).
 
 APIful reads each OpenAPI document from an `apiful.config.ts` rather than the command line. Each document belongs to a service with a name, and your imports and clients refer to it by that name:
 

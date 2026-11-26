@@ -69,9 +69,6 @@
     "dist",
     "schema.*"
   ],
-  "engines": {
-    "node": ">=24"
-  },
   "scripts": {
     "build": "tsdown",
     "docs:dev": "vitepress dev docs",
